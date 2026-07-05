@@ -44,9 +44,6 @@ const playerStatus = document.getElementById('player-status');
 const currentStationName = document.getElementById('current-station-name');
 const currentStationMeta = document.getElementById('current-station-meta');
 const currentStationImg = document.getElementById('current-station-info-img');
-const playerMiniImg = document.getElementById('player-mini-img');
-const playerMiniName = document.getElementById('player-mini-name');
-const playerMiniMeta = document.getElementById('player-mini-meta');
 const addToPlaylistBtn = document.getElementById('add-to-playlist-btn');
 const resultsCount = document.getElementById('results-count');
 const mainLoader = document.getElementById('main-loader');
@@ -282,6 +279,11 @@ async function fetchStations(query = '', country = '', tag = '') {
         currentStations = await response.json();
         renderStations();
         resultsCount.textContent = `${currentStations.length} stations found`;
+        
+        // Auto-play the first station if any are found
+        if (currentStations.length > 0) {
+            playStation(0, 'search');
+        }
     } catch (error) {
         console.error('Failed to fetch stations:', error);
         stationsGrid.innerHTML = '<p class="error">Failed to load stations. Please check your internet connection.</p>';
@@ -516,10 +518,27 @@ function playStation(index, source = 'search', element = null) {
 
     // Load and Play
     audioPlayer.src = station.url_resolved || station.url;
+    let autoPlayBlocked = false;
+    
     audioPlayer.play().catch(e => {
         console.warn('Auto-play failed, user interaction required.', e);
         playerStatus.textContent = 'Click Play to start';
+        if (e.name === 'NotAllowedError') {
+            autoPlayBlocked = true;
+        }
     });
+
+    // Auto skip if not playing within 4 seconds
+    clearTimeout(playCheckTimeout);
+    playCheckTimeout = setTimeout(() => {
+        if (autoPlayBlocked) return;
+        
+        if (audioPlayer.paused || audioPlayer.readyState < 3) {
+            console.log('Station failed to play within 4 seconds. Skipping to next...');
+            playerStatus.textContent = 'Failed, skipping...';
+            playNext();
+        }
+    }, 4000);
 
     // Background Audio Support (Media Session)
     if ('mediaSession' in navigator) {
@@ -571,20 +590,6 @@ function updatePlayerUI(station) {
             currentStationImg.src = defaultLogo;
         }
     }, 2500); // 2.5 seconds timeout
-    
-    playerMiniName.textContent = name;
-    playerMiniMeta.textContent = country;
-    
-    // Set up mini image
-    let miniImgLoaded = false;
-    playerMiniImg.onload = () => { miniImgLoaded = true; };
-    playerMiniImg.onerror = () => { playerMiniImg.src = defaultMini; };
-    playerMiniImg.src = img;
-    setTimeout(() => {
-        if (!miniImgLoaded && playerMiniImg.src === img) {
-            playerMiniImg.src = defaultMini;
-        }
-    }, 2500);
     
     playerStatus.textContent = 'Loading...';
 }
