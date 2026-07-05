@@ -1,6 +1,7 @@
 // Configuration
 const API_BASE = 'https://de1.api.radio-browser.info/json';
 const DEFAULT_LIMIT = 50;
+const DEFAULT_LOGO = 'data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Ctext%20y%3D%22.9em%22%20font-size%3D%2290%22%3E%F0%9F%93%BB%3C%2Ftext%3E%3C%2Fsvg%3E';
 
 // State
 let currentStations = [];
@@ -9,6 +10,17 @@ let currentStationIndex = -1;
 let currentMode = 'Global'; // 'Global' or 'India'
 let isMuted = false;
 let lastVolume = 80;
+let isHDEQEnabled = false;
+let isDJBoostEnabled = false;
+let isVolBoostEnabled = false;
+let isSmartScanning = false;
+let smartScanTimeout = null;
+let playCheckTimeout = null;
+let queueTickerInterval = null;
+let showingNextInQueue = true;
+let lastQuery = '';
+let lastCountry = '';
+let lastTag = '';
 
 // DOM Elements
 const audioPlayer = document.getElementById('audio-player');
@@ -39,11 +51,17 @@ const addToPlaylistBtn = document.getElementById('add-to-playlist-btn');
 const resultsCount = document.getElementById('results-count');
 const mainLoader = document.getElementById('main-loader');
 const nowPlayingCard = document.querySelector('.now-playing-card');
+const refreshBtn = document.getElementById('refresh-btn');
 const themeToggle = document.getElementById('theme-toggle');
 const themeIcon = document.getElementById('theme-icon');
+const eqHdBtn = document.getElementById('eq-hd-btn');
+const djBoostBtn = document.getElementById('dj-boost-btn');
+const volBoostCheck = document.getElementById('vol-boost-check');
+const smartAutoScanBtn = document.getElementById('smart-auto-scan-btn');
+const queueTickerText = document.getElementById('queue-ticker-text');
 
 // New UI Elements
-const mainTabs = document.querySelectorAll('.tab-btn');
+const mainTabs = document.querySelectorAll('.tab-btn:not(.action-btn)');
 const views = {
     discovery: document.getElementById('discovery-view'),
     playlist: document.getElementById('playlist-view'),
@@ -118,6 +136,12 @@ function setupEventListeners() {
         }
     });
 
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', () => {
+            fetchStations(lastQuery, lastCountry, lastTag);
+        });
+    }
+
     themeToggle.addEventListener('click', toggleTheme);
 
     playPauseBtn.addEventListener('click', togglePlay);
@@ -136,6 +160,22 @@ function setupEventListeners() {
             addToPlaylist(currentStations[currentStationIndex]);
         }
     });
+
+    if (eqHdBtn) {
+        eqHdBtn.addEventListener('click', toggleHDEQ);
+    }
+    
+    if (djBoostBtn) {
+        djBoostBtn.addEventListener('click', toggleDJBoost);
+    }
+    
+    if (volBoostCheck) {
+        volBoostCheck.addEventListener('change', toggleVolBoost);
+    }
+
+    if (smartAutoScanBtn) {
+        smartAutoScanBtn.addEventListener('click', toggleSmartAutoScan);
+    }
 
     // Tab Switching
     mainTabs.forEach(tab => {
@@ -168,7 +208,7 @@ function setupEventListeners() {
 
     // Audio Player Events
     audioPlayer.onplay = () => {
-        playIcon.setAttribute('data-lucide', 'pause');
+        playPauseBtn.innerHTML = '<i data-lucide="pause" id="play-icon"></i>';
         lucide.createIcons();
         playerStatus.textContent = 'Playing';
         if (nowPlayingCard) nowPlayingCard.classList.add('playing');
@@ -180,7 +220,7 @@ function setupEventListeners() {
     };
 
     audioPlayer.onpause = () => {
-        playIcon.setAttribute('data-lucide', 'play');
+        playPauseBtn.innerHTML = '<i data-lucide="play" id="play-icon"></i>';
         lucide.createIcons();
         playerStatus.textContent = 'Paused';
         if (nowPlayingCard) nowPlayingCard.classList.remove('playing');
@@ -219,6 +259,10 @@ function setupEventListeners() {
 
 // API Functions
 async function fetchStations(query = '', country = '', tag = '') {
+    lastQuery = query;
+    lastCountry = country;
+    lastTag = tag;
+    
     mainLoader.style.display = 'flex';
     stationsGrid.innerHTML = '';
     
@@ -255,10 +299,10 @@ function renderStations() {
 
     stationsGrid.innerHTML = currentStations.map((station, index) => `
         <div class="station-item" onclick="playStation(${index}, 'search', this)">
-            <img src="${station.favicon || 'https://via.placeholder.com/60?text=FM'}" 
+            <img src="${station.favicon || DEFAULT_LOGO}" 
                  class="list-img" 
                  loading="lazy"
-                 onerror="this.onerror=null; this.src='https://via.placeholder.com/60?text=FM';">
+                 onerror="this.onerror=null; this.src='${DEFAULT_LOGO}';">
             <div class="item-info">
                 <h4>${station.name}</h4>
                 <p>${station.country} • ${station.tags ? station.tags.split(',').slice(0, 2).join(', ') : 'Radio'}</p>
@@ -278,10 +322,10 @@ function renderPlaylist() {
         ? `<div class="empty-state"><i data-lucide="list-music"></i><p>No stations saved yet</p></div>`
         : currentPlaylist.map((station, index) => `
             <div class="station-item" onclick="playStation(${index}, 'playlist', this)">
-                <img src="${station.favicon || 'https://via.placeholder.com/60?text=FM'}" 
+                <img src="${station.favicon || DEFAULT_LOGO}" 
                      class="list-img" 
                      loading="lazy"
-                     onerror="this.onerror=null; this.src='https://via.placeholder.com/60?text=FM';">
+                     onerror="this.onerror=null; this.src='${DEFAULT_LOGO}';">
                 <div class="item-info">
                     <h4>${station.name}</h4>
                     <p>${station.country || 'Custom Station'}</p>
@@ -346,7 +390,7 @@ function addCustomStation() {
         name: `${name} (${freq} MHz)`,
         url: url,
         url_resolved: url,
-        favicon: icon || 'https://via.placeholder.com/200?text=FM',
+        favicon: icon || DEFAULT_LOGO,
         country: 'Custom',
         tags: 'FM, Manual'
     };
@@ -408,7 +452,7 @@ function saveAllDiscovered() {
             name: `FM Station ${freq}`,
             url: `https://icecast.radio-browser.info/fm/${freq}`, // Placeholder URL
             url_resolved: `https://icecast.radio-browser.info/fm/${freq}`,
-            favicon: 'https://via.placeholder.com/200?text=FM',
+            favicon: DEFAULT_LOGO,
             country: 'Local Scan',
             tags: 'FM, Scanned'
         };
@@ -435,6 +479,40 @@ function playStation(index, source = 'search', element = null) {
 
     // Update Player UI
     updatePlayerUI(station);
+    
+    // Update Queue Info Text
+    if (queueTickerText) {
+        let list = source === 'search' ? currentStations : currentPlaylist;
+        if (list.length > 0) {
+            const pIdx = (index - 1 + list.length) % list.length;
+            const nIdx = (index + 1) % list.length;
+            const prevStationText = `⏮️ Prev: ${list[pIdx].name || 'Unknown'}`;
+            const nextStationText = `⏭️ Next: ${list[nIdx].name || 'Unknown'}`;
+            
+            queueTickerText.textContent = nextStationText;
+            queueTickerText.style.color = '#00FF33';
+            queueTickerText.style.textShadow = '0 0 5px #F7FF00, 1px 1px 2px #F7FF00';
+            showingNextInQueue = true;
+            
+            clearInterval(queueTickerInterval);
+            queueTickerInterval = setInterval(() => {
+                queueTickerText.style.opacity = '0';
+                setTimeout(() => {
+                    if (showingNextInQueue) {
+                        queueTickerText.textContent = prevStationText;
+                        queueTickerText.style.color = '#FF0808';
+                        queueTickerText.style.textShadow = '0 0 5px #FFFFFF, 1px 1px 2px #FFFFFF';
+                    } else {
+                        queueTickerText.textContent = nextStationText;
+                        queueTickerText.style.color = '#00FF33';
+                        queueTickerText.style.textShadow = '0 0 5px #F7FF00, 1px 1px 2px #F7FF00';
+                    }
+                    queueTickerText.style.opacity = '1';
+                    showingNextInQueue = !showingNextInQueue;
+                }, 300);
+            }, 4000);
+        }
+    }
 
     // Load and Play
     audioPlayer.src = station.url_resolved || station.url;
@@ -450,7 +528,7 @@ function playStation(index, source = 'search', element = null) {
             artist: station.country || 'FM Radio',
             album: station.tags || 'Internet Radio',
             artwork: [
-                { src: station.favicon || 'https://via.placeholder.com/200?text=FM', sizes: '200x200', type: 'image/png' }
+                { src: station.favicon || DEFAULT_LOGO, sizes: '200x200', type: 'image/png' }
             ]
         });
 
@@ -475,16 +553,38 @@ function updatePlayerUI(station) {
     const name = station.name || 'Unknown Station';
     const country = station.country || 'Global';
     const tags = station.tags ? station.tags.split(',').slice(0, 2).join(', ') : 'Radio';
-    const img = station.favicon || 'https://via.placeholder.com/200?text=Global+FM';
+    const img = station.favicon || DEFAULT_LOGO;
+
+    const defaultLogo = DEFAULT_LOGO;
+    const defaultMini = DEFAULT_LOGO;
 
     currentStationName.textContent = name;
     currentStationMeta.textContent = `${country} • ${tags}`;
+    
+    // Set up main image with timeout and error fallback
+    let mainImgLoaded = false;
+    currentStationImg.onload = () => { mainImgLoaded = true; };
+    currentStationImg.onerror = () => { currentStationImg.src = defaultLogo; };
     currentStationImg.src = img;
+    setTimeout(() => {
+        if (!mainImgLoaded && currentStationImg.src === img) {
+            currentStationImg.src = defaultLogo;
+        }
+    }, 2500); // 2.5 seconds timeout
     
     playerMiniName.textContent = name;
     playerMiniMeta.textContent = country;
+    
+    // Set up mini image
+    let miniImgLoaded = false;
+    playerMiniImg.onload = () => { miniImgLoaded = true; };
+    playerMiniImg.onerror = () => { playerMiniImg.src = defaultMini; };
     playerMiniImg.src = img;
-    playerMiniImg.onerror = () => { playerMiniImg.src = 'https://via.placeholder.com/48?text=FM'; };
+    setTimeout(() => {
+        if (!miniImgLoaded && playerMiniImg.src === img) {
+            playerMiniImg.src = defaultMini;
+        }
+    }, 2500);
     
     playerStatus.textContent = 'Loading...';
 }
@@ -498,7 +598,7 @@ function togglePlay() {
     // Double check icon (already handled by event listeners, but for responsiveness)
     setTimeout(() => {
         const iconName = audioPlayer.paused ? 'play' : 'pause';
-        playIcon.setAttribute('data-lucide', iconName);
+        playPauseBtn.innerHTML = `<i data-lucide="${iconName}" id="play-icon"></i>`;
         lucide.createIcons();
     }, 50);
 }
@@ -517,18 +617,31 @@ function playPrevious() {
 
 // Volume Controls
 function updateVolume(value) {
-    const volume = value / 100;
-    audioPlayer.volume = volume;
+    let volume = value / 100;
     volumeSlider.value = value;
     
-    if (volume === 0) {
-        volumeIcon.setAttribute('data-lucide', 'volume-x');
-    } else if (volume < 0.5) {
-        volumeIcon.setAttribute('data-lucide', 'volume-1');
+    // Apply Boosts based on active features
+    if (isVolBoostEnabled) {
+        volume = 1.0;
     } else {
-        volumeIcon.setAttribute('data-lucide', 'volume-2');
+        if (isHDEQEnabled) volume = Math.min(1.0, volume * 1.25);
+        if (isDJBoostEnabled) volume = Math.min(1.0, volume * 1.5);
     }
-    lucide.createIcons();
+    
+    audioPlayer.volume = volume;
+    
+    let volIconName = 'volume-2';
+    if (volume === 0) {
+        volIconName = 'volume-x';
+    } else if (volume < 0.5) {
+        volIconName = 'volume-1';
+    }
+    
+    const muteBtnElement = document.getElementById('mute-btn');
+    if (muteBtnElement) {
+        muteBtnElement.innerHTML = `<i data-lucide="${volIconName}" id="volume-icon"></i>`;
+        lucide.createIcons();
+    }
     
     if (volume > 0) {
         lastVolume = value;
@@ -606,6 +719,125 @@ function setTheme(theme) {
 function loadTheme() {
     const savedTheme = localStorage.getItem('fm_theme') || 'dark';
     setTheme(savedTheme);
+}
+
+// HD/EQ Logic
+function toggleHDEQ() {
+    isHDEQEnabled = !isHDEQEnabled;
+    if (isHDEQEnabled) {
+        eqHdBtn.style.backgroundColor = 'var(--primary-color)';
+        eqHdBtn.style.color = '#fff';
+        playerStatus.textContent = 'HD/EQ Active';
+    } else {
+        eqHdBtn.style.backgroundColor = 'transparent';
+        eqHdBtn.style.color = 'inherit';
+        playerStatus.textContent = 'HD/EQ Disabled';
+    }
+    
+    updateVolume(volumeSlider.value);
+    
+    setTimeout(() => {
+        if (audioPlayer.paused) playerStatus.textContent = 'Paused';
+        else playerStatus.textContent = 'Playing';
+    }, 2000);
+}
+
+// DJ Boost Logic
+function toggleDJBoost() {
+    isDJBoostEnabled = !isDJBoostEnabled;
+    if (isDJBoostEnabled) {
+        djBoostBtn.style.backgroundColor = 'var(--accent-color)';
+        djBoostBtn.style.color = '#fff';
+        playerStatus.textContent = 'DJ/Beats Boost ON';
+    } else {
+        djBoostBtn.style.backgroundColor = 'transparent';
+        djBoostBtn.style.color = 'inherit';
+        playerStatus.textContent = 'DJ/Beats Boost OFF';
+    }
+    
+    updateVolume(volumeSlider.value);
+    
+    setTimeout(() => {
+        if (audioPlayer.paused) playerStatus.textContent = 'Paused';
+        else playerStatus.textContent = 'Playing';
+    }, 2000);
+}
+
+// Vol Boost Logic
+function toggleVolBoost(e) {
+    isVolBoostEnabled = e.target.checked;
+    if (isVolBoostEnabled) {
+        playerStatus.textContent = 'Volume Max Boost ON';
+    } else {
+        playerStatus.textContent = 'Volume Boost OFF';
+    }
+    
+    updateVolume(volumeSlider.value);
+    
+    setTimeout(() => {
+        if (audioPlayer.paused) playerStatus.textContent = 'Paused';
+        else playerStatus.textContent = 'Playing';
+    }, 2000);
+}
+
+// Smart Auto Scan Logic
+function toggleSmartAutoScan() {
+    isSmartScanning = !isSmartScanning;
+    
+    if (isSmartScanning) {
+        smartAutoScanBtn.innerHTML = '<i data-lucide="stop-circle"></i><span>Stop Scan</span>';
+        smartAutoScanBtn.style.backgroundColor = 'var(--accent-color)';
+        smartAutoScanBtn.style.color = '#fff';
+        lucide.createIcons();
+        
+        if (currentStations.length === 0) {
+            alert('No stations in the current list to scan!');
+            toggleSmartAutoScan();
+            return;
+        }
+        
+        if (currentStationIndex < 0) currentStationIndex = 0;
+        
+        playerStatus.textContent = 'Auto Scan Started...';
+        playSmartScanStation();
+    } else {
+        smartAutoScanBtn.innerHTML = '<i data-lucide="zap"></i><span>Auto Scan</span>';
+        smartAutoScanBtn.style.backgroundColor = '';
+        smartAutoScanBtn.style.color = 'var(--primary-color)';
+        lucide.createIcons();
+        
+        clearTimeout(smartScanTimeout);
+        clearTimeout(playCheckTimeout);
+        playerStatus.textContent = 'Auto Scan Stopped';
+    }
+}
+
+function playSmartScanStation() {
+    if (!isSmartScanning) return;
+    
+    playStation(currentStationIndex, 'search');
+    
+    clearTimeout(playCheckTimeout);
+    clearTimeout(smartScanTimeout);
+    
+    // Check if station plays within 4 seconds
+    playCheckTimeout = setTimeout(() => {
+        if (!isSmartScanning) return;
+        
+        if (audioPlayer.paused || audioPlayer.readyState < 3) {
+            // Failed or taking too long
+            playerStatus.textContent = 'Skipping unresponsive station...';
+            currentStationIndex = (currentStationIndex + 1) % currentStations.length;
+            playSmartScanStation();
+        } else {
+            // Playing successfully, schedule next change in 6 seconds (Total 10s)
+            smartScanTimeout = setTimeout(() => {
+                if (!isSmartScanning) return;
+                currentStationIndex = (currentStationIndex + 1) % currentStations.length;
+                playSmartScanStation();
+            }, 6000);
+        }
+    }, 4000);
 }
 
 // Start App
