@@ -94,7 +94,6 @@ function init() {
     // Auto-adjusting helper for mobile
     window.addEventListener('resize', () => {
         lucide.createIcons();
-        applyAutoMarquee();
     });
 }
 
@@ -338,7 +337,6 @@ function renderStations() {
         </div>
     `).join('');
     lucide.createIcons();
-    applyAutoMarquee();
 }
 
 function renderPlaylist() {
@@ -366,7 +364,6 @@ function renderPlaylist() {
     if (fullPlaylistList) fullPlaylistList.innerHTML = playlistHTML;
     
     lucide.createIcons();
-    applyAutoMarquee();
 }
 
 function switchView(target) {
@@ -515,8 +512,8 @@ function playStation(index, source = 'search', element = null) {
             const nextStationText = `⏭️ Next: ${list[nIdx].name || 'Unknown'}`;
             
             queueTickerText.textContent = nextStationText;
-            queueTickerText.style.color = '#00AAFF';
-            queueTickerText.style.textShadow = '0 0 5px yellow, 1px 1px 2px yellow';
+            queueTickerText.style.color = '#00FF33';
+            queueTickerText.style.textShadow = '0 0 5px #F7FF00, 1px 1px 2px #F7FF00';
             showingNextInQueue = true;
             
             clearInterval(queueTickerInterval);
@@ -529,8 +526,8 @@ function playStation(index, source = 'search', element = null) {
                         queueTickerText.style.textShadow = '0 0 5px #000000, 1px 1px 2px #000000';
                     } else {
                         queueTickerText.textContent = nextStationText;
-                        queueTickerText.style.color = '#00AAFF';
-                        queueTickerText.style.textShadow = '0 0 5px yellow, 1px 1px 2px yellow';
+                        queueTickerText.style.color = '#00FF33';
+                        queueTickerText.style.textShadow = '0 0 5px #F7FF00, 1px 1px 2px #F7FF00';
                     }
                     queueTickerText.style.opacity = '1';
                     showingNextInQueue = !showingNextInQueue;
@@ -615,7 +612,6 @@ function updatePlayerUI(station) {
     }, 2500); // 2.5 seconds timeout
     
     playerStatus.textContent = 'Loading...';
-    applyAutoMarquee();
 }
 
 function togglePlay() {
@@ -867,33 +863,6 @@ function playSmartScanStation() {
             }, 6000);
         }
     }, 4000);
-}
-
-function applyAutoMarquee() {
-    setTimeout(() => {
-        const textSelectors = [
-            '#current-station-name',
-            '#current-station-meta',
-            '.item-info h4',
-            '.item-info p',
-            '.player-text h4',
-            '.player-text p'
-        ];
-        
-        textSelectors.forEach(selector => {
-            const elements = document.querySelectorAll(selector);
-            elements.forEach(el => {
-                el.style.animation = 'none';
-                el.classList.remove('marquee-active');
-                
-                if (el.scrollWidth > el.clientWidth) {
-                    const overflow = el.scrollWidth - el.clientWidth;
-                    el.style.setProperty('--scroll-amount', `-${overflow + 20}px`);
-                    el.classList.add('marquee-active');
-                }
-            });
-        });
-    }, 50);
 }
 
 // Start App
