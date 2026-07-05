@@ -451,6 +451,8 @@ header {
 
 .station-details {
     flex: 1;
+    overflow: hidden;
+    min-width: 0;
 }
 
 .status-badge {
@@ -474,12 +476,18 @@ h1 {
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 #current-station-meta {
     color: var(--text-secondary);
     font-size: 1.1rem;
     margin-bottom: 2rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .secondary-btn {
@@ -564,6 +572,8 @@ h1 {
 
 .item-info {
     flex: 1;
+    overflow: hidden;
+    min-width: 0;
 }
 
 .item-info h4 {
@@ -577,6 +587,9 @@ h1 {
 .item-info p {
     font-size: 0.85rem;
     color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .item-actions {
@@ -1122,4 +1135,14 @@ input[type="range"]::-webkit-slider-thumb {
     .scanner-layout {
         grid-template-columns: 1fr;
     }
+}
+
+.marquee-active {
+    text-overflow: clip !important;
+    animation: scrollMarquee 5s linear infinite alternate !important;
+}
+
+@keyframes scrollMarquee {
+    0%, 15% { transform: translateX(0); }
+    85%, 100% { transform: translateX(var(--scroll-amount, 0px)); }
 }

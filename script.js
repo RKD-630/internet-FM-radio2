@@ -7,7 +7,7 @@ const DEFAULT_LOGO = 'data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%
 let currentStations = [];
 let currentPlaylist = JSON.parse(localStorage.getItem('fm_playlist')) || [];
 let currentStationIndex = -1;
-let currentMode = 'Global'; // 'Global' or 'India'
+let currentMode = 'India'; // 'Global' or 'India'
 let isMuted = false;
 let lastVolume = 80;
 let isHDEQEnabled = false;
@@ -31,7 +31,8 @@ const scanBtn = document.getElementById('scan-btn');
 const scanIndiaBtn = document.getElementById('scan-india-btn');
 const categoriesBar = document.getElementById('categories-bar');
 const modeLabel = document.getElementById('current-mode-label');
-const indiaOnlyCats = document.querySelector('.india-only-cats');
+const indiaCats = document.getElementById('india-cats');
+const globalCats = document.getElementById('global-cats');
 const catButtons = document.querySelectorAll('.cat-btn');
 const playPauseBtn = document.getElementById('play-pause-btn');
 const playIcon = document.getElementById('play-icon');
@@ -85,7 +86,7 @@ let discoveredFrequencies = [];
 // Initialize
 function init() {
     setupEventListeners();
-    fetchStations(); // Initial load (Trending)
+    fetchStations('', 'India'); // Initial load (Trending)
     renderPlaylist();
     updateVolume(80);
     loadTheme();
@@ -93,6 +94,7 @@ function init() {
     // Auto-adjusting helper for mobile
     window.addEventListener('resize', () => {
         lucide.createIcons();
+        applyAutoMarquee();
     });
 }
 
@@ -101,7 +103,8 @@ function setupEventListeners() {
         const query = searchInput.value.trim();
         currentMode = 'Global';
         modeLabel.textContent = 'Global Categories:';
-        indiaOnlyCats.style.display = 'none';
+        indiaCats.style.display = 'none';
+        globalCats.style.display = 'flex';
         fetchStations(query);
         updateActiveCat('All');
         switchView('discovery');
@@ -111,7 +114,8 @@ function setupEventListeners() {
         searchInput.value = '';
         currentMode = 'India';
         modeLabel.textContent = 'India Categories:';
-        indiaOnlyCats.style.display = 'contents';
+        globalCats.style.display = 'none';
+        indiaCats.style.display = 'flex';
         fetchStations('', 'India');
         updateActiveCat('All');
         switchView('discovery');
@@ -169,6 +173,10 @@ function setupEventListeners() {
         if (currentStationIndex >= 0 && currentStations[currentStationIndex]) {
             addToPlaylist(currentStations[currentStationIndex]);
         }
+    });
+
+    currentStationImg.addEventListener('click', () => {
+        addToPlaylistBtn.click();
     });
 
     if (eqHdBtn) {
@@ -330,6 +338,7 @@ function renderStations() {
         </div>
     `).join('');
     lucide.createIcons();
+    applyAutoMarquee();
 }
 
 function renderPlaylist() {
@@ -357,6 +366,7 @@ function renderPlaylist() {
     if (fullPlaylistList) fullPlaylistList.innerHTML = playlistHTML;
     
     lucide.createIcons();
+    applyAutoMarquee();
 }
 
 function switchView(target) {
@@ -505,8 +515,8 @@ function playStation(index, source = 'search', element = null) {
             const nextStationText = `⏭️ Next: ${list[nIdx].name || 'Unknown'}`;
             
             queueTickerText.textContent = nextStationText;
-            queueTickerText.style.color = '#00FF33';
-            queueTickerText.style.textShadow = '0 0 5px #F7FF00, 1px 1px 2px #F7FF00';
+            queueTickerText.style.color = '#00AAFF';
+            queueTickerText.style.textShadow = '0 0 5px yellow, 1px 1px 2px yellow';
             showingNextInQueue = true;
             
             clearInterval(queueTickerInterval);
@@ -519,8 +529,8 @@ function playStation(index, source = 'search', element = null) {
                         queueTickerText.style.textShadow = '0 0 5px #000000, 1px 1px 2px #000000';
                     } else {
                         queueTickerText.textContent = nextStationText;
-                        queueTickerText.style.color = '#00FF33';
-                        queueTickerText.style.textShadow = '0 0 5px #F7FF00, 1px 1px 2px #F7FF00';
+                        queueTickerText.style.color = '#00AAFF';
+                        queueTickerText.style.textShadow = '0 0 5px yellow, 1px 1px 2px yellow';
                     }
                     queueTickerText.style.opacity = '1';
                     showingNextInQueue = !showingNextInQueue;
@@ -605,6 +615,7 @@ function updatePlayerUI(station) {
     }, 2500); // 2.5 seconds timeout
     
     playerStatus.textContent = 'Loading...';
+    applyAutoMarquee();
 }
 
 function togglePlay() {
@@ -856,6 +867,33 @@ function playSmartScanStation() {
             }, 6000);
         }
     }, 4000);
+}
+
+function applyAutoMarquee() {
+    setTimeout(() => {
+        const textSelectors = [
+            '#current-station-name',
+            '#current-station-meta',
+            '.item-info h4',
+            '.item-info p',
+            '.player-text h4',
+            '.player-text p'
+        ];
+        
+        textSelectors.forEach(selector => {
+            const elements = document.querySelectorAll(selector);
+            elements.forEach(el => {
+                el.style.animation = 'none';
+                el.classList.remove('marquee-active');
+                
+                if (el.scrollWidth > el.clientWidth) {
+                    const overflow = el.scrollWidth - el.clientWidth;
+                    el.style.setProperty('--scroll-amount', `-${overflow + 20}px`);
+                    el.classList.add('marquee-active');
+                }
+            });
+        });
+    }, 50);
 }
 
 // Start App

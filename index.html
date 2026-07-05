@@ -72,24 +72,25 @@
 
         <div id="discovery-view">
             <nav class="category-nav glass" id="categories-bar">
-                <span class="nav-label" id="current-mode-label">Global Categories:</span>
-                <div class="cat-scroll">
+                <span class="nav-label" id="current-mode-label">India Categories:</span>
+                <div class="cat-scroll" id="india-cats" style="display: flex;">
                     <button class="cat-btn active" data-tag="">All</button>
                     <button class="cat-btn" data-tag="hindi">Hindi</button>
                     <button class="cat-btn" data-tag="news">News</button>
-                    <button class="cat-btn" data-tag="bhakti">Bhakti</button>
                     <button class="cat-btn" data-tag="bangla">Bangla</button>
                     <button class="cat-btn" data-tag="music">Music</button>
-                    <button class="cat-btn" data-tag="art,culture">Art & Culture</button>
-                    <button class="cat-btn" data-tag="regional">Regional</button>
-                    <button class="cat-btn" data-tag="education">Educational</button>
+                    <button class="cat-btn" data-tag="dj remix">DJ - Remix</button>
+                    <button class="cat-btn" data-tag="tamil">Tamil</button>
+                    <button class="cat-btn" data-tag="kannad">Kannad</button>
+                </div>
+                <div class="cat-scroll" id="global-cats" style="display: none;">
+                    <button class="cat-btn active" data-tag="">All</button>
+                    <button class="cat-btn" data-tag="bbc news">BBC NEWS</button>
+                    <button class="cat-btn" data-tag="us news">US NEWS</button>
+                    <button class="cat-btn" data-tag="world news">World News</button>
+                    <button class="cat-btn" data-tag="dance music">Dance Music</button>
+                    <button class="cat-btn" data-tag="educational">Educational</button>
                     <button class="cat-btn" data-tag="sports">Sports</button>
-                    <div class="india-only-cats" style="display: none; gap: 0.5rem; display: contents;">
-                        <button class="cat-btn" data-tag="dj">DJ Radio</button>
-                        <button class="cat-btn" data-tag="hd">HD Radio</button>
-                        <button class="cat-btn" data-tag="ghazal">Ghazal</button>
-                        <button class="cat-btn" data-tag="tamil">Tamil</button>
-                    </div>
                 </div>
             </nav>
 
@@ -97,7 +98,7 @@
             <section class="hero-section">
                 <div class="now-playing-card glass">
                     <div class="station-visual">
-                        <img id="current-station-info-img" src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Ctext%20y%3D%22.9em%22%20font-size%3D%2290%22%3E%F0%9F%93%BB%3C%2Ftext%3E%3C%2Fsvg%3E" alt="Station Logo">
+                        <img id="current-station-info-img" src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Ctext%20y%3D%22.9em%22%20font-size%3D%2290%22%3E%F0%9F%93%BB%3C%2Ftext%3E%3C%2Fsvg%3E" alt="Station Logo" style="cursor: pointer;" title="Add to Playlist">
                     </div>
                     <div class="station-details">
                         <span class="status-badge" id="player-status">Ready</span>
@@ -108,7 +109,7 @@
                                 <i data-lucide="plus-circle"></i>
                             </button>
                         </div>
-                        <div id="queue-text-info" style="display: flex; align-items: center; justify-content: flex-start; font-size: 1rem; color: var(--text-secondary); max-width: 100%; overflow: hidden; margin-top: 15px; width: 100%;">
+                        <div id="queue-text-info" style="display: flex; align-items: center; justify-content: center; font-size: 1rem; color: var(--text-secondary); max-width: 100%; overflow: hidden; margin-top: 15px; width: 100%;">
                             <span id="queue-ticker-text" style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden; font-weight: bold; transition: opacity 0.3s ease; letter-spacing: 0.5px;">--</span>
                         </div>
                     </div>
@@ -133,7 +134,7 @@
                     </div>
                 </div>
 
-                <div class="volume-controls glass" style="margin: 1.5rem auto 0 auto; padding: 1rem 1.5rem; border-radius: 16px; display: flex; align-items: center; gap: 1rem; width: 100%; max-width: 900px; flex-wrap: nowrap; overflow-x: auto; white-space: nowrap;">
+                <div class="volume-controls glass" style="margin: 1.5rem auto 0 auto; padding: 1rem 1.5rem; border-radius: 16px; display: flex; align-items: center; gap: 1rem; width: 100%; max-width: 900px; flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; position: relative; z-index: 1001;">
                     <button id="mute-btn" class="control-btn" title="Mute/Unmute">
                         <i data-lucide="volume-2" id="volume-icon"></i>
                     </button>
