@@ -39,6 +39,9 @@
                 </button>
             </div>
             <div style="display: flex; gap: 0.5rem;">
+                <button id="fullscreen-btn" class="icon-btn theme-btn" title="Toggle Fullscreen">
+                    <i data-lucide="maximize" id="fullscreen-icon"></i>
+                </button>
                 <button id="refresh-btn" class="icon-btn theme-btn" title="Reload Stations">
                     <i data-lucide="refresh-cw"></i>
                 </button>
@@ -105,6 +108,9 @@
                                 <i data-lucide="plus-circle"></i>
                             </button>
                         </div>
+                        <div id="queue-text-info" style="display: flex; align-items: center; justify-content: flex-start; font-size: 1rem; color: var(--text-secondary); max-width: 100%; overflow: hidden; margin-top: 15px; width: 100%;">
+                            <span id="queue-ticker-text" style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden; font-weight: bold; transition: opacity 0.3s ease; letter-spacing: 0.5px;">--</span>
+                        </div>
                     </div>
 
                     <div class="banner-right">
@@ -127,7 +133,7 @@
                     </div>
                 </div>
 
-                <div class="volume-controls glass" style="margin-top: 1.5rem; padding: 1rem 1.5rem; border-radius: 16px; display: flex; align-items: center; gap: 1rem; width: 100%; max-width: 900px; flex-wrap: wrap;">
+                <div class="volume-controls glass" style="margin: 1.5rem auto 0 auto; padding: 1rem 1.5rem; border-radius: 16px; display: flex; align-items: center; gap: 1rem; width: 100%; max-width: 900px; flex-wrap: nowrap; overflow-x: auto; white-space: nowrap;">
                     <button id="mute-btn" class="control-btn" title="Mute/Unmute">
                         <i data-lucide="volume-2" id="volume-icon"></i>
                     </button>
@@ -140,9 +146,6 @@
                     <button id="dj-boost-btn" class="control-btn" title="Toggle DJ / Beats Boost" style="border: 1px solid var(--accent-color); border-radius: 8px; padding: 4px 12px; font-size: 0.85rem; font-weight: bold; background: transparent; color: inherit;">
                         DJ Boost
                     </button>
-                    <div id="queue-text-info" style="display: flex; align-items: center; justify-content: center; font-size: 1rem; color: var(--text-secondary); max-width: 400px; overflow: hidden; flex-grow: 1; min-width: 250px;">
-                        <span id="queue-ticker-text" style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden; font-weight: bold; transition: opacity 0.3s ease; letter-spacing: 0.5px;">--</span>
-                    </div>
                     <div class="vol-boost-check" style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: bold;">
                         <input type="checkbox" id="vol-boost-check" style="width: 16px; height: 16px; accent-color: var(--primary-color);">
                         <label for="vol-boost-check" style="cursor: pointer;">Vol Boost</label>

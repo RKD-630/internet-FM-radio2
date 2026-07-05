@@ -48,6 +48,7 @@ const addToPlaylistBtn = document.getElementById('add-to-playlist-btn');
 const resultsCount = document.getElementById('results-count');
 const mainLoader = document.getElementById('main-loader');
 const nowPlayingCard = document.querySelector('.now-playing-card');
+const fullscreenBtn = document.getElementById('fullscreen-btn');
 const refreshBtn = document.getElementById('refresh-btn');
 const themeToggle = document.getElementById('theme-toggle');
 const themeIcon = document.getElementById('theme-icon');
@@ -136,6 +137,18 @@ function setupEventListeners() {
     if (refreshBtn) {
         refreshBtn.addEventListener('click', () => {
             fetchStations(lastQuery, lastCountry, lastTag);
+        });
+    }
+
+    if (fullscreenBtn) {
+        fullscreenBtn.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => console.log(err));
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
         });
     }
 
@@ -502,8 +515,8 @@ function playStation(index, source = 'search', element = null) {
                 setTimeout(() => {
                     if (showingNextInQueue) {
                         queueTickerText.textContent = prevStationText;
-                        queueTickerText.style.color = '#FF0808';
-                        queueTickerText.style.textShadow = '0 0 5px #FFFFFF, 1px 1px 2px #FFFFFF';
+                        queueTickerText.style.color = '#FFFF00';
+                        queueTickerText.style.textShadow = '0 0 5px #000000, 1px 1px 2px #000000';
                     } else {
                         queueTickerText.textContent = nextStationText;
                         queueTickerText.style.color = '#00FF33';
@@ -533,7 +546,7 @@ function playStation(index, source = 'search', element = null) {
     playCheckTimeout = setTimeout(() => {
         if (autoPlayBlocked) return;
         
-        if (audioPlayer.paused || audioPlayer.readyState < 3) {
+        if (audioPlayer.paused || audioPlayer.readyState === 0 || audioPlayer.error) {
             console.log('Station failed to play within 4 seconds. Skipping to next...');
             playerStatus.textContent = 'Failed, skipping...';
             playNext();
