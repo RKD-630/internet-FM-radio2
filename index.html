@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <title>Global FM | Internet Radio Discovery</title>
     <meta name="description" content="Discover and stream world FM internet stations with Global FM. Rapidly scan, play, and save your favorite stations.">
     
@@ -101,10 +100,13 @@
                     <div class="station-visual">
                         <img id="current-station-info-img" src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Ctext%20y%3D%22.9em%22%20font-size%3D%2290%22%3E%F0%9F%93%BB%3C%2Ftext%3E%3C%2Fsvg%3E" alt="Station Logo" style="cursor: pointer;" title="Add to Playlist">
                     </div>
-                    <div class="station-details">
+                    <div class="station-details" style="min-width: 0;">
                         <span class="status-badge" id="player-status">Ready</span>
                         <h1 id="current-station-name" style="font-size: 3.5rem; line-height: 1.1; margin: 10px 0; padding-bottom: 10px;">Choose a Station</h1>
                         <p id="current-station-meta">Select a station to start broadcasting</p>
+                        
+
+
                         <div class="station-actions" style="display: none;">
                             <button id="add-to-playlist-btn" class="secondary-btn">
                                 <i data-lucide="plus-circle"></i>
@@ -161,7 +163,6 @@
                         <h2>Discovered Stations</h2>
                         <div style="display: flex; align-items: center; gap: 0.5rem;">
                             <span id="results-count">0 stations found</span>
-                            <button class="icon-btn" onclick="toggleBothSections(this)" title="Toggle Stations & Playlist" style="border: 1px solid var(--glass-border); background: var(--glass-bg);"><i data-lucide="chevron-down"></i></button>
                         </div>
                     </div>
                     <div id="stations-grid" class="stations-list">
@@ -180,29 +181,11 @@
                         <!-- Playlist items will be injected here -->
                     </div>
                 </aside>
+
             </section>
         </div>
 
-        <script>
-            function toggleBothSections(btn) {
-                const stations = document.getElementById('stations-grid');
-                const playlist = document.getElementById('quick-playlist-list');
-                
-                if (stations.style.display === 'none') {
-                    stations.style.display = 'flex';
-                    playlist.style.display = 'flex';
-                    btn.innerHTML = '<i data-lucide="chevron-down"></i>';
-                } else {
-                    stations.style.display = 'none';
-                    playlist.style.display = 'none';
-                    btn.innerHTML = '<i data-lucide="chevron-up"></i>';
-                }
-                
-                if (window.lucide) {
-                    lucide.createIcons();
-                }
-            }
-        </script>
+
 
         <div id="playlist-view" style="display: none;">
             <section class="content-grid-single">

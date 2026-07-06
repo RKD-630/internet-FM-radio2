@@ -91,6 +91,10 @@ function init() {
     updateVolume(80);
     loadTheme();
     
+    makeScrollable('.stations-list');
+    makeScrollable('.cat-scroll');
+    makeScrollable('.category-nav');
+    
     // Auto-adjusting helper for mobile
     window.addEventListener('resize', () => {
         lucide.createIcons();
@@ -322,13 +326,26 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
 }
 
 // Render Functions
+function removeFromPlaylistByUuid(uuid) {
+    const index = currentPlaylist.findIndex(s => s.stationuuid === uuid);
+    if (index >= 0) {
+        removeFromPlaylist(index);
+    }
+}
+
 function renderStations() {
     if (currentStations.length === 0) {
         stationsGrid.innerHTML = '<div class="empty-state"><p>No stations found for this search.</p></div>';
         return;
     }
 
-    stationsGrid.innerHTML = currentStations.map((station, index) => `
+    stationsGrid.innerHTML = currentStations.map((station, index) => {
+        const isInPlaylist = currentPlaylist.some(s => s.stationuuid === station.stationuuid);
+        const icon = isInPlaylist ? 'check-circle' : 'plus-circle';
+        const action = isInPlaylist ? `removeFromPlaylistByUuid('${station.stationuuid}')` : `addToPlaylistById('${station.stationuuid}')`;
+        const iconStyle = isInPlaylist ? 'color: var(--primary-color);' : '';
+        
+        return `
         <div class="station-item" onclick="playStation(${index}, 'search', this)">
             <img src="${station.favicon || DEFAULT_LOGO}" 
                  class="list-img" 
@@ -339,12 +356,13 @@ function renderStations() {
                 <p>${station.country} • ${station.tags ? station.tags.split(',').slice(0, 2).join(', ') : 'Radio'}</p>
             </div>
             <div class="item-actions">
-                <button class="icon-btn" onclick="event.stopPropagation(); addToPlaylistById('${station.stationuuid}')">
-                    <i data-lucide="plus-circle"></i>
+                <button class="icon-btn" style="${iconStyle}" onclick="event.stopPropagation(); ${action}">
+                    <i data-lucide="${icon}"></i>
                 </button>
             </div>
         </div>
-    `).join('');
+        `;
+    }).join('');
     lucide.createIcons();
 }
 
@@ -557,19 +575,17 @@ function playStation(index, source = 'search', element = null) {
         }
     });
 
-    // Check if buffering takes too long (10 seconds instead of 4)
+    // Auto skip if not playing within 4 seconds
     clearTimeout(playCheckTimeout);
     playCheckTimeout = setTimeout(() => {
         if (autoPlayBlocked) return;
         
         if (audioPlayer.paused || audioPlayer.readyState === 0 || audioPlayer.error) {
-            console.log('Station taking a long time to buffer or failed.');
-            if (!audioPlayer.error) {
-                playerStatus.textContent = 'Stream Offline or Slow';
-            }
-            // We removed playNext() here so it doesn't run away from the user's choice
+            console.log('Station failed to play within 4 seconds. Skipping to next...');
+            playerStatus.textContent = 'Failed, skipping...';
+            playNext();
         }
-    }, 10000);
+    }, 4000);
 
     // Background Audio Support (Media Session)
     if ('mediaSession' in navigator) {
@@ -609,14 +625,6 @@ function updatePlayerUI(station) {
     const defaultMini = DEFAULT_LOGO;
 
     currentStationName.textContent = name;
-    
-    // Smooth scrolling marquee right to left if name > 11 chars without spaces
-    if (name.length > 11 && !name.includes(' ')) {
-        currentStationName.classList.add('marquee-name');
-    } else {
-        currentStationName.classList.remove('marquee-name');
-    }
-    
     currentStationMeta.textContent = `${country} • ${tags}`;
     
     // Set up main image with timeout and error fallback
@@ -718,6 +726,7 @@ function addToPlaylist(station) {
     currentPlaylist.push(station);
     savePlaylist();
     renderPlaylist();
+    renderStations();
 }
 
 function addToPlaylistById(uuid) {
@@ -731,6 +740,7 @@ function removeFromPlaylist(index) {
     currentPlaylist.splice(index, 1);
     savePlaylist();
     renderPlaylist();
+    renderStations();
 }
 
 function savePlaylist() {
@@ -888,6 +898,49 @@ function playSmartScanStation() {
             }, 6000);
         }
     }, 4000);
+}
+
+// Drag to Scroll Logic
+function makeScrollable(selector) {
+    const elements = document.querySelectorAll(selector);
+    elements.forEach(slider => {
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+        let isDragging = false;
+
+        slider.addEventListener('mousedown', (e) => {
+            isDown = true;
+            isDragging = false;
+            slider.classList.add('active');
+            startX = e.pageX - slider.offsetLeft;
+            scrollLeft = slider.scrollLeft;
+        });
+        slider.addEventListener('mouseleave', () => {
+            isDown = false;
+            slider.classList.remove('active');
+        });
+        slider.addEventListener('mouseup', () => {
+            isDown = false;
+            slider.classList.remove('active');
+        });
+        slider.addEventListener('mousemove', (e) => {
+            if(!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - slider.offsetLeft;
+            const walk = (x - startX) * 2; // scroll speed
+            if (Math.abs(walk) > 5) {
+                isDragging = true;
+            }
+            slider.scrollLeft = scrollLeft - walk;
+        });
+        slider.addEventListener('click', (e) => {
+            if (isDragging) {
+                e.stopPropagation();
+                e.preventDefault();
+            }
+        }, true);
+    });
 }
 
 // Start App
