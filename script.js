@@ -53,6 +53,8 @@ const fullscreenBtn = document.getElementById('fullscreen-btn');
 const refreshBtn = document.getElementById('refresh-btn');
 const themeToggle = document.getElementById('theme-toggle');
 const themeIcon = document.getElementById('theme-icon');
+const minimizeBtn = document.getElementById('minimize-btn');
+const minimizeIcon = document.getElementById('minimize-icon');
 const eqHdBtn = document.getElementById('eq-hd-btn');
 const djBoostBtn = document.getElementById('dj-boost-btn');
 const volBoostCheck = document.getElementById('vol-boost-check');
@@ -160,6 +162,9 @@ function setupEventListeners() {
     }
 
     themeToggle.addEventListener('click', toggleTheme);
+    if (minimizeBtn) {
+        minimizeBtn.addEventListener('click', toggleMinimize);
+    }
 
     playPauseBtn.addEventListener('click', togglePlay);
     
@@ -779,6 +784,19 @@ function setTheme(theme) {
 function loadTheme() {
     const savedTheme = localStorage.getItem('fm_theme') || 'dark';
     setTheme(savedTheme);
+}
+
+// Minimize Function
+function toggleMinimize() {
+    const body = document.body;
+    body.classList.toggle('mini-player-mode');
+    
+    if (body.classList.contains('mini-player-mode')) {
+        minimizeIcon.setAttribute('data-lucide', 'maximize-2');
+    } else {
+        minimizeIcon.setAttribute('data-lucide', 'minimize-2');
+    }
+    lucide.createIcons();
 }
 
 // HD/EQ Logic

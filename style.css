@@ -1177,3 +1177,36 @@ input[type="range"]::-webkit-slider-thumb {
     width: 16px;
     height: 16px;
 }
+
+/* Discovered Stations Grid */
+#stations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+    flex-wrap: wrap; /* In case it falls back */
+    cursor: default;
+}
+
+#stations-grid:active {
+    cursor: default;
+}
+
+#stations-grid .station-item {
+    max-width: 100%;
+    width: auto;
+}
+
+/* Mini Player Mode */
+body.mini-player-mode #main-tabs,
+body.mini-player-mode #categories-bar,
+body.mini-player-mode #discovery-grid,
+body.mini-player-mode #playlist-view,
+body.mini-player-mode #scanner-view {
+    display: none !important;
+}
+
+body.mini-player-mode #discovery-view {
+    display: block !important;
+}
+
