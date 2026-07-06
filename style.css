@@ -736,6 +736,14 @@ h1 {
         text-align: center;
     }
 
+    .banner-right {
+        margin: 0 auto;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+
     .station-visual {
         width: 150px;
         height: 150px;

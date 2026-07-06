@@ -275,7 +275,7 @@ function setupEventListeners() {
 }
 
 // API Functions
-async function fetchStations(query = '', country = '', tag = '') {
+async function fetchStations(query = '', country = '', tag = '', autoPlay = false) {
     lastQuery = query;
     lastCountry = country;
     lastTag = tag;
@@ -300,9 +300,18 @@ async function fetchStations(query = '', country = '', tag = '') {
         renderStations();
         resultsCount.textContent = `${currentStations.length} stations found`;
         
-        // Auto-play the first station if any are found
         if (currentStations.length > 0) {
-            playStation(0, 'search');
+            if (autoPlay) {
+                playStation(0, 'search');
+            } else {
+                // Just set up the UI for the first station without loading the stream yet
+                currentStationIndex = 0;
+                updatePlayerUI(currentStations[0]);
+                playerStatus.textContent = 'Ready (Paused)';
+                // Remove playing class just in case
+                if (nowPlayingCard) nowPlayingCard.classList.remove('playing');
+                audioPlayer.removeAttribute('src'); 
+            }
         }
     } catch (error) {
         console.error('Failed to fetch stations:', error);
@@ -616,7 +625,13 @@ function updatePlayerUI(station) {
 
 function togglePlay() {
     if (audioPlayer.paused) {
-        audioPlayer.play();
+        if (!audioPlayer.getAttribute('src') && currentStations.length > 0) {
+            playStation(currentStationIndex >= 0 ? currentStationIndex : 0, 'search');
+        } else if (!audioPlayer.getAttribute('src') && currentPlaylist.length > 0) {
+            playStation(currentStationIndex >= 0 ? currentStationIndex : 0, 'playlist');
+        } else {
+            audioPlayer.play();
+        }
     } else {
         audioPlayer.pause();
     }

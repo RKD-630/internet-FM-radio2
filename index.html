@@ -110,7 +110,7 @@
                             </button>
                         </div>
                         <div id="queue-text-info" style="display: flex; align-items: center; justify-content: center; font-size: 1rem; color: var(--text-secondary); max-width: 100%; overflow: hidden; margin-top: 15px; width: 100%;">
-                            <span id="queue-ticker-text" style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden; font-weight: bold; transition: opacity 0.3s ease; letter-spacing: 0.5px;">--</span>
+                            <span id="queue-ticker-text" style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden; font-weight: bold; transition: opacity 0.3s ease; letter-spacing: 0.5px; text-shadow: 2px 2px 4px #000000, 0px 0px 10px #000000;">--</span>
                         </div>
                     </div>
 
@@ -158,7 +158,10 @@
                 <div class="stations-column">
                     <div class="section-header">
                         <h2>Discovered Stations</h2>
-                        <span id="results-count">0 stations found</span>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span id="results-count">0 stations found</span>
+                            <button class="icon-btn" onclick="toggleBothSections(this)" title="Toggle Stations & Playlist" style="border: 1px solid var(--glass-border); background: var(--glass-bg);"><i data-lucide="chevron-down"></i></button>
+                        </div>
                     </div>
                     <div id="stations-grid" class="stations-list">
                         <!-- Stations will be injected here -->
@@ -178,6 +181,27 @@
                 </aside>
             </section>
         </div>
+
+        <script>
+            function toggleBothSections(btn) {
+                const stations = document.getElementById('stations-grid');
+                const playlist = document.getElementById('quick-playlist-list');
+                
+                if (stations.style.display === 'none') {
+                    stations.style.display = 'flex';
+                    playlist.style.display = 'flex';
+                    btn.innerHTML = '<i data-lucide="chevron-down"></i>';
+                } else {
+                    stations.style.display = 'none';
+                    playlist.style.display = 'none';
+                    btn.innerHTML = '<i data-lucide="chevron-up"></i>';
+                }
+                
+                if (window.lucide) {
+                    lucide.createIcons();
+                }
+            }
+        </script>
 
         <div id="playlist-view" style="display: none;">
             <section class="content-grid-single">
