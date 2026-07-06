@@ -451,6 +451,7 @@ header {
 
 .station-details {
     flex: 1;
+    overflow: hidden;
 }
 
 .status-badge {
@@ -474,6 +475,17 @@ h1 {
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
+}
+
+.marquee-name {
+    display: inline-block;
+    white-space: nowrap;
+    animation: marquee-slow 15s linear infinite;
+}
+
+@keyframes marquee-slow {
+    0% { transform: translateX(50vw); }
+    100% { transform: translateX(-100%); }
 }
 
 #current-station-meta {

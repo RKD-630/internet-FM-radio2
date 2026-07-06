@@ -557,17 +557,19 @@ function playStation(index, source = 'search', element = null) {
         }
     });
 
-    // Auto skip if not playing within 4 seconds
+    // Check if buffering takes too long (10 seconds instead of 4)
     clearTimeout(playCheckTimeout);
     playCheckTimeout = setTimeout(() => {
         if (autoPlayBlocked) return;
         
         if (audioPlayer.paused || audioPlayer.readyState === 0 || audioPlayer.error) {
-            console.log('Station failed to play within 4 seconds. Skipping to next...');
-            playerStatus.textContent = 'Failed, skipping...';
-            playNext();
+            console.log('Station taking a long time to buffer or failed.');
+            if (!audioPlayer.error) {
+                playerStatus.textContent = 'Stream Offline or Slow';
+            }
+            // We removed playNext() here so it doesn't run away from the user's choice
         }
-    }, 4000);
+    }, 10000);
 
     // Background Audio Support (Media Session)
     if ('mediaSession' in navigator) {
@@ -607,6 +609,14 @@ function updatePlayerUI(station) {
     const defaultMini = DEFAULT_LOGO;
 
     currentStationName.textContent = name;
+    
+    // Smooth scrolling marquee right to left if name > 11 chars without spaces
+    if (name.length > 11 && !name.includes(' ')) {
+        currentStationName.classList.add('marquee-name');
+    } else {
+        currentStationName.classList.remove('marquee-name');
+    }
+    
     currentStationMeta.textContent = `${country} • ${tags}`;
     
     // Set up main image with timeout and error fallback
