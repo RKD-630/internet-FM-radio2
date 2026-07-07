@@ -1211,8 +1211,15 @@ body.mini-player-mode #discovery-view {
 }
 
 @media (max-width: 768px) {
-    body.mini-player-mode header {
+    body.mini-player-mode header .logo,
+    body.mini-player-mode header .search-bar {
         display: none !important;
     }
+    body.mini-player-mode header {
+        justify-content: flex-end;
+        margin-bottom: 0.5rem;
+    }
+    body.mini-player-mode .app-container {
+        padding-bottom: 6rem !important; /* Reduces the massive scrollable blank space */
+    }
 }
-
