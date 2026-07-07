@@ -1210,3 +1210,9 @@ body.mini-player-mode #discovery-view {
     display: block !important;
 }
 
+@media (max-width: 768px) {
+    body.mini-player-mode header {
+        display: none !important;
+    }
+}
+
