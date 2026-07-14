@@ -14,9 +14,12 @@
     <!-- Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6366f1">
+    
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body data-theme="light">
     <div class="app-container">
         <!-- Background elements for visual flair -->
         <div class="blob blob-1"></div>
@@ -48,9 +51,6 @@
                 <button id="theme-toggle" class="icon-btn theme-btn" title="Toggle Light/Dark Mode">
                     <i data-lucide="moon" id="theme-icon"></i>
                 </button>
-                <button id="minimize-btn" class="icon-btn theme-btn" title="Toggle Mini Player Mode">
-                    <i data-lucide="minimize-2" id="minimize-icon"></i>
-                </button>
             </div>
         </header>
 
@@ -79,20 +79,23 @@
                 <div class="cat-scroll" id="india-cats" style="display: flex;">
                     <button class="cat-btn active" data-tag="">All</button>
                     <button class="cat-btn" data-tag="hindi">Hindi</button>
-                    <button class="cat-btn" data-tag="bhakti">Bhakti</button>
-                    <button class="cat-btn" data-tag="bollywood">Bollywood</button>
-                    <button class="cat-btn" data-tag="classic">Classic</button>
+                    <button class="cat-btn" data-tag="" data-state="Uttar Pradesh">UP Wale</button>
                     <button class="cat-btn" data-tag="news">News</button>
-                    <button class="cat-btn" data-tag="bangla">Bangla</button>
+                    <button class="cat-btn" data-tag="" data-state="West Bengal">Bangla</button>
                     <button class="cat-btn" data-tag="music">Music</button>
                     <button class="cat-btn" data-tag="dj remix">DJ - Remix</button>
+                    <button class="cat-btn" data-language="punjabi">Punjabi</button>
+                    <button class="cat-btn" data-tag="" data-state="Bihar">Bihar</button>
+                    <button class="cat-btn" data-language="bhojpuri">Bhojpuri</button>
                     <button class="cat-btn" data-tag="tamil">Tamil</button>
                     <button class="cat-btn" data-tag="kannad">Kannad</button>
                 </div>
                 <div class="cat-scroll" id="global-cats" style="display: none;">
                     <button class="cat-btn active" data-tag="">All</button>
-                    <button class="cat-btn" data-tag="bbc news">BBC NEWS</button>
-                    <button class="cat-btn" data-tag="us news">US NEWS</button>
+                    <button class="cat-btn" data-tag="news" data-country="Australia">Australia NEWS</button>
+                    <button class="cat-btn" data-tag="news" data-country="The Russian Federation">Russian NEWS</button>
+                    <button class="cat-btn" data-query="bbc">BBC NEWS</button>
+                    <button class="cat-btn" data-tag="news" data-country="United States">US NEWS</button>
                     <button class="cat-btn" data-tag="world news">World News</button>
                     <button class="cat-btn" data-tag="dance music">Dance Music</button>
                     <button class="cat-btn" data-tag="educational">Educational</button>
@@ -106,13 +109,10 @@
                     <div class="station-visual">
                         <img id="current-station-info-img" src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Ctext%20y%3D%22.9em%22%20font-size%3D%2290%22%3E%F0%9F%93%BB%3C%2Ftext%3E%3C%2Fsvg%3E" alt="Station Logo" style="cursor: pointer;" title="Add to Playlist">
                     </div>
-                    <div class="station-details" style="min-width: 0;">
+                    <div class="station-details">
                         <span class="status-badge" id="player-status">Ready</span>
                         <h1 id="current-station-name" style="font-size: 3.5rem; line-height: 1.1; margin: 10px 0; padding-bottom: 10px;">Choose a Station</h1>
                         <p id="current-station-meta">Select a station to start broadcasting</p>
-                        
-
-
                         <div class="station-actions" style="display: none;">
                             <button id="add-to-playlist-btn" class="secondary-btn">
                                 <i data-lucide="plus-circle"></i>
@@ -143,22 +143,27 @@
                     </div>
                 </div>
 
-                <div class="volume-controls glass" style="margin: 1.5rem auto 0 auto; padding: 1rem 1.5rem; border-radius: 16px; display: flex; align-items: center; gap: 1rem; width: 100%; max-width: 900px; flex-wrap: nowrap; overflow-x: auto; white-space: nowrap;">
-                    <button id="mute-btn" class="control-btn" title="Mute/Unmute">
-                        <i data-lucide="volume-2" id="volume-icon"></i>
-                    </button>
-                    <div class="volume-slider-container" style="flex-grow: 1; display: flex; align-items: center; min-width: 100px;">
-                        <input type="range" id="volume-slider" min="0" max="100" value="80" style="width: 100%;">
+                <div class="volume-controls glass" style="margin: 1.5rem auto 0 auto; padding: 1rem 1.5rem; border-radius: 16px; display: flex; flex-direction: column; gap: 1rem; width: 100%; max-width: 900px;">
+                    <div class="eq-controls-row" style="display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+                        <button id="eq-hd-btn" class="control-btn" title="Toggle HD Quality & Bass/Treble" style="border: 1px solid var(--primary-color); border-radius: 8px; padding: 4px 12px; font-size: 0.85rem; font-weight: bold; background: transparent; color: inherit;">
+                            HD / EQ
+                        </button>
+                        <button id="dj-boost-btn" class="control-btn" title="Toggle DJ / Beats Boost" style="border: 1px solid var(--accent-color); border-radius: 8px; padding: 4px 12px; font-size: 0.85rem; font-weight: bold; background: transparent; color: inherit;">
+                            DJ Boost
+                        </button>
+                        <div class="vol-boost-check" style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: bold;">
+                            <input type="checkbox" id="vol-boost-check" style="width: 16px; height: 16px; accent-color: var(--primary-color);">
+                            <label for="vol-boost-check" style="cursor: pointer;">Vol Boost</label>
+                        </div>
                     </div>
-                    <button id="eq-hd-btn" class="control-btn" title="Toggle HD Quality & Bass/Treble" style="border: 1px solid var(--primary-color); border-radius: 8px; padding: 4px 12px; font-size: 0.85rem; font-weight: bold; background: transparent; color: inherit;">
-                        HD / EQ
-                    </button>
-                    <button id="dj-boost-btn" class="control-btn" title="Toggle DJ / Beats Boost" style="border: 1px solid var(--accent-color); border-radius: 8px; padding: 4px 12px; font-size: 0.85rem; font-weight: bold; background: transparent; color: inherit;">
-                        DJ Boost
-                    </button>
-                    <div class="vol-boost-check" style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: bold;">
-                        <input type="checkbox" id="vol-boost-check" style="width: 16px; height: 16px; accent-color: var(--primary-color);">
-                        <label for="vol-boost-check" style="cursor: pointer;">Vol Boost</label>
+                    
+                    <div class="volume-slider-row" style="display: flex; align-items: center; gap: 1rem; width: 100%;">
+                        <button id="mute-btn" class="control-btn" title="Mute/Unmute">
+                            <i data-lucide="volume-2" id="volume-icon"></i>
+                        </button>
+                        <div class="volume-slider-container" style="flex-grow: 1; display: flex; align-items: center; min-width: 100px;">
+                            <input type="range" id="volume-slider" min="0" max="100" value="80" style="width: 100%;">
+                        </div>
                     </div>
                 </div>
             </section>
@@ -167,9 +172,7 @@
                 <div class="stations-column">
                     <div class="section-header">
                         <h2>Discovered Stations</h2>
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <span id="results-count">0 stations found</span>
-                        </div>
+                        <span id="results-count">0 stations found</span>
                     </div>
                     <div id="stations-grid" class="stations-list">
                         <!-- Stations will be injected here -->
@@ -187,11 +190,8 @@
                         <!-- Playlist items will be injected here -->
                     </div>
                 </aside>
-
             </section>
         </div>
-
-
 
         <div id="playlist-view" style="display: none;">
             <section class="content-grid-single">
@@ -280,13 +280,24 @@
         </footer >
 
         <!-- Hidden Audio Element -->
-        <audio id="audio-player" autoplay preload="auto"></audio>
+        <audio id="audio-player" autoplay preload="auto" playsinline x-webkit-airplay="allow"></audio>
     </div>
 
     <script src="script.js"></script>
     <script>
         // Initialize Lucide icons
         lucide.createIcons();
+
+        // Register Service Worker for background play / PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(registration => {
+                    console.log('SW registered: ', registration);
+                }).catch(registrationError => {
+                    console.log('SW registration failed: ', registrationError);
+                });
+            });
+        }
     </script>
 </body>
 </html>

@@ -21,6 +21,8 @@ let showingNextInQueue = true;
 let lastQuery = '';
 let lastCountry = '';
 let lastTag = '';
+let lastState = '';
+let lastLanguage = '';
 
 // DOM Elements
 const audioPlayer = document.getElementById('audio-player');
@@ -53,8 +55,6 @@ const fullscreenBtn = document.getElementById('fullscreen-btn');
 const refreshBtn = document.getElementById('refresh-btn');
 const themeToggle = document.getElementById('theme-toggle');
 const themeIcon = document.getElementById('theme-icon');
-const minimizeBtn = document.getElementById('minimize-btn');
-const minimizeIcon = document.getElementById('minimize-icon');
 const eqHdBtn = document.getElementById('eq-hd-btn');
 const djBoostBtn = document.getElementById('dj-boost-btn');
 const volBoostCheck = document.getElementById('vol-boost-check');
@@ -93,10 +93,6 @@ function init() {
     updateVolume(80);
     loadTheme();
     
-    makeScrollable('.stations-list');
-    makeScrollable('.cat-scroll');
-    makeScrollable('.category-nav');
-    
     // Auto-adjusting helper for mobile
     window.addEventListener('resize', () => {
         lucide.createIcons();
@@ -128,9 +124,13 @@ function setupEventListeners() {
 
     catButtons.forEach(btn => {
         btn.addEventListener('click', () => {
-            const tag = btn.dataset.tag;
-            const country = currentMode === 'India' ? 'India' : '';
-            fetchStations('', country, tag);
+            const tag = btn.dataset.tag || '';
+            const state = btn.dataset.state || '';
+            const language = btn.dataset.language || '';
+            const query = btn.dataset.query || '';
+            const overrideCountry = btn.dataset.country;
+            const country = overrideCountry !== undefined ? overrideCountry : (currentMode === 'India' ? 'India' : '');
+            fetchStations(query, country, tag, state, language);
             updateActiveCat(btn.textContent);
             switchView('discovery');
         });
@@ -145,7 +145,7 @@ function setupEventListeners() {
 
     if (refreshBtn) {
         refreshBtn.addEventListener('click', () => {
-            fetchStations(lastQuery, lastCountry, lastTag);
+            fetchStations(lastQuery, lastCountry, lastTag, lastState, lastLanguage);
         });
     }
 
@@ -162,9 +162,6 @@ function setupEventListeners() {
     }
 
     themeToggle.addEventListener('click', toggleTheme);
-    if (minimizeBtn) {
-        minimizeBtn.addEventListener('click', toggleMinimize);
-    }
 
     playPauseBtn.addEventListener('click', togglePlay);
     
@@ -284,10 +281,12 @@ function setupEventListeners() {
 }
 
 // API Functions
-async function fetchStations(query = '', country = '', tag = '', autoPlay = false) {
+async function fetchStations(query = '', country = '', tag = '', state = '', language = '') {
     lastQuery = query;
     lastCountry = country;
     lastTag = tag;
+    lastState = state;
+    lastLanguage = language;
     
     mainLoader.style.display = 'flex';
     stationsGrid.innerHTML = '';
@@ -299,6 +298,12 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
     if (tag) {
         url += `&tag=${encodeURIComponent(tag)}`;
     }
+    if (state) {
+        url += `&state=${encodeURIComponent(state)}`;
+    }
+    if (language) {
+        url += `&language=${encodeURIComponent(language)}`;
+    }
     if (query) {
         url += `&name=${encodeURIComponent(query)}`;
     }
@@ -309,18 +314,9 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
         renderStations();
         resultsCount.textContent = `${currentStations.length} stations found`;
         
+        // Auto-play the first station if any are found
         if (currentStations.length > 0) {
-            if (autoPlay) {
-                playStation(0, 'search');
-            } else {
-                // Just set up the UI for the first station without loading the stream yet
-                currentStationIndex = 0;
-                updatePlayerUI(currentStations[0]);
-                playerStatus.textContent = 'Ready (Paused)';
-                // Remove playing class just in case
-                if (nowPlayingCard) nowPlayingCard.classList.remove('playing');
-                audioPlayer.removeAttribute('src'); 
-            }
+            playStation(0, 'search');
         }
     } catch (error) {
         console.error('Failed to fetch stations:', error);
@@ -331,26 +327,13 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
 }
 
 // Render Functions
-function removeFromPlaylistByUuid(uuid) {
-    const index = currentPlaylist.findIndex(s => s.stationuuid === uuid);
-    if (index >= 0) {
-        removeFromPlaylist(index);
-    }
-}
-
 function renderStations() {
     if (currentStations.length === 0) {
         stationsGrid.innerHTML = '<div class="empty-state"><p>No stations found for this search.</p></div>';
         return;
     }
 
-    stationsGrid.innerHTML = currentStations.map((station, index) => {
-        const isInPlaylist = currentPlaylist.some(s => s.stationuuid === station.stationuuid);
-        const icon = isInPlaylist ? 'check-circle' : 'plus-circle';
-        const action = isInPlaylist ? `removeFromPlaylistByUuid('${station.stationuuid}')` : `addToPlaylistById('${station.stationuuid}')`;
-        const iconStyle = isInPlaylist ? 'color: var(--primary-color);' : '';
-        
-        return `
+    stationsGrid.innerHTML = currentStations.map((station, index) => `
         <div class="station-item" onclick="playStation(${index}, 'search', this)">
             <img src="${station.favicon || DEFAULT_LOGO}" 
                  class="list-img" 
@@ -361,13 +344,12 @@ function renderStations() {
                 <p>${station.country} • ${station.tags ? station.tags.split(',').slice(0, 2).join(', ') : 'Radio'}</p>
             </div>
             <div class="item-actions">
-                <button class="icon-btn" style="${iconStyle}" onclick="event.stopPropagation(); ${action}">
-                    <i data-lucide="${icon}"></i>
+                <button class="icon-btn" onclick="event.stopPropagation(); addToPlaylistById('${station.stationuuid}')">
+                    <i data-lucide="plus-circle"></i>
                 </button>
             </div>
         </div>
-        `;
-    }).join('');
+    `).join('');
     lucide.createIcons();
 }
 
@@ -630,6 +612,11 @@ function updatePlayerUI(station) {
     const defaultMini = DEFAULT_LOGO;
 
     currentStationName.textContent = name;
+    if (name.length > 35) {
+        currentStationName.classList.add('marquee-text');
+    } else {
+        currentStationName.classList.remove('marquee-text');
+    }
     currentStationMeta.textContent = `${country} • ${tags}`;
     
     // Set up main image with timeout and error fallback
@@ -648,13 +635,7 @@ function updatePlayerUI(station) {
 
 function togglePlay() {
     if (audioPlayer.paused) {
-        if (!audioPlayer.getAttribute('src') && currentStations.length > 0) {
-            playStation(currentStationIndex >= 0 ? currentStationIndex : 0, 'search');
-        } else if (!audioPlayer.getAttribute('src') && currentPlaylist.length > 0) {
-            playStation(currentStationIndex >= 0 ? currentStationIndex : 0, 'playlist');
-        } else {
-            audioPlayer.play();
-        }
+        audioPlayer.play();
     } else {
         audioPlayer.pause();
     }
@@ -731,7 +712,6 @@ function addToPlaylist(station) {
     currentPlaylist.push(station);
     savePlaylist();
     renderPlaylist();
-    renderStations();
 }
 
 function addToPlaylistById(uuid) {
@@ -745,7 +725,6 @@ function removeFromPlaylist(index) {
     currentPlaylist.splice(index, 1);
     savePlaylist();
     renderPlaylist();
-    renderStations();
 }
 
 function savePlaylist() {
@@ -782,21 +761,8 @@ function setTheme(theme) {
 }
 
 function loadTheme() {
-    const savedTheme = localStorage.getItem('fm_theme') || 'dark';
+    const savedTheme = localStorage.getItem('fm_theme') || 'light';
     setTheme(savedTheme);
-}
-
-// Minimize Function
-function toggleMinimize() {
-    const body = document.body;
-    body.classList.toggle('mini-player-mode');
-    
-    if (body.classList.contains('mini-player-mode')) {
-        minimizeIcon.setAttribute('data-lucide', 'maximize-2');
-    } else {
-        minimizeIcon.setAttribute('data-lucide', 'minimize-2');
-    }
-    lucide.createIcons();
 }
 
 // HD/EQ Logic
@@ -916,49 +882,6 @@ function playSmartScanStation() {
             }, 6000);
         }
     }, 4000);
-}
-
-// Drag to Scroll Logic
-function makeScrollable(selector) {
-    const elements = document.querySelectorAll(selector);
-    elements.forEach(slider => {
-        let isDown = false;
-        let startX;
-        let scrollLeft;
-        let isDragging = false;
-
-        slider.addEventListener('mousedown', (e) => {
-            isDown = true;
-            isDragging = false;
-            slider.classList.add('active');
-            startX = e.pageX - slider.offsetLeft;
-            scrollLeft = slider.scrollLeft;
-        });
-        slider.addEventListener('mouseleave', () => {
-            isDown = false;
-            slider.classList.remove('active');
-        });
-        slider.addEventListener('mouseup', () => {
-            isDown = false;
-            slider.classList.remove('active');
-        });
-        slider.addEventListener('mousemove', (e) => {
-            if(!isDown) return;
-            e.preventDefault();
-            const x = e.pageX - slider.offsetLeft;
-            const walk = (x - startX) * 2; // scroll speed
-            if (Math.abs(walk) > 5) {
-                isDragging = true;
-            }
-            slider.scrollLeft = scrollLeft - walk;
-        });
-        slider.addEventListener('click', (e) => {
-            if (isDragging) {
-                e.stopPropagation();
-                e.preventDefault();
-            }
-        }, true);
-    });
 }
 
 // Start App
