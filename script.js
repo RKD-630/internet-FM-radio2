@@ -109,14 +109,14 @@ function setupEventListeners() {
         searchInput.value = '';
         if (currentMode === 'India') {
             currentMode = 'Global';
-            modeToggleText.textContent = 'Mode: Global';
+            modeToggleText.textContent = 'Global';
             modeToggleBtn.classList.remove('india-active');
             indiaCats.style.display = 'none';
             globalCats.style.display = 'flex';
             fetchStations('', '');
         } else {
             currentMode = 'India';
-            modeToggleText.textContent = 'Mode: India';
+            modeToggleText.textContent = 'India';
             modeToggleBtn.classList.add('india-active');
             globalCats.style.display = 'none';
             indiaCats.style.display = 'flex';
@@ -276,6 +276,7 @@ function setupEventListeners() {
     };
 
     audioPlayer.onplaying = () => {
+        clearTimeout(playCheckTimeout); // Clear any buffering timeouts
         if (nowPlayingCard) nowPlayingCard.classList.add('playing');
         playerStatus.textContent = 'Playing';
     };
@@ -292,15 +293,29 @@ function setupEventListeners() {
 
     audioPlayer.onwaiting = () => {
         playerStatus.textContent = 'Buffering...';
+        
+        // If it gets stuck buffering mid-stream for more than 5 seconds, skip to next
+        clearTimeout(playCheckTimeout);
+        playCheckTimeout = setTimeout(() => {
+            console.log('Stream stalled mid-playback. Auto-skipping to next...');
+            playerStatus.textContent = 'Stream Stalled - Auto-skipping...';
+            playNext();
+        }, 5000);
     };
 
     audioPlayer.onerror = (e) => {
         console.error('Audio playback error:', e);
-        playerStatus.textContent = 'Error Loading Stream';
+        playerStatus.textContent = 'Error Loading Stream - Skipping...';
         playerStatus.style.color = 'var(--accent-color)';
         setTimeout(() => {
             playerStatus.style.color = 'var(--primary-color)';
-        }, 3000);
+            playNext(); // Automatically skip on error
+        }, 1500);
+    };
+    
+    audioPlayer.onended = () => {
+        console.log('Stream ended. Skipping to next...');
+        playNext();
     };
 
     audioPlayer.onloadstart = () => {
