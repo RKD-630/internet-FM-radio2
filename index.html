@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <title>Global FM | Internet Radio Discovery</title>
     <meta name="description" content="Discover and stream world FM internet stations with Global FM. Rapidly scan, play, and save your favorite stations.">
     
@@ -14,12 +15,9 @@
     <!-- Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#6366f1">
-    
     <link rel="stylesheet" href="style.css">
 </head>
-<body data-theme="light">
+<body>
     <div class="app-container">
         <!-- Background elements for visual flair -->
         <div class="blob blob-1"></div>
@@ -31,14 +29,10 @@
                 <span>Global FM</span>
             </div>
             <div class="search-bar">
-                <input type="text" id="station-search" placeholder="Scan world stations (country, name, tag)...">
-                <button id="scan-btn" class="primary-btn" title="Scan World Stations">
-                    <i data-lucide="globe"></i>
-                    <span>Global</span>
-                </button>
-                <button id="scan-india-btn" class="india-btn" title="Scan Indian Stations">
-                    <i data-lucide="map-pin"></i>
-                    <span>India</span>
+                <input type="text" id="station-search" placeholder="Search stations (country, name, tag)...">
+                <button id="search-btn" class="primary-btn" title="Search">
+                    <i data-lucide="search"></i>
+                    <span>Search</span>
                 </button>
             </div>
             <div style="display: flex; gap: 0.5rem;">
@@ -73,37 +67,50 @@
             </button>
         </nav>
 
+        <main>
         <div id="discovery-view">
             <nav class="category-nav glass" id="categories-bar">
-                <span class="nav-label" id="current-mode-label">India Categories:</span>
+                <button id="mode-toggle-btn" class="india-active" style="margin-right:1rem; flex-shrink:0; border-radius: 20px; padding: 0.5rem 1rem;">
+                    <i data-lucide="repeat"></i>
+                    <span id="mode-toggle-text">Mode: India</span>
+                </button>
                 <div class="cat-scroll" id="india-cats" style="display: flex;">
                     <button class="cat-btn active" data-tag="">All</button>
                     <button class="cat-btn" data-tag="hindi">Hindi</button>
-                    <button class="cat-btn" data-tag="" data-state="Uttar Pradesh">UP Wale</button>
+                    <button class="cat-btn" data-tag="bhakti">Bhakti</button>
                     <button class="cat-btn" data-tag="news">News</button>
-                    <button class="cat-btn" data-tag="" data-state="West Bengal">Bangla</button>
+                    <button class="cat-btn" data-tag="bangla">Bangla</button>
+                    <button class="cat-btn" data-tag="punjabi">Punjabi</button>
+                    <button class="cat-btn" data-tag="bihar">Bihar</button>
+                    <button class="cat-btn" data-tag="bhojpuri">Bhojpuri</button>
                     <button class="cat-btn" data-tag="music">Music</button>
                     <button class="cat-btn" data-tag="dj remix">DJ - Remix</button>
-                    <button class="cat-btn" data-language="punjabi">Punjabi</button>
-                    <button class="cat-btn" data-tag="" data-state="Bihar">Bihar</button>
-                    <button class="cat-btn" data-language="bhojpuri">Bhojpuri</button>
                     <button class="cat-btn" data-tag="tamil">Tamil</button>
                     <button class="cat-btn" data-tag="kannad">Kannad</button>
                 </div>
                 <div class="cat-scroll" id="global-cats" style="display: none;">
                     <button class="cat-btn active" data-tag="">All</button>
-                    <button class="cat-btn" data-tag="news" data-country="Australia">Australia NEWS</button>
-                    <button class="cat-btn" data-tag="news" data-country="The Russian Federation">Russian NEWS</button>
-                    <button class="cat-btn" data-query="bbc">BBC NEWS</button>
-                    <button class="cat-btn" data-tag="news" data-country="United States">US NEWS</button>
+                    <button class="cat-btn" data-tag="australia news">Australia NEWS</button>
+                    <button class="cat-btn" data-tag="euro news">Euro NEWS</button>
+                    <button class="cat-btn" data-tag="bbc news">BBC NEWS</button>
+                    <button class="cat-btn" data-tag="us news">US NEWS</button>
                     <button class="cat-btn" data-tag="world news">World News</button>
+                    <button class="cat-btn" data-tag="russian news">Russian NEWS</button>
+                    <button class="cat-btn" data-tag="france news">France NEWS</button>
+                    <button class="cat-btn" data-tag="pop">Pop</button>
+                    <button class="cat-btn" data-tag="rock">Rock</button>
+                    <button class="cat-btn" data-tag="jazz">Jazz</button>
+                    <button class="cat-btn" data-tag="classical">Classical</button>
+                    <button class="cat-btn" data-tag="hip hop">Hip Hop</button>
+                    <button class="cat-btn" data-tag="electronic">Electronic</button>
+                    <button class="cat-btn" data-tag="ambient">Ambient</button>
                     <button class="cat-btn" data-tag="dance music">Dance Music</button>
                     <button class="cat-btn" data-tag="educational">Educational</button>
                     <button class="cat-btn" data-tag="sports">Sports</button>
+                    <button class="cat-btn" data-tag="talk">Talk</button>
                 </div>
             </nav>
 
-        <main>
             <section class="hero-section">
                 <div class="now-playing-card glass">
                     <div class="station-visual">
@@ -144,7 +151,7 @@
                 </div>
 
                 <div class="volume-controls glass" style="margin: 1.5rem auto 0 auto; padding: 1rem 1.5rem; border-radius: 16px; display: flex; flex-direction: column; gap: 1rem; width: 100%; max-width: 900px;">
-                    <div class="eq-controls-row" style="display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
                         <button id="eq-hd-btn" class="control-btn" title="Toggle HD Quality & Bass/Treble" style="border: 1px solid var(--primary-color); border-radius: 8px; padding: 4px 12px; font-size: 0.85rem; font-weight: bold; background: transparent; color: inherit;">
                             HD / EQ
                         </button>
@@ -156,12 +163,11 @@
                             <label for="vol-boost-check" style="cursor: pointer;">Vol Boost</label>
                         </div>
                     </div>
-                    
-                    <div class="volume-slider-row" style="display: flex; align-items: center; gap: 1rem; width: 100%;">
+                    <div style="display: flex; align-items: center; gap: 1rem; width: 100%;">
                         <button id="mute-btn" class="control-btn" title="Mute/Unmute">
                             <i data-lucide="volume-2" id="volume-icon"></i>
                         </button>
-                        <div class="volume-slider-container" style="flex-grow: 1; display: flex; align-items: center; min-width: 100px;">
+                        <div class="volume-slider-container" style="flex-grow: 1; display: flex; align-items: center;">
                             <input type="range" id="volume-slider" min="0" max="100" value="80" style="width: 100%;">
                         </div>
                     </div>
@@ -172,7 +178,10 @@
                 <div class="stations-column">
                     <div class="section-header">
                         <h2>Discovered Stations</h2>
-                        <span id="results-count">0 stations found</span>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span id="results-count">0 stations found</span>
+                            <button class="icon-btn" onclick="toggleBothSections(this)" title="Toggle Stations & Playlist" style="border: 1px solid var(--glass-border); background: var(--glass-bg);"><i data-lucide="chevron-down"></i></button>
+                        </div>
                     </div>
                     <div id="stations-grid" class="stations-list">
                         <!-- Stations will be injected here -->
@@ -192,6 +201,27 @@
                 </aside>
             </section>
         </div>
+
+        <script>
+            function toggleBothSections(btn) {
+                const stations = document.getElementById('stations-grid');
+                const playlist = document.getElementById('quick-playlist-list');
+                
+                if (stations.style.display === 'none') {
+                    stations.style.display = 'flex';
+                    playlist.style.display = 'flex';
+                    btn.innerHTML = '<i data-lucide="chevron-down"></i>';
+                } else {
+                    stations.style.display = 'none';
+                    playlist.style.display = 'none';
+                    btn.innerHTML = '<i data-lucide="chevron-up"></i>';
+                }
+                
+                if (window.lucide) {
+                    lucide.createIcons();
+                }
+            }
+        </script>
 
         <div id="playlist-view" style="display: none;">
             <section class="content-grid-single">
@@ -280,24 +310,13 @@
         </footer >
 
         <!-- Hidden Audio Element -->
-        <audio id="audio-player" autoplay preload="auto" playsinline x-webkit-airplay="allow"></audio>
+        <audio id="audio-player" autoplay preload="auto"></audio>
     </div>
 
     <script src="script.js"></script>
     <script>
         // Initialize Lucide icons
         lucide.createIcons();
-
-        // Register Service Worker for background play / PWA
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').then(registration => {
-                    console.log('SW registered: ', registration);
-                }).catch(registrationError => {
-                    console.log('SW registration failed: ', registrationError);
-                });
-            });
-        }
     </script>
 </body>
 </html>

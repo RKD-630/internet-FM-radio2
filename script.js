@@ -21,18 +21,16 @@ let showingNextInQueue = true;
 let lastQuery = '';
 let lastCountry = '';
 let lastTag = '';
-let lastState = '';
-let lastLanguage = '';
 
 // DOM Elements
 const audioPlayer = document.getElementById('audio-player');
 const stationsGrid = document.getElementById('stations-grid');
 const playlistList = document.getElementById('playlist-list');
 const searchInput = document.getElementById('station-search');
-const scanBtn = document.getElementById('scan-btn');
-const scanIndiaBtn = document.getElementById('scan-india-btn');
+const searchBtn = document.getElementById('search-btn');
+const modeToggleBtn = document.getElementById('mode-toggle-btn');
+const modeToggleText = document.getElementById('mode-toggle-text');
 const categoriesBar = document.getElementById('categories-bar');
-const modeLabel = document.getElementById('current-mode-label');
 const indiaCats = document.getElementById('india-cats');
 const globalCats = document.getElementById('global-cats');
 const catButtons = document.querySelectorAll('.cat-btn');
@@ -100,41 +98,81 @@ function init() {
 }
 
 function setupEventListeners() {
-    scanBtn.addEventListener('click', () => {
+    searchBtn.addEventListener('click', () => {
         const query = searchInput.value.trim();
-        currentMode = 'Global';
-        modeLabel.textContent = 'Global Categories:';
-        indiaCats.style.display = 'none';
-        globalCats.style.display = 'flex';
-        fetchStations(query);
-        updateActiveCat('All');
+        const country = currentMode === 'India' ? 'India' : '';
+        fetchStations(query, country);
         switchView('discovery');
     });
 
-    scanIndiaBtn.addEventListener('click', () => {
+    modeToggleBtn.addEventListener('click', () => {
         searchInput.value = '';
-        currentMode = 'India';
-        modeLabel.textContent = 'India Categories:';
-        globalCats.style.display = 'none';
-        indiaCats.style.display = 'flex';
-        fetchStations('', 'India');
+        if (currentMode === 'India') {
+            currentMode = 'Global';
+            modeToggleText.textContent = 'Mode: Global';
+            modeToggleBtn.classList.remove('india-active');
+            indiaCats.style.display = 'none';
+            globalCats.style.display = 'flex';
+            fetchStations('', '');
+        } else {
+            currentMode = 'India';
+            modeToggleText.textContent = 'Mode: India';
+            modeToggleBtn.classList.add('india-active');
+            globalCats.style.display = 'none';
+            indiaCats.style.display = 'flex';
+            fetchStations('', 'India');
+        }
         updateActiveCat('All');
         switchView('discovery');
     });
 
     catButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const tag = btn.dataset.tag || '';
-            const state = btn.dataset.state || '';
-            const language = btn.dataset.language || '';
-            const query = btn.dataset.query || '';
-            const overrideCountry = btn.dataset.country;
-            const country = overrideCountry !== undefined ? overrideCountry : (currentMode === 'India' ? 'India' : '');
-            fetchStations(query, country, tag, state, language);
+        btn.addEventListener('click', (e) => {
+            // If dragging, let the capture phase handle prevention
+            const tag = btn.dataset.tag;
+            const country = currentMode === 'India' ? 'India' : '';
+            fetchStations('', country, tag);
             updateActiveCat(btn.textContent);
             switchView('discovery');
         });
     });
+
+    // Drag to scroll for category bar
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+    let isDragging = false;
+
+    categoriesBar.addEventListener('mousedown', (e) => {
+        isDown = true;
+        isDragging = false;
+        categoriesBar.style.cursor = 'grabbing';
+        startX = e.pageX - categoriesBar.offsetLeft;
+        scrollLeft = categoriesBar.scrollLeft;
+    });
+    categoriesBar.addEventListener('mouseleave', () => {
+        isDown = false;
+        categoriesBar.style.cursor = 'grab';
+    });
+    categoriesBar.addEventListener('mouseup', () => {
+        isDown = false;
+        categoriesBar.style.cursor = 'grab';
+    });
+    categoriesBar.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - categoriesBar.offsetLeft;
+        const walk = (x - startX) * 2; // Scroll-fast multiplier
+        if (Math.abs(walk) > 5) isDragging = true;
+        categoriesBar.scrollLeft = scrollLeft - walk;
+    });
+    // Prevent click if dragged
+    categoriesBar.addEventListener('click', (e) => {
+        if (isDragging) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    }, true);
 
     searchInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
@@ -145,7 +183,7 @@ function setupEventListeners() {
 
     if (refreshBtn) {
         refreshBtn.addEventListener('click', () => {
-            fetchStations(lastQuery, lastCountry, lastTag, lastState, lastLanguage);
+            fetchStations(lastQuery, lastCountry, lastTag);
         });
     }
 
@@ -280,13 +318,33 @@ function setupEventListeners() {
     });
 }
 
+// Custom API fetch mappings for complex categories
+const fetchMappings = {
+    'australia news': [ { tag: 'news', country: 'Australia' } ],
+    'euro news': [ { name: 'euronews' }, { tag: 'news', language: 'english' } ],
+    'bbc news': [ { name: 'bbc news' }, { name: 'bbc radio', tag: 'news' } ],
+    'us news': [ { tag: 'news', country: 'United States' }, { tag: 'news', country: 'United States of America' } ],
+    'world news': [ { tag: 'world news' }, { tag: 'international news' }, { tag: 'global news' } ],
+    'russian news': [ { tag: 'news', country: 'Russia' }, { tag: 'news', language: 'russian' } ],
+    'france news': [ { tag: 'news', country: 'France' }, { tag: 'news', language: 'french' } ],
+    'pop': [ { tag: 'pop' }, { tag: 'top 40' }, { tag: 'hits' } ],
+    'rock': [ { tag: 'rock' }, { tag: 'classic rock' }, { tag: 'hard rock' } ],
+    'jazz': [ { tag: 'jazz' }, { tag: 'smooth jazz' } ],
+    'classical': [ { tag: 'classical' }, { tag: 'symphony' } ],
+    'hip hop': [ { tag: 'hip hop' }, { tag: 'rap' }, { tag: 'rnb' } ],
+    'electronic': [ { tag: 'electronic' }, { tag: 'edm' }, { tag: 'techno' } ],
+    'ambient': [ { tag: 'ambient' }, { tag: 'chillout' }, { tag: 'relax' } ],
+    'dance music': [ { tag: 'dance' }, { tag: 'dance music' }, { tag: 'club' } ],
+    'educational': [ { tag: 'educational' }, { tag: 'education' }, { tag: 'learning' } ],
+    'sports': [ { tag: 'sports' }, { tag: 'sport' }, { tag: 'live sports' } ],
+    'talk': [ { tag: 'talk' }, { tag: 'talk radio' }, { tag: 'speech' }, { tag: 'podcast' } ]
+};
+
 // API Functions
-async function fetchStations(query = '', country = '', tag = '', state = '', language = '') {
+async function fetchStations(query = '', country = '', tag = '', autoPlay = false) {
     lastQuery = query;
     lastCountry = country;
     lastTag = tag;
-    lastState = state;
-    lastLanguage = language;
     
     mainLoader.style.display = 'flex';
     stationsGrid.innerHTML = '';
@@ -298,25 +356,90 @@ async function fetchStations(query = '', country = '', tag = '', state = '', lan
     if (tag) {
         url += `&tag=${encodeURIComponent(tag)}`;
     }
-    if (state) {
-        url += `&state=${encodeURIComponent(state)}`;
-    }
-    if (language) {
-        url += `&language=${encodeURIComponent(language)}`;
-    }
     if (query) {
         url += `&name=${encodeURIComponent(query)}`;
     }
 
     try {
-        const response = await fetch(url);
-        currentStations = await response.json();
+        if (tag.toLowerCase() === 'bhakti') {
+            const p1 = fetch(`${API_BASE}/stations/search?limit=30&order=clickcount&reverse=true&hidebroken=true&country=India&tag=bhakti`).then(r => r.json()).catch(() => []);
+            const p2 = fetch(`${API_BASE}/stations/search?limit=30&order=clickcount&reverse=true&hidebroken=true&country=India&tag=devotional`).then(r => r.json()).catch(() => []);
+            const p3 = fetch(`${API_BASE}/stations/search?limit=30&order=clickcount&reverse=true&hidebroken=true&country=India&tag=hindu`).then(r => r.json()).catch(() => []);
+            const p4 = fetch(`${API_BASE}/stations/search?limit=30&order=clickcount&reverse=true&hidebroken=true&country=India&tag=spiritual`).then(r => r.json()).catch(() => []);
+            
+            const [d1, d2, d3, d4] = await Promise.all([p1, p2, p3, p4]);
+            const combined = [...d1, ...d2, ...d3, ...d4];
+            
+            // Remove duplicates based on stationuuid
+            currentStations = combined.filter((v,i,a) => a.findIndex(t => (t.stationuuid === v.stationuuid)) === i);
+        } else if (tag.toLowerCase() === 'bangla') {
+            const p1 = fetch(`${API_BASE}/stations/search?limit=30&order=clickcount&reverse=true&hidebroken=true&country=India&tag=bangla`).then(r => r.json()).catch(() => []);
+            const p2 = fetch(`${API_BASE}/stations/search?limit=30&order=clickcount&reverse=true&hidebroken=true&country=India&tag=bengali`).then(r => r.json()).catch(() => []);
+            const p3 = fetch(`${API_BASE}/stations/search?limit=30&order=clickcount&reverse=true&hidebroken=true&country=India&language=bengali`).then(r => r.json()).catch(() => []);
+            const p5 = fetch(`${API_BASE}/stations/search?limit=30&order=clickcount&reverse=true&hidebroken=true&country=India&state=West%20Bengal`).then(r => r.json()).catch(() => []);
+            const p6 = fetch(`${API_BASE}/stations/search?limit=30&order=clickcount&reverse=true&hidebroken=true&country=India&tag=kolkata`).then(r => r.json()).catch(() => []);
+            
+            const [d1, d2, d3, d5, d6] = await Promise.all([p1, p2, p3, p5, p6]);
+            // Place Indian stations first
+            const combined = [...d1, ...d2, ...d3, ...d5, ...d6];
+            
+            // Remove duplicates
+            currentStations = combined.filter((v,i,a) => a.findIndex(t => (t.stationuuid === v.stationuuid)) === i);
+        } else if (tag.toLowerCase() === 'punjabi') {
+            const p1 = fetch(`${API_BASE}/stations/search?limit=30&order=clickcount&reverse=true&hidebroken=true&country=India&tag=punjabi`).then(r => r.json()).catch(() => []);
+            const p2 = fetch(`${API_BASE}/stations/search?limit=30&order=clickcount&reverse=true&hidebroken=true&country=India&language=punjabi`).then(r => r.json()).catch(() => []);
+            const p3 = fetch(`${API_BASE}/stations/search?limit=30&order=clickcount&reverse=true&hidebroken=true&country=India&state=Punjab`).then(r => r.json()).catch(() => []);
+            const p4 = fetch(`${API_BASE}/stations/search?limit=30&order=clickcount&reverse=true&hidebroken=true&country=India&tag=bhangra`).then(r => r.json()).catch(() => []);
+            
+            const [d1, d2, d3, d4] = await Promise.all([p1, p2, p3, p4]);
+            const combined = [...d1, ...d2, ...d3, ...d4];
+            currentStations = combined.filter((v,i,a) => a.findIndex(t => (t.stationuuid === v.stationuuid)) === i);
+        } else if (tag.toLowerCase() === 'bhojpuri') {
+            const p1 = fetch(`${API_BASE}/stations/search?limit=30&order=clickcount&reverse=true&hidebroken=true&country=India&tag=bhojpuri`).then(r => r.json()).catch(() => []);
+            const p2 = fetch(`${API_BASE}/stations/search?limit=30&order=clickcount&reverse=true&hidebroken=true&country=India&language=bhojpuri`).then(r => r.json()).catch(() => []);
+            const p3 = fetch(`${API_BASE}/stations/search?limit=30&order=clickcount&reverse=true&hidebroken=true&country=India&tag=bihar`).then(r => r.json()).catch(() => []);
+            const p4 = fetch(`${API_BASE}/stations/search?limit=30&order=clickcount&reverse=true&hidebroken=true&country=India&tag=patna`).then(r => r.json()).catch(() => []);
+            
+            const [d1, d2, d3, d4] = await Promise.all([p1, p2, p3, p4]);
+            const combined = [...d1, ...d2, ...d3, ...d4];
+            currentStations = combined.filter((v,i,a) => a.findIndex(t => (t.stationuuid === v.stationuuid)) === i);
+        } else if (tag && fetchMappings[tag.toLowerCase()]) {
+            const mappings = fetchMappings[tag.toLowerCase()];
+            const promises = mappings.map(params => {
+                let pUrl = `${API_BASE}/stations/search?limit=30&order=clickcount&reverse=true&hidebroken=true`;
+                if (params.tag) pUrl += `&tag=${encodeURIComponent(params.tag)}`;
+                if (params.country) pUrl += `&country=${encodeURIComponent(params.country)}`;
+                if (params.language) pUrl += `&language=${encodeURIComponent(params.language)}`;
+                if (params.state) pUrl += `&state=${encodeURIComponent(params.state)}`;
+                if (params.name) pUrl += `&name=${encodeURIComponent(params.name)}`;
+                return fetch(pUrl).then(r => r.json()).catch(() => []);
+            });
+            
+            const results = await Promise.all(promises);
+            const combined = results.flat();
+            
+            // Remove duplicates
+            currentStations = combined.filter((v,i,a) => a.findIndex(t => (t.stationuuid === v.stationuuid)) === i);
+        } else {
+            const response = await fetch(url);
+            currentStations = await response.json();
+        }
+        
         renderStations();
         resultsCount.textContent = `${currentStations.length} stations found`;
         
-        // Auto-play the first station if any are found
         if (currentStations.length > 0) {
-            playStation(0, 'search');
+            if (autoPlay) {
+                playStation(0, 'search');
+            } else {
+                // Just set up the UI for the first station without loading the stream yet
+                currentStationIndex = 0;
+                updatePlayerUI(currentStations[0]);
+                playerStatus.textContent = 'Ready (Paused)';
+                // Remove playing class just in case
+                if (nowPlayingCard) nowPlayingCard.classList.remove('playing');
+                audioPlayer.removeAttribute('src'); 
+            }
         }
     } catch (error) {
         console.error('Failed to fetch stations:', error);
@@ -552,9 +675,15 @@ function playStation(index, source = 'search', element = null) {
 
     // Load and Play
     audioPlayer.src = station.url_resolved || station.url;
+    audioPlayer.load(); // Force immediate load sequence
+    
     let autoPlayBlocked = false;
     
-    audioPlayer.play().catch(e => {
+    audioPlayer.play().then(() => {
+        // Instant UI response for "quick play" feel
+        if (nowPlayingCard) nowPlayingCard.classList.add('playing');
+        updatePlayPauseBtn();
+    }).catch(e => {
         console.warn('Auto-play failed, user interaction required.', e);
         playerStatus.textContent = 'Click Play to start';
         if (e.name === 'NotAllowedError') {
@@ -562,17 +691,28 @@ function playStation(index, source = 'search', element = null) {
         }
     });
 
-    // Auto skip if not playing within 4 seconds
+    // Also update button immediately before promise resolves for instant feedback
+    if (nowPlayingCard) nowPlayingCard.classList.add('playing');
+    updatePlayPauseBtn();
+
+    // Check if buffering takes too long (4.5 seconds auto-skip)
     clearTimeout(playCheckTimeout);
     playCheckTimeout = setTimeout(() => {
         if (autoPlayBlocked) return;
         
         if (audioPlayer.paused || audioPlayer.readyState === 0 || audioPlayer.error) {
-            console.log('Station failed to play within 4 seconds. Skipping to next...');
-            playerStatus.textContent = 'Failed, skipping...';
-            playNext();
+            console.log('Station taking too long to buffer. Auto-skipping to next...');
+            if (!audioPlayer.error) {
+                playerStatus.textContent = 'Stream Slow - Auto-skipping...';
+            }
+            // Automatically play the next station
+            let list = source === 'search' ? currentStations : currentPlaylist;
+            if (list.length > 0) {
+                currentStationIndex = (currentStationIndex + 1) % list.length;
+                playStation(currentStationIndex, source);
+            }
         }
-    }, 4000);
+    }, 4500);
 
     // Background Audio Support (Media Session)
     if ('mediaSession' in navigator) {
@@ -612,11 +752,22 @@ function updatePlayerUI(station) {
     const defaultMini = DEFAULT_LOGO;
 
     currentStationName.textContent = name;
-    if (name.length > 35) {
-        currentStationName.classList.add('marquee-text');
+    
+    // Reset inline styles
+    currentStationName.style.fontSize = '';
+    
+    if (name.length >= 25) {
+        // Scroll right to left for very long names
+        currentStationName.classList.add('marquee-name');
     } else {
-        currentStationName.classList.remove('marquee-text');
+        currentStationName.classList.remove('marquee-name');
+        
+        // Decrease font size 15% for names between 16-24 characters
+        if (name.length >= 16 && name.length <= 24) {
+            currentStationName.style.fontSize = 'clamp(1.275rem, 6.8vw, 2.125rem)';
+        }
     }
+    
     currentStationMeta.textContent = `${country} • ${tags}`;
     
     // Set up main image with timeout and error fallback
@@ -635,7 +786,16 @@ function updatePlayerUI(station) {
 
 function togglePlay() {
     if (audioPlayer.paused) {
-        audioPlayer.play();
+        if (!audioPlayer.getAttribute('src') && currentStations.length > 0) {
+            playStation(currentStationIndex >= 0 ? currentStationIndex : 0, 'search');
+        } else if (!audioPlayer.getAttribute('src') && currentPlaylist.length > 0) {
+            playStation(currentStationIndex >= 0 ? currentStationIndex : 0, 'playlist');
+        } else {
+            // Force a fresh connection to the live edge when resuming, avoiding stale buffer delays
+            audioPlayer.load();
+            audioPlayer.play().catch(e => console.warn('Play failed', e));
+            if (nowPlayingCard) nowPlayingCard.classList.add('playing');
+        }
     } else {
         audioPlayer.pause();
     }
@@ -761,7 +921,7 @@ function setTheme(theme) {
 }
 
 function loadTheme() {
-    const savedTheme = localStorage.getItem('fm_theme') || 'light';
+    const savedTheme = localStorage.getItem('fm_theme') || 'dark';
     setTheme(savedTheme);
 }
 
