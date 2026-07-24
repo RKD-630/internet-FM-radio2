@@ -70,9 +70,11 @@
         <main>
         <div id="discovery-view">
             <nav class="category-nav glass" id="categories-bar">
-                <button id="mode-toggle-btn" class="india-active" style="position: sticky; left: 0; z-index: 10; margin-right:1rem; flex-shrink:0; border-radius: 20px; padding: 0.5rem 1rem; box-shadow: 2px 0 10px rgba(0,0,0,0.2);">
-                    <span id="mode-toggle-text">India</span>
-                </button>
+                <div class="mode-toggle-wrapper" style="position: sticky; left: 0; z-index: 10; background: var(--bg-color); margin: -1rem 0 -1rem -1.5rem; padding: 1rem 1rem 1rem 1.5rem; display: flex; align-items: center; border-radius: 1.5rem 0 0 1.5rem;">
+                    <button id="mode-toggle-btn" class="india-active" style="flex-shrink:0; border-radius: 20px; padding: 0.5rem 1rem; box-shadow: 2px 0 10px rgba(0,0,0,0.2); transform: scaleY(1.06);">
+                        <span id="mode-toggle-text">India</span>
+                    </button>
+                </div>
                 <div class="cat-scroll" id="india-cats" style="display: flex;">
                     <button class="cat-btn active" data-tag="">All</button>
                     <button class="cat-btn" data-tag="hindi">Hindi</button>
