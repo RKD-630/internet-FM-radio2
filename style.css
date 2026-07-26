@@ -89,6 +89,8 @@ body {
     font-weight: 600;
     font-size: 0.95rem;
     transition: var(--transition);
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .tab-btn i {
