@@ -340,6 +340,8 @@ header {
     overflow: hidden;
     text-overflow: ellipsis;
     transition: opacity 0.3s ease;
+    display: block;
+    max-width: 100%;
 }
 
 .queue-next {
@@ -513,16 +515,19 @@ header {
 }
 
 .status-badge {
-    display: inline-block;
+    display: block;
+    width: max-content;
+    margin: 0 auto 1rem auto;
     padding: 0.4rem 1rem;
-    background: rgba(99, 102, 241, 0.2);
-    color: var(--primary-color);
+    background: rgba(255, 165, 0, 0.15); /* warm bulb light */
+    box-shadow: 0 0 15px rgba(255, 165, 0, 0.4); /* glowing effect */
+    border: 1px solid rgba(255, 165, 0, 0.3);
+    color: orange;
     border-radius: 2rem;
     font-size: 0.8rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    margin-bottom: 1rem;
 }
 
 h1 {
@@ -533,6 +538,13 @@ h1 {
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
+}
+
+.station-details h1:not(.marquee-name) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 .marquee-name {
@@ -550,6 +562,10 @@ h1 {
     color: var(--text-secondary);
     font-size: 1.1rem;
     margin-bottom: 2rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 .secondary-btn {
