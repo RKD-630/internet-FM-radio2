@@ -110,6 +110,8 @@ function setupEventListeners() {
         if (currentMode === 'India') {
             currentMode = 'Global';
             modeToggleText.textContent = 'Global';
+            const icon = document.getElementById('mode-toggle-icon');
+            if (icon) icon.textContent = '🌍';
             modeToggleBtn.classList.remove('india-active');
             indiaCats.style.display = 'none';
             globalCats.style.display = 'flex';
@@ -117,6 +119,8 @@ function setupEventListeners() {
         } else {
             currentMode = 'India';
             modeToggleText.textContent = 'India';
+            const icon = document.getElementById('mode-toggle-icon');
+            if (icon) icon.textContent = '🇮🇳';
             modeToggleBtn.classList.add('india-active');
             globalCats.style.display = 'none';
             indiaCats.style.display = 'flex';
@@ -294,13 +298,13 @@ function setupEventListeners() {
     audioPlayer.onwaiting = () => {
         playerStatus.textContent = 'Buffering...';
         
-        // If it gets stuck buffering mid-stream for more than 5 seconds, skip to next
+        // If it gets stuck buffering mid-stream for more than 8.5 seconds, skip to next
         clearTimeout(playCheckTimeout);
         playCheckTimeout = setTimeout(() => {
             console.log('Stream stalled mid-playback. Auto-skipping to next...');
             playerStatus.textContent = 'Stream Stalled - Auto-skipping...';
             playNext();
-        }, 5000);
+        }, 8500);
     };
 
     audioPlayer.onerror = (e) => {
@@ -356,7 +360,7 @@ const fetchMappings = {
 };
 
 // API Functions
-async function fetchStations(query = '', country = '', tag = '', autoPlay = false) {
+async function fetchStations(query = '', country = '', tag = '', autoPlay = true) {
     lastQuery = query;
     lastCountry = country;
     lastTag = tag;
@@ -664,8 +668,7 @@ function playStation(index, source = 'search', element = null) {
             const nextStationText = `⏭️ Next: ${list[nIdx].name || 'Unknown'}`;
             
             queueTickerText.textContent = nextStationText;
-            queueTickerText.style.color = '#00FF33';
-            queueTickerText.style.textShadow = '0 0 5px #F7FF00, 1px 1px 2px #F7FF00';
+            queueTickerText.className = 'queue-next';
             showingNextInQueue = true;
             
             clearInterval(queueTickerInterval);
@@ -674,12 +677,10 @@ function playStation(index, source = 'search', element = null) {
                 setTimeout(() => {
                     if (showingNextInQueue) {
                         queueTickerText.textContent = prevStationText;
-                        queueTickerText.style.color = '#FFFF00';
-                        queueTickerText.style.textShadow = '0 0 5px #000000, 1px 1px 2px #000000';
+                        queueTickerText.className = 'queue-prev';
                     } else {
                         queueTickerText.textContent = nextStationText;
-                        queueTickerText.style.color = '#00FF33';
-                        queueTickerText.style.textShadow = '0 0 5px #F7FF00, 1px 1px 2px #F7FF00';
+                        queueTickerText.className = 'queue-next';
                     }
                     queueTickerText.style.opacity = '1';
                     showingNextInQueue = !showingNextInQueue;
@@ -697,7 +698,6 @@ function playStation(index, source = 'search', element = null) {
     audioPlayer.play().then(() => {
         // Instant UI response for "quick play" feel
         if (nowPlayingCard) nowPlayingCard.classList.add('playing');
-        updatePlayPauseBtn();
     }).catch(e => {
         console.warn('Auto-play failed, user interaction required.', e);
         playerStatus.textContent = 'Click Play to start';
@@ -708,9 +708,8 @@ function playStation(index, source = 'search', element = null) {
 
     // Also update button immediately before promise resolves for instant feedback
     if (nowPlayingCard) nowPlayingCard.classList.add('playing');
-    updatePlayPauseBtn();
 
-    // Check if buffering takes too long (4.5 seconds auto-skip)
+    // Check if buffering takes too long (8.5 seconds auto-skip)
     clearTimeout(playCheckTimeout);
     playCheckTimeout = setTimeout(() => {
         if (autoPlayBlocked) return;
@@ -727,7 +726,7 @@ function playStation(index, source = 'search', element = null) {
                 playStation(currentStationIndex, source);
             }
         }
-    }, 4500);
+    }, 8500);
 
     // Background Audio Support (Media Session)
     if ('mediaSession' in navigator) {
@@ -754,6 +753,10 @@ function playStation(index, source = 'search', element = null) {
     
     if (element) {
         element.classList.add('active');
+    } else {
+        if (items.length > index) {
+            items[index].classList.add('active');
+        }
     }
 }
 
@@ -1061,3 +1064,49 @@ function playSmartScanStation() {
 
 // Start App
 init();
+
+// --- Dynamic Visualizer Logic ---
+const eqBarsList = document.querySelectorAll('.eq-bar');
+let barValues = new Array(12).fill(10);
+let barTargets = new Array(12).fill(10);
+
+function updateVisualizer() {
+    // Determine if audio is actively playing
+    const isPlaying = !audioPlayer.paused && audioPlayer.readyState >= 3;
+    const vol = audioPlayer.muted ? 0 : audioPlayer.volume;
+    const volScale = (vol * 0.8) + 0.2; // Keep some movement even at low volume
+
+    if (isPlaying) {
+        // Randomly generate new height targets for a realistic look
+        if (Math.random() > 0.4) {
+            for (let i = 0; i < 12; i++) {
+                // Creates a bell-like curve (mids bounce higher than edges)
+                const eqCurve = 1 - Math.abs(i - 5.5) / 7; 
+                const rawBounce = Math.random() * 85; // 0 to 85% extra height
+                
+                // Add some temporal randomness to simulate actual frequencies
+                barTargets[i] = 15 + (rawBounce * eqCurve * volScale);
+            }
+        }
+    } else {
+        // Flatline to base height if paused/stopped
+        for (let i = 0; i < 12; i++) {
+            barTargets[i] = 10;
+        }
+    }
+
+    // Smooth transition physics
+    for (let i = 0; i < 12; i++) {
+        // Easing factor (0.3) for smooth, fluid motion
+        barValues[i] += (barTargets[i] - barValues[i]) * 0.3; 
+        
+        if (eqBarsList[i]) {
+            eqBarsList[i].style.height = `${barValues[i]}%`;
+        }
+    }
+
+    requestAnimationFrame(updateVisualizer);
+}
+
+// Start visualizer loop
+requestAnimationFrame(updateVisualizer);
