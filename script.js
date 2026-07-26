@@ -7,6 +7,7 @@ const DEFAULT_LOGO = 'data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%
 let currentStations = [];
 let currentPlaylist = JSON.parse(localStorage.getItem('fm_playlist')) || [];
 let currentStationIndex = -1;
+let currentSource = 'search';
 let currentMode = 'India'; // 'Global' or 'India'
 let isMuted = false;
 let lastVolume = 80;
@@ -72,16 +73,10 @@ const fullPlaylistList = document.getElementById('full-playlist-list');
 // Scanner Elements
 const freqSlider = document.getElementById('freq-slider');
 const freqValue = document.getElementById('freq-value');
-const scanLine = document.getElementById('scan-line');
-const customNameInput = document.getElementById('custom-name');
-const customUrlInput = document.getElementById('custom-url');
-const customIconInput = document.getElementById('custom-icon');
-const addCustomBtn = document.getElementById('add-custom-btn');
-const autoScanBtn = document.getElementById('auto-scan-btn');
-const saveAllBtn = document.getElementById('save-all-btn');
+
+const tuneInBtn = document.getElementById('tune-in-btn');
 const signalBars = document.querySelectorAll('.signal-bars span');
 
-let discoveredFrequencies = [];
 
 // Initialize
 function init() {
@@ -180,7 +175,8 @@ function setupEventListeners() {
 
     searchInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
-            fetchStations(searchInput.value.trim());
+            const country = currentMode === 'India' ? 'India' : '';
+            fetchStations(searchInput.value.trim(), country);
             switchView('discovery');
         }
     });
@@ -259,16 +255,11 @@ function setupEventListeners() {
         });
     }
 
-    if (addCustomBtn) {
-        addCustomBtn.addEventListener('click', addCustomStation);
-    }
-
-    if (autoScanBtn) {
-        autoScanBtn.addEventListener('click', startAutoScan);
-    }
-
-    if (saveAllBtn) {
-        saveAllBtn.addEventListener('click', saveAllDiscovered);
+    if (tuneInBtn) {
+        tuneInBtn.addEventListener('click', () => {
+            const freq = freqValue.textContent;
+            tuneInToFrequency(freq);
+        });
     }
 
     // Audio Player Events
@@ -283,6 +274,15 @@ function setupEventListeners() {
         clearTimeout(playCheckTimeout); // Clear any buffering timeouts
         if (nowPlayingCard) nowPlayingCard.classList.add('playing');
         playerStatus.textContent = 'Playing';
+        
+        if (isSmartScanning) {
+            clearTimeout(smartScanTimeout);
+            smartScanTimeout = setTimeout(() => {
+                if (!isSmartScanning) return;
+                currentStationIndex = (currentStationIndex + 1) % currentStations.length;
+                playSmartScanStation();
+            }, 8000);
+        }
     };
 
     audioPlayer.onpause = () => {
@@ -413,14 +413,16 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = true
             const [d1, d2, d3, d4] = await Promise.all([p1, p2, p3, p4]);
             const combined = [...d1, ...d2, ...d3, ...d4];
             currentStations = combined.filter((v,i,a) => a.findIndex(t => (t.stationuuid === v.stationuuid)) === i);
-        } else if (tag.toLowerCase() === 'bhojpuri') {
+        } else if (tag.toLowerCase() === 'bhojpuri' || tag.toLowerCase() === 'bihar') {
             const p1 = fetch(`${API_BASE}/stations/search?limit=30&order=clickcount&reverse=true&hidebroken=true&country=India&tag=bhojpuri`).then(r => r.json()).catch(() => []);
             const p2 = fetch(`${API_BASE}/stations/search?limit=30&order=clickcount&reverse=true&hidebroken=true&country=India&language=bhojpuri`).then(r => r.json()).catch(() => []);
             const p3 = fetch(`${API_BASE}/stations/search?limit=30&order=clickcount&reverse=true&hidebroken=true&country=India&tag=bihar`).then(r => r.json()).catch(() => []);
             const p4 = fetch(`${API_BASE}/stations/search?limit=30&order=clickcount&reverse=true&hidebroken=true&country=India&tag=patna`).then(r => r.json()).catch(() => []);
+            const p5 = fetch(`${API_BASE}/stations/search?limit=30&order=clickcount&reverse=true&hidebroken=true&country=India&state=Bihar`).then(r => r.json()).catch(() => []);
+            const p6 = fetch(`${API_BASE}/stations/search?limit=30&order=clickcount&reverse=true&hidebroken=true&country=India&name=bihar`).then(r => r.json()).catch(() => []);
             
-            const [d1, d2, d3, d4] = await Promise.all([p1, p2, p3, p4]);
-            const combined = [...d1, ...d2, ...d3, ...d4];
+            const [d1, d2, d3, d4, d5, d6] = await Promise.all([p1, p2, p3, p4, p5, p6]);
+            const combined = [...d5, ...d6, ...d4, ...d3, ...d1, ...d2];
             currentStations = combined.filter((v,i,a) => a.findIndex(t => (t.stationuuid === v.stationuuid)) === i);
         } else if (tag && fetchMappings[tag.toLowerCase()]) {
             const mappings = fetchMappings[tag.toLowerCase()];
@@ -552,99 +554,33 @@ function updateSignalStrength(freq) {
     });
 }
 
-function addCustomStation() {
-    const name = customNameInput.value.trim();
-    const url = customUrlInput.value.trim();
-    const icon = customIconInput.value.trim();
-    const freq = freqValue.textContent;
-
-    if (!name || !url) {
-        alert('Please provide at least a name and a stream URL.');
-        return;
+async function tuneInToFrequency(freq) {
+    if (tuneInBtn) {
+        tuneInBtn.disabled = true;
+        tuneInBtn.innerHTML = '<i class="spin" data-lucide="refresh-cw"></i> Tuning...';
+        lucide.createIcons();
     }
-
-    const newStation = {
-        stationuuid: 'custom-' + Date.now(),
-        name: `${name} (${freq} MHz)`,
-        url: url,
-        url_resolved: url,
-        favicon: icon || DEFAULT_LOGO,
-        country: 'Custom',
-        tags: 'FM, Manual'
-    };
-
-    addToPlaylist(newStation);
-    alert('Station added to your playlist!');
     
-    // Clear inputs
-    customNameInput.value = '';
-    customUrlInput.value = '';
-    customIconInput.value = '';
-}
-
-function startAutoScan() {
-    autoScanBtn.disabled = true;
-    autoScanBtn.innerHTML = '<i class="spin" data-lucide="refresh-cw"></i> Scanning...';
-    lucide.createIcons();
-    discoveredFrequencies = [];
-    saveAllBtn.style.display = 'none';
+    // We fetch a station whose name contains the frequency and in the current mode (India or Global)
+    const country = currentMode === 'India' ? 'India' : '';
     
-    let currentFreq = 87.5;
-    const interval = setInterval(() => {
-        currentFreq = +(currentFreq + 0.5).toFixed(1);
-        freqSlider.value = currentFreq;
-        freqValue.textContent = currentFreq;
-        updateSignalStrength(currentFreq);
-        
-        // Simulate finding "active" frequencies
-        if (Math.random() > 0.7) {
-            discoveredFrequencies.push(currentFreq);
-            // Flash frequency display on find
-            freqValue.style.color = 'var(--accent-color)';
-            setTimeout(() => { freqValue.style.color = 'var(--text-primary)'; }, 200);
-        }
-        
-        if (currentFreq >= 108) {
-            clearInterval(interval);
-            autoScanBtn.disabled = false;
-            autoScanBtn.innerHTML = '<i data-lucide="zap"></i> Auto Scan Frequencies';
-            lucide.createIcons();
-            
-            if (discoveredFrequencies.length > 0) {
-                saveAllBtn.style.display = 'flex';
-                saveAllBtn.textContent = `Save ${discoveredFrequencies.length} Frequencies`;
-                alert(`Scan complete! Found ${discoveredFrequencies.length} active frequencies.`);
-            } else {
-                alert('Scan complete. No active frequencies found.');
-            }
-        }
-    }, 100);
-}
-
-function saveAllDiscovered() {
-    if (discoveredFrequencies.length === 0) return;
+    // fetchStations handles UI updates for loader and playing the station automatically
+    await fetchStations(freq, country, '', true);
     
-    discoveredFrequencies.forEach(freq => {
-        const newStation = {
-            stationuuid: 'auto-' + freq + '-' + Date.now(),
-            name: `FM Station ${freq}`,
-            url: `https://icecast.radio-browser.info/fm/${freq}`, // Placeholder URL
-            url_resolved: `https://icecast.radio-browser.info/fm/${freq}`,
-            favicon: DEFAULT_LOGO,
-            country: 'Local Scan',
-            tags: 'FM, Scanned'
-        };
-        currentPlaylist.push(newStation);
-    });
+    if (tuneInBtn) {
+        tuneInBtn.disabled = false;
+        tuneInBtn.innerHTML = '<i data-lucide="radio"></i> Tune Station';
+        lucide.createIcons();
+    }
     
-    savePlaylist();
-    renderPlaylist();
-    saveAllBtn.style.display = 'none';
-    alert(`${discoveredFrequencies.length} stations added to your playlist!`);
+    if (currentStations.length === 0) {
+        alert(`No stations found for frequency ${freq} MHz.`);
+    }
 }
 
 // Playback Logic
 function playStation(index, source = 'search', element = null) {
+    currentSource = source;
     let station;
     if (source === 'search') {
         station = currentStations[index];
@@ -826,15 +762,17 @@ function togglePlay() {
 }
 
 function playNext() {
-    if (currentStations.length === 0) return;
-    currentStationIndex = (currentStationIndex + 1) % currentStations.length;
-    playStation(currentStationIndex, 'search');
+    let list = currentSource === 'search' ? currentStations : currentPlaylist;
+    if (list.length === 0) return;
+    currentStationIndex = (currentStationIndex + 1) % list.length;
+    playStation(currentStationIndex, currentSource);
 }
 
 function playPrevious() {
-    if (currentStations.length === 0) return;
-    currentStationIndex = (currentStationIndex - 1 + currentStations.length) % currentStations.length;
-    playStation(currentStationIndex, 'search');
+    let list = currentSource === 'search' ? currentStations : currentPlaylist;
+    if (list.length === 0) return;
+    currentStationIndex = (currentStationIndex - 1 + list.length) % list.length;
+    playStation(currentStationIndex, currentSource);
 }
 
 // Volume Controls
@@ -901,6 +839,15 @@ function addToPlaylistById(uuid) {
 
 function removeFromPlaylist(index) {
     currentPlaylist.splice(index, 1);
+    
+    if (currentSource === 'playlist') {
+        if (currentStationIndex === index) {
+            currentStationIndex = -1; // Removed currently playing station
+        } else if (currentStationIndex > index) {
+            currentStationIndex--; // Shift index back
+        }
+    }
+    
     savePlaylist();
     renderPlaylist();
 }
@@ -1042,7 +989,7 @@ function playSmartScanStation() {
     clearTimeout(playCheckTimeout);
     clearTimeout(smartScanTimeout);
     
-    // Check if station plays within 4 seconds
+    // Check if station plays within 6 seconds
     playCheckTimeout = setTimeout(() => {
         if (!isSmartScanning) return;
         
@@ -1051,15 +998,8 @@ function playSmartScanStation() {
             playerStatus.textContent = 'Skipping unresponsive station...';
             currentStationIndex = (currentStationIndex + 1) % currentStations.length;
             playSmartScanStation();
-        } else {
-            // Playing successfully, schedule next change in 6 seconds (Total 10s)
-            smartScanTimeout = setTimeout(() => {
-                if (!isSmartScanning) return;
-                currentStationIndex = (currentStationIndex + 1) % currentStations.length;
-                playSmartScanStation();
-            }, 6000);
         }
-    }, 4000);
+    }, 6000);
 }
 
 // Start App

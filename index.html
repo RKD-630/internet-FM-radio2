@@ -28,13 +28,7 @@
                 <i data-lucide="radio"></i>
                 <span>Global FM</span>
             </div>
-            <div class="search-bar">
-                <input type="text" id="station-search" placeholder="Search stations (country, name, tag)...">
-                <button id="search-btn" class="primary-btn" title="Search">
-                    <i data-lucide="search"></i>
-                    <span>Search</span>
-                </button>
-            </div>
+
             <div style="display: flex; gap: 0.5rem;">
                 <button id="fullscreen-btn" class="icon-btn theme-btn" title="Toggle Fullscreen">
                     <i data-lucide="maximize" id="fullscreen-icon"></i>
@@ -49,10 +43,6 @@
         </header>
 
         <nav class="main-tabs glass" id="main-tabs">
-            <button class="tab-btn active" data-tab="discovery">
-                <i data-lucide="search"></i>
-                <span>Discovery</span>
-            </button>
             <button id="mode-toggle-btn" class="tab-btn action-btn india-active">
                 <span id="mode-toggle-icon" style="font-size: 1.1em; line-height: 1;">🇮🇳</span>
                 <span id="mode-toggle-text">India</span>
@@ -65,10 +55,12 @@
                 <i data-lucide="list-music"></i>
                 <span>Playlist</span>
             </button>
-            <button class="tab-btn" data-tab="scanner">
-                <i data-lucide="radio"></i>
-                <span>FM Scanner</span>
-            </button>
+            <div class="search-bar main-search-bar">
+                <input type="text" id="station-search" placeholder="Search stations...">
+                <button id="search-btn" class="primary-btn" title="Search">
+                    <i data-lucide="search"></i>
+                </button>
+            </div>
         </nav>
 
         <main>
@@ -241,8 +233,8 @@
                     <p>Tune into a specific frequency and add your favorite stations manually.</p>
                 </div>
                 
-                <div class="scanner-layout">
-                    <div class="tuner-column">
+                <div class="scanner-layout" style="justify-content: center;">
+                    <div class="tuner-column" style="width: 100%; max-width: 600px;">
                         <div class="frequency-display">
                             <span id="freq-value">91.1</span>
                             <span class="unit">MHz</span>
@@ -256,38 +248,11 @@
                                 <span></span><span></span><span></span><span></span><span></span>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="form-column glass">
-                        <h3>Add New Station</h3>
-                        <div class="input-group">
-                            <label>Station Name</label>
-                            <input type="text" id="custom-name" placeholder="e.g. My Favorite FM">
-                        </div>
-                        <div class="input-group">
-                            <label>Stream URL (m3u8, mp3, etc.)</label>
-                            <input type="text" id="custom-url" placeholder="https://...">
-                        </div>
-                        <div class="input-group">
-                            <label>Logo/Favicon URL (Optional)</label>
-                            <input type="text" id="custom-icon" placeholder="https://...">
-                        </div>
-                        <div class="scanner-actions">
-                            <button id="add-custom-btn" class="primary-btn">
-                                <i data-lucide="plus"></i>
-                                Add to My Radio
+                        <div class="scanner-actions" style="margin-top: 2rem; display: flex; justify-content: center;">
+                            <button id="tune-in-btn" class="primary-btn" style="width: 100%; justify-content: center; font-size: 1.2rem; padding: 15px;">
+                                <i data-lucide="radio"></i>
+                                Tune Station
                             </button>
-                            <div class="divider"><span>OR</span></div>
-                            <div class="scanner-auto-actions">
-                                <button id="auto-scan-btn" class="accent-btn">
-                                    <i data-lucide="zap"></i>
-                                    Auto Scan Frequencies
-                                </button>
-                                <button id="save-all-btn" class="secondary-btn" style="display: none;">
-                                    <i data-lucide="save"></i>
-                                    Save All Discovered
-                                </button>
-                            </div>
                         </div>
                     </div>
                 </div>
