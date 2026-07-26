@@ -43,10 +43,6 @@
         </header>
 
         <nav class="main-tabs glass" id="main-tabs">
-            <button id="mode-toggle-btn" class="tab-btn action-btn india-active">
-                <span id="mode-toggle-icon" style="font-size: 1.1em; line-height: 1;">🇮🇳</span>
-                <span id="mode-toggle-text">India</span>
-            </button>
             <button class="tab-btn action-btn" id="smart-auto-scan-btn" style="color: var(--primary-color); font-weight: bold;">
                 <i data-lucide="zap"></i>
                 <span>Auto Scan</span>
@@ -65,8 +61,13 @@
 
         <main>
         <div id="discovery-view">
-            <nav class="category-nav glass" id="categories-bar">
-                <div class="cat-scroll" id="india-cats" style="display: flex;">
+            <nav class="category-nav glass" id="categories-nav">
+                <button id="mode-toggle-btn" class="tab-btn action-btn india-active" style="flex-shrink: 0; padding: 0.5rem 1rem; margin-right: 0.5rem;">
+                    <span id="mode-toggle-icon" style="font-size: 1.1em; line-height: 1;">🇮🇳</span>
+                    <span id="mode-toggle-text">India</span>
+                </button>
+                <div class="cats-wrapper" id="categories-bar" style="overflow-x: auto; display: flex; flex: 1; scrollbar-width: none; cursor: grab;">
+                    <div class="cat-scroll" id="india-cats" style="display: flex;">
                     <button class="cat-btn active" data-tag="">All</button>
                     <button class="cat-btn" data-tag="hindi">Hindi</button>
                     <button class="cat-btn" data-tag="bhakti">Bhakti</button>
@@ -100,6 +101,7 @@
                     <button class="cat-btn" data-tag="educational">Educational</button>
                     <button class="cat-btn" data-tag="sports">Sports</button>
                     <button class="cat-btn" data-tag="talk">Talk</button>
+                </div>
                 </div>
             </nav>
 
