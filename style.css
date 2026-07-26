@@ -1255,3 +1255,44 @@ input[type="range"]::-webkit-slider-thumb {
         margin-bottom: 1.5rem;
     }
 }
+
+/* === Fullscreen Mode UI === */
+body.is-fullscreen header,
+body.is-fullscreen .main-tabs,
+body.is-fullscreen .content-grid {
+    display: none !important;
+}
+
+body.is-fullscreen .app-container {
+    max-width: 100%;
+    height: 100vh;
+    padding: 1rem 2rem;
+    padding-bottom: 140px; /* Make space for player controls */
+    display: flex;
+    flex-direction: column;
+}
+
+body.is-fullscreen main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+body.is-fullscreen #discovery-view {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+body.is-fullscreen .hero-section {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-bottom: 0;
+}
+
+body.is-fullscreen .station-details {
+    user-select: none;
+    -webkit-user-select: none;
+}

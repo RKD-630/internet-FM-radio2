@@ -199,6 +199,81 @@ function setupEventListeners() {
         });
     }
 
+    const stationDetailsEl = document.querySelector('.station-details');
+    if (stationDetailsEl) {
+        stationDetailsEl.addEventListener('dblclick', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => console.log(err));
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+            // Clear text selection after double click
+            if (window.getSelection) {
+                window.getSelection().removeAllRanges();
+            } else if (document.selection) {
+                document.selection.empty();
+            }
+        });
+
+        // Volume drag logic
+        let isDraggingVolume = false;
+        let startX = 0;
+        let startVolume = 0;
+
+        const handleDragStart = (x) => {
+            isDraggingVolume = true;
+            startX = x;
+            startVolume = parseFloat(volumeSlider.value) || 0;
+            stationDetailsEl.style.cursor = 'ew-resize';
+        };
+
+        const handleDragMove = (x) => {
+            if (!isDraggingVolume) return;
+            const deltaX = x - startX;
+            // Map horizontal movement to volume change (approx 3px = 1%)
+            const volumeChange = deltaX * 0.33; 
+            let newVolume = startVolume + volumeChange;
+            newVolume = Math.max(0, Math.min(100, newVolume));
+            updateVolume(newVolume);
+        };
+
+        const handleDragEnd = () => {
+            isDraggingVolume = false;
+            stationDetailsEl.style.cursor = '';
+        };
+
+        // Mouse Events
+        stationDetailsEl.addEventListener('mousedown', (e) => {
+            if (e.button !== 0) return; // Left click only
+            handleDragStart(e.clientX);
+        });
+        document.addEventListener('mousemove', (e) => handleDragMove(e.clientX));
+        document.addEventListener('mouseup', handleDragEnd);
+
+        // Touch Events
+        stationDetailsEl.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                handleDragStart(e.touches[0].clientX);
+            }
+        }, { passive: true });
+        document.addEventListener('touchmove', (e) => {
+            if (isDraggingVolume && e.touches.length === 1) {
+                handleDragMove(e.touches[0].clientX);
+            }
+        }, { passive: true });
+        document.addEventListener('touchend', handleDragEnd);
+    }
+
+    document.addEventListener('fullscreenchange', () => {
+        if (document.fullscreenElement) {
+            document.body.classList.add('is-fullscreen');
+        } else {
+            document.body.classList.remove('is-fullscreen');
+        }
+    });
+
     themeToggle.addEventListener('click', toggleTheme);
 
     playPauseBtn.addEventListener('click', togglePlay);
