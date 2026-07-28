@@ -86,6 +86,38 @@ function init() {
     updateVolume(80);
     loadTheme();
     
+    // Status Badge Color Observer
+    const statusObserver = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'childList' || mutation.type === 'characterData') {
+                const text = playerStatus.textContent.toLowerCase();
+                
+                if (text.includes('buffer') || text.includes('load') || text.includes('scan') || text.includes('tune')) {
+                    playerStatus.style.color = '#eab308'; // yellow
+                    playerStatus.style.background = 'rgba(234, 179, 8, 0.15)';
+                    playerStatus.style.borderColor = 'rgba(234, 179, 8, 0.3)';
+                    playerStatus.style.boxShadow = '0 0 15px rgba(234, 179, 8, 0.4)';
+                } else if (text.includes('play')) {
+                    playerStatus.style.color = '#22c55e'; // green
+                    playerStatus.style.background = 'rgba(34, 197, 94, 0.15)';
+                    playerStatus.style.borderColor = 'rgba(34, 197, 94, 0.3)';
+                    playerStatus.style.boxShadow = '0 0 15px rgba(34, 197, 94, 0.4)';
+                } else if (text.includes('pause') || text.includes('stop') || text.includes('error') || text.includes('fail') || text.includes('stall')) {
+                    playerStatus.style.color = '#ef4444'; // red
+                    playerStatus.style.background = 'rgba(239, 68, 68, 0.15)';
+                    playerStatus.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                    playerStatus.style.boxShadow = '0 0 15px rgba(239, 68, 68, 0.4)';
+                } else {
+                    playerStatus.style.color = 'orange'; // default
+                    playerStatus.style.background = 'rgba(255, 165, 0, 0.15)';
+                    playerStatus.style.borderColor = 'rgba(255, 165, 0, 0.3)';
+                    playerStatus.style.boxShadow = '0 0 15px rgba(255, 165, 0, 0.4)';
+                }
+            }
+        });
+    });
+    statusObserver.observe(playerStatus, { childList: true, characterData: true, subtree: true });
+
     // Auto-adjusting helper for mobile
     window.addEventListener('resize', () => {
         lucide.createIcons();
@@ -488,7 +520,7 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = true
             const [d1, d2, d3, d4] = await Promise.all([p1, p2, p3, p4]);
             const combined = [...d1, ...d2, ...d3, ...d4];
             currentStations = combined.filter((v,i,a) => a.findIndex(t => (t.stationuuid === v.stationuuid)) === i);
-        } else if (tag.toLowerCase() === 'bhojpuri' || tag.toLowerCase() === 'bihar') {
+        } else if (tag.toLowerCase() === 'bhojpuri') {
             const p1 = fetch(`${API_BASE}/stations/search?limit=30&order=clickcount&reverse=true&hidebroken=true&country=India&tag=bhojpuri`).then(r => r.json()).catch(() => []);
             const p2 = fetch(`${API_BASE}/stations/search?limit=30&order=clickcount&reverse=true&hidebroken=true&country=India&language=bhojpuri`).then(r => r.json()).catch(() => []);
             const p3 = fetch(`${API_BASE}/stations/search?limit=30&order=clickcount&reverse=true&hidebroken=true&country=India&tag=bihar`).then(r => r.json()).catch(() => []);
