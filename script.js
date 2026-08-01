@@ -52,6 +52,7 @@ const mainLoader = document.getElementById('main-loader');
 const nowPlayingCard = document.querySelector('.now-playing-card');
 const fullscreenBtn = document.getElementById('fullscreen-btn');
 const refreshBtn = document.getElementById('refresh-btn');
+const tabRefreshBtn = document.getElementById('tab-refresh-btn');
 const themeToggle = document.getElementById('theme-toggle');
 const themeIcon = document.getElementById('theme-icon');
 const eqHdBtn = document.getElementById('eq-hd-btn');
@@ -215,6 +216,12 @@ function setupEventListeners() {
 
     if (refreshBtn) {
         refreshBtn.addEventListener('click', () => {
+            fetchStations(lastQuery, lastCountry, lastTag);
+        });
+    }
+
+    if (tabRefreshBtn) {
+        tabRefreshBtn.addEventListener('click', () => {
             fetchStations(lastQuery, lastCountry, lastTag);
         });
     }

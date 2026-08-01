@@ -321,7 +321,9 @@ header {
     position: sticky;
     top: 1rem;
     z-index: 1000;
-    box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.4);
+    background-color: var(--glass-bg);
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0) 40%, rgba(255, 255, 255, 0.05) 100%);
+    box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.5), inset 1px 0 2px rgba(255, 255, 255, 0.3);
 }
 
 .cat-scroll {
@@ -380,6 +382,7 @@ header {
     font-size: 0.85rem;
     font-weight: 600;
     transition: var(--transition);
+    text-shadow: 1px 1px 2px black;
 }
 
 .cat-btn:hover {
@@ -391,9 +394,31 @@ header {
 }
 
 .cat-btn.active {
-    background: var(--primary-color);
-    border-color: var(--primary-color);
+    background: 
+        conic-gradient(from 120deg at 30% 30%, rgba(255,255,255,0.4) 0deg, rgba(255,255,255,0) 45deg, transparent 45deg),
+        conic-gradient(from 200deg at 70% 60%, rgba(255,255,255,0.5) 0deg, rgba(255,255,255,0) 35deg, transparent 35deg),
+        conic-gradient(from 320deg at 50% 80%, rgba(255,255,255,0.6) 0deg, rgba(255,255,255,0) 30deg, transparent 30deg),
+        linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 100%),
+        var(--primary-color);
+    border-color: rgba(255, 255, 255, 0.8);
     color: white;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.4);
+    text-shadow: 1px 1px 3px black, 0 0 5px black;
+}
+
+.cat-btn.active::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: 
+        linear-gradient(35deg, transparent 48%, rgba(255,255,255,0.6) 49%, rgba(255,255,255,0.8) 50%, transparent 51%),
+        linear-gradient(-45deg, transparent 38%, rgba(255,255,255,0.6) 39%, rgba(255,255,255,0.8) 40%, transparent 41%),
+        linear-gradient(75deg, transparent 68%, rgba(255,255,255,0.5) 69%, rgba(255,255,255,0.7) 70%, transparent 71%);
+    border-radius: inherit;
+    pointer-events: none;
+    mix-blend-mode: overlay;
 }
 
 /* Hero Section */
@@ -402,11 +427,31 @@ header {
 }
 
 .now-playing-card {
-    padding: 2.5rem;
+    padding: 1rem 1.5rem;
     display: flex;
     gap: 3rem;
     align-items: center;
     animation: fadeIn 0.8s ease-out;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+    border-radius: 16px;
+    transition: box-shadow 0.4s ease, border-color 0.4s ease;
+}
+
+.now-playing-card.playing {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 25px rgba(99, 102, 241, 0.4), inset 0 0 15px rgba(99, 102, 241, 0.2);
+    animation: ledPulse 2s infinite alternate;
+}
+
+@keyframes ledPulse {
+    from {
+        box-shadow: 0 0 15px rgba(99, 102, 241, 0.3), inset 0 0 10px rgba(99, 102, 241, 0.15);
+    }
+    to {
+        box-shadow: 0 0 35px rgba(99, 102, 241, 0.6), inset 0 0 20px rgba(99, 102, 241, 0.3);
+    }
 }
 
 .station-visual {
@@ -736,19 +781,23 @@ h1 {
 /* Player Bar Controls */
 .player-controls {
     position: fixed;
-    bottom: 2rem;
+    bottom: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: calc(100% - (2 * clamp(1rem, 5vw, 2rem)));
-    max-width: calc(1400px - (2 * clamp(1rem, 5vw, 2rem)));
+    width: calc(100% - 2 * clamp(1rem, 5vw, 2rem));
+    max-width: calc(1400px - 2 * clamp(1rem, 5vw, 2rem));
     height: auto;
     min-height: 90px;
-    padding: 0.5rem 2rem;
+    padding: 1rem 1.5rem;
     display: grid;
     grid-template-columns: minmax(150px, 300px) 1fr minmax(100px, 300px);
     align-items: center;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.3);
     z-index: 1000;
+    border-radius: 16px 16px 0 0;
+    border-bottom: none;
+    border-left: 1px solid var(--glass-border);
+    border-right: 1px solid var(--glass-border);
 }
 
 .player-info {
@@ -873,17 +922,20 @@ h1 {
     h1 { font-size: 1.6rem; }
 
     .player-controls {
-        bottom: 0.5rem;
+        bottom: 0;
         left: 50%;
         transform: translateX(-50%);
-        max-width: none;
-        border-radius: 1.5rem;
+        width: calc(100% - 2 * clamp(1rem, 5vw, 2rem));
+        max-width: calc(1400px - 2 * clamp(1rem, 5vw, 2rem));
+        border-radius: 16px 16px 0 0;
         grid-template-columns: 1fr auto;
-        padding: 1rem 1.25rem;
+        padding: 1rem 1.5rem;
         height: auto;
         gap: 0.75rem;
-        width: calc(100% - 1rem);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.3);
+        border-bottom: none;
+        border-left: 1px solid var(--glass-border);
+        border-right: 1px solid var(--glass-border);
     }
 
     .player-info {
@@ -964,6 +1016,29 @@ h1 {
     justify-content: flex-end;
     align-items: center;
     gap: 1rem;
+    position: relative;
+    z-index: 1;
+    background: linear-gradient(90deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15), rgba(244, 63, 94, 0.15), rgba(99, 102, 241, 0.15));
+    background-size: 300% 100%;
+    animation: ledStripGlow 6s linear infinite;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@keyframes ledStripGlow {
+    0% { 
+        background-position: 100% 0;
+        box-shadow: 0 5px 25px rgba(99, 102, 241, 0.4), inset 0 0 15px rgba(99, 102, 241, 0.2);
+    }
+    33% {
+        box-shadow: 0 5px 25px rgba(168, 85, 247, 0.4), inset 0 0 15px rgba(168, 85, 247, 0.2);
+    }
+    66% {
+        box-shadow: 0 5px 25px rgba(244, 63, 94, 0.4), inset 0 0 15px rgba(244, 63, 94, 0.2);
+    }
+    100% { 
+        background-position: 0 0;
+        box-shadow: 0 5px 25px rgba(99, 102, 241, 0.4), inset 0 0 15px rgba(99, 102, 241, 0.2);
+    }
 }
 
 .volume-slider-container {
@@ -1313,8 +1388,8 @@ body.is-fullscreen .station-details {
 }
 
 body.is-fullscreen .player-controls {
-    width: calc(100% - 4rem);
-    max-width: none;
+    width: 100%;
+    max-width: 100%;
 }
 
 @media (max-width: 768px) {
@@ -1323,6 +1398,6 @@ body.is-fullscreen .player-controls {
         padding-bottom: 140px;
     }
     body.is-fullscreen .player-controls {
-        width: calc(100% - 1rem);
+        width: 100%;
     }
 }
