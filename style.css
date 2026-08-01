@@ -436,23 +436,12 @@ header {
     margin: 0 auto;
     width: 100%;
     border-radius: 16px;
+    background-color: var(--glass-bg);
     transition: box-shadow 0.4s ease, border-color 0.4s ease;
 }
 
-.now-playing-card.playing {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 25px rgba(99, 102, 241, 0.4), inset 0 0 15px rgba(99, 102, 241, 0.2);
-    animation: ledPulse 2s infinite alternate;
-}
 
-@keyframes ledPulse {
-    from {
-        box-shadow: 0 0 15px rgba(99, 102, 241, 0.3), inset 0 0 10px rgba(99, 102, 241, 0.15);
-    }
-    to {
-        box-shadow: 0 0 35px rgba(99, 102, 241, 0.6), inset 0 0 20px rgba(99, 102, 241, 0.3);
-    }
-}
+
 
 .station-visual {
     position: relative;
@@ -1018,6 +1007,9 @@ h1 {
     gap: 1rem;
     position: relative;
     z-index: 1;
+}
+
+[data-theme="light"] .volume-controls {
     background: linear-gradient(90deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15), rgba(244, 63, 94, 0.15), rgba(99, 102, 241, 0.15));
     background-size: 300% 100%;
     animation: ledStripGlow 6s linear infinite;
