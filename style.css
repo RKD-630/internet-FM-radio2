@@ -234,13 +234,16 @@ header {
     transform: scale(0.95);
 }
 
-#mode-toggle-btn.india-active {
-    background: #f97316;
+#mode-toggle-btn {
+    background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728);
+    color: #1a1a1a;
+    border: 1px solid rgba(252, 246, 186, 0.5);
+    text-shadow: none;
 }
 
-#mode-toggle-btn.india-active:hover {
-    background: #ea580c;
-    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+#mode-toggle-btn:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 4px 12px rgba(252, 246, 186, 0.4);
 }
 
 .scanner-actions {
@@ -402,10 +405,14 @@ header {
 
 .cat-btn.active {
     background-image: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c), linear-gradient(transparent, transparent);
-    border-color: rgba(255, 215, 0, 0.6);
+    border-color: transparent;
     position: relative;
     overflow: visible;
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+    box-shadow: none;
+    text-decoration: underline;
+    text-decoration-color: #fcf6ba;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
     filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.5));
 }
 
@@ -417,9 +424,14 @@ header {
 }
 
 [data-theme="light"] .cat-btn.active {
-    background-color: #cbd5e1; /* Darker silver for active state in white theme */
+    background-color: transparent;
     background-image: linear-gradient(to right, #8b6508, #a67c00, #8b6508), linear-gradient(transparent, transparent);
-    border-color: rgba(139, 101, 8, 0.4);
+    border-color: transparent;
+    box-shadow: none;
+    text-decoration: underline;
+    text-decoration-color: #a67c00;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
     filter: drop-shadow(0 0 3px rgba(139, 101, 8, 0.4));
 }
 
