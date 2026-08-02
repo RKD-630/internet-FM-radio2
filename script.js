@@ -1,7 +1,7 @@
 // Configuration
 const API_BASE = 'https://de1.api.radio-browser.info/json';
 const DEFAULT_LIMIT = 200;
-const DEFAULT_LOGO = 'data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Ctext%20y%3D%22.9em%22%20font-size%3D%2290%22%3E%F0%9F%93%BB%3C%2Ftext%3E%3C%2Fsvg%3E';
+const DEFAULT_LOGO = 'logo.png';
 
 // State
 let currentStations = [];
@@ -489,8 +489,7 @@ const fetchMappings = {
     'bollywood': [ { tag: 'bollywood', country: 'India' }, { tag: 'hindi', country: 'India' } ],
     'dj remix': [ { tag: 'dj remix', country: 'India' }, { tag: 'remix', country: 'India' }, { name: 'anbu fm hindi' }, { name: 'anbu fm' }, { name: 'radio deewana' }, { name: 'bollywoodandbeyond' }, { name: 'goldy blast' } ],
     'singer': [ { name: 'latamangeshkarradio' }, { name: 'kishorekumarradio' }, { name: 'Hits Of Lata Mangeshkar' }, { name: 'Rafi hit songs' }, { name: 'Mohammed Rafi' }, { name: 'Hits Of Kishor Kumar' }, { name: 'Goldy Mukesh' }, { name: 'hit of lata' }, { name: 'Mukesh Radio' }, { name: 'shreyaghosal' }, { name: 'arijitsingh' } ],
-    'news': [ { tag: 'news', country: 'India' }, { name: 'wion live tv' } ],
-    'vividh bharti': [ { name: 'vividh bharati' }, { name: 'vividh bharti' } ]
+    'news': [ { tag: 'news', country: 'India' }, { name: 'wion live tv' } ]
 };
 
 // API Functions
@@ -597,23 +596,29 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = true
             const response = await fetch(url);
             currentStations = await response.json();
         }
-        
-        // Ensure Vividh Bharti Mumbai plays first in India category (All and Vividh Bharti tags)
-        if (country === 'India' && (!tag || tag.toLowerCase() === 'vividh bharti') && !query) {
-            let vbIndex = currentStations.findIndex(s => s.name && s.name.trim().toLowerCase() === 'vividh bharti mumbai');
-            if (vbIndex > -1) {
-                const station = currentStations.splice(vbIndex, 1)[0];
-                currentStations.unshift(station);
-            } else {
-                try {
-                    const vbResp = await fetch(`${API_BASE}/stations/search?name=Vividh%20Bharti%20Mumbai&limit=1`);
-                    const vbStations = await vbResp.json();
-                    if (vbStations.length > 0) {
-                        currentStations.unshift(vbStations[0]);
-                        currentStations = currentStations.filter((v,i,a) => a.findIndex(t => (t.stationuuid === v.stationuuid)) === i);
-                    }
-                } catch(e) { console.error('Failed to fetch Vividh Bharti Mumbai', e); }
+        // Prepend Vividh Bharti Mumbai and Bollywood Gaane Purane for India 'All' category
+        if (country === 'India' && !tag && !query) {
+            const stationsToPrepend = ['vividh bharti mumbai', 'bollywood gaane purane'];
+            
+            for (let i = stationsToPrepend.length - 1; i >= 0; i--) {
+                const stationName = stationsToPrepend[i];
+                let index = currentStations.findIndex(s => s.name && s.name.trim().toLowerCase() === stationName);
+                
+                if (index > -1) {
+                    const station = currentStations.splice(index, 1)[0];
+                    currentStations.unshift(station);
+                } else {
+                    try {
+                        const resp = await fetch(`${API_BASE}/stations/search?name=${encodeURIComponent(stationName)}&limit=1`);
+                        const stations = await resp.json();
+                        if (stations.length > 0) {
+                            currentStations.unshift(stations[0]);
+                        }
+                    } catch(e) { console.error(`Failed to fetch ${stationName}`, e); }
+                }
             }
+            // Ensure uniqueness
+            currentStations = currentStations.filter((v,i,a) => a.findIndex(t => (t.stationuuid === v.stationuuid)) === i);
         }
         
         renderStations();

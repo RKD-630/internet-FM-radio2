@@ -156,6 +156,28 @@ header {
     color: var(--primary-color);
 }
 
+.logo span {
+    background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3, #ff0000);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: colorful-dance 2s linear infinite, dance 1s ease-in-out infinite alternate;
+    display: inline-block;
+}
+
+@keyframes colorful-dance {
+    to {
+        background-position: 200% center;
+    }
+}
+
+@keyframes dance {
+    0% { transform: translateY(0) rotate(-2deg) scale(1); filter: drop-shadow(0 0 5px rgba(255,0,0,0.8)) drop-shadow(0 0 10px rgba(255,0,0,0.5)); }
+    33% { filter: drop-shadow(0 0 5px rgba(0,255,0,0.8)) drop-shadow(0 0 10px rgba(0,255,0,0.5)); }
+    66% { filter: drop-shadow(0 0 5px rgba(0,0,255,0.8)) drop-shadow(0 0 10px rgba(0,0,255,0.5)); }
+    100% { transform: translateY(-3px) rotate(2deg) scale(1.05); filter: drop-shadow(0 0 8px rgba(255,255,0,1)) drop-shadow(0 0 15px rgba(255,255,0,0.8)); }
+}
+
 .search-bar {
     flex: 1;
     max-width: 400px;
@@ -920,7 +942,7 @@ h1 {
     @media (max-width: 400px) {
         .tab-btn span { display: none; }
         .tab-btn { padding: 0.75rem; }
-        .logo span { display: none; }
+        .logo span { font-size: 1.1rem; }
         .player-text { display: none; }
     }
     
