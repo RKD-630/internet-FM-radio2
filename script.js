@@ -22,9 +22,11 @@ let showingNextInQueue = true;
 let lastQuery = '';
 let lastCountry = '';
 let lastTag = '';
+let wakeLock = null;
 
 // DOM Elements
 const audioPlayer = document.getElementById('audio-player');
+const keepAliveAudio = document.getElementById('keep-alive-audio');
 const stationsGrid = document.getElementById('stations-grid');
 const playlistList = document.getElementById('playlist-list');
 const searchInput = document.getElementById('station-search');
@@ -382,6 +384,8 @@ function setupEventListeners() {
         lucide.createIcons();
         playerStatus.textContent = 'Playing';
         if (nowPlayingCard) nowPlayingCard.classList.add('playing');
+        requestWakeLock();
+        if (keepAliveAudio) keepAliveAudio.play().catch(e => console.log('Keep-alive failed:', e));
     };
 
     audioPlayer.onplaying = () => {
@@ -407,6 +411,8 @@ function setupEventListeners() {
         if ('mediaSession' in navigator) {
             navigator.mediaSession.playbackState = 'paused';
         }
+        releaseWakeLock();
+        if (keepAliveAudio) keepAliveAudio.pause();
     };
 
     audioPlayer.onwaiting = () => {
@@ -447,6 +453,8 @@ function setupEventListeners() {
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.playbackState = 'playing';
             }
+        } else if (document.visibilityState === 'visible' && !audioPlayer.paused) {
+            requestWakeLock();
         }
     });
 }
@@ -478,7 +486,10 @@ const fetchMappings = {
     'malayalam': [ { tag: 'malayalam', country: 'India' }, { language: 'malayalam', country: 'India' }, { state: 'kerala', country: 'India' } ],
     'marathi': [ { tag: 'marathi', country: 'India' }, { language: 'marathi', country: 'India' }, { state: 'maharashtra', country: 'India' } ],
     'gujarati': [ { tag: 'gujarati', country: 'India' }, { language: 'gujarati', country: 'India' }, { state: 'gujarat', country: 'India' } ],
-    'bollywood': [ { tag: 'bollywood', country: 'India' }, { tag: 'hindi', country: 'India' } ]
+    'bollywood': [ { tag: 'bollywood', country: 'India' }, { tag: 'hindi', country: 'India' } ],
+    'dj remix': [ { tag: 'dj remix', country: 'India' }, { tag: 'remix', country: 'India' }, { name: 'anbu fm hindi' }, { name: 'anbu fm' }, { name: 'radio deewana' }, { name: 'bollywoodandbeyond' }, { name: 'goldy blast' } ],
+    'singer': [ { name: 'latamangeshkarradio' }, { name: 'kishorekumarradio' }, { name: 'Hits Of Lata Mangeshkar' }, { name: 'Rafi hit songs' }, { name: 'Mohammed Rafi' }, { name: 'Hits Of Kishor Kumar' }, { name: 'Goldy Mukesh' }, { name: 'hit of lata' }, { name: 'Mukesh Radio' }, { name: 'shreyaghosal' }, { name: 'arijitsingh' } ],
+    'news': [ { tag: 'news', country: 'India' }, { name: 'wion live tv' } ]
 };
 
 // API Functions
@@ -562,7 +573,25 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = true
             const combined = results.flat();
             
             // Remove duplicates
-            currentStations = combined.filter((v,i,a) => a.findIndex(t => (t.stationuuid === v.stationuuid)) === i);
+            let filtered = combined.filter((v,i,a) => a.findIndex(t => (t.stationuuid === v.stationuuid)) === i);
+            
+            // Apply category-specific exclusions and strict deduplication
+            if (tag.toLowerCase() === 'dj remix') {
+                filtered = filtered.filter(s => {
+                    const name = s.name ? s.name.toLowerCase() : '';
+                    return !name.includes('anbu fm kannada') && !name.includes('anbu fm malayalam');
+                });
+                
+                // Further deduplicate by name to remove community duplicates
+                filtered = filtered.filter((v,i,a) => a.findIndex(t => (t.name && v.name && t.name.trim().toLowerCase() === v.name.trim().toLowerCase())) === i);
+            } else if (tag.toLowerCase() === 'news') {
+                filtered = filtered.filter(s => {
+                    const name = s.name ? s.name.toLowerCase().trim() : '';
+                    return name !== 'wion' && !name.includes('wion am stereo 1430');
+                });
+            }
+            
+            currentStations = filtered;
         } else {
             const response = await fetch(url);
             currentStations = await response.json();
@@ -1126,6 +1155,29 @@ function playSmartScanStation() {
 
 // Start App
 init();
+
+// --- Wake Lock Logic ---
+async function requestWakeLock() {
+    try {
+        if ('wakeLock' in navigator) {
+            wakeLock = await navigator.wakeLock.request('screen');
+            wakeLock.addEventListener('release', () => {
+                console.log('Wake Lock was released');
+            });
+            console.log('Wake Lock is active');
+        }
+    } catch (err) {
+        console.error(`Wake Lock error: ${err.name}, ${err.message}`);
+    }
+}
+
+function releaseWakeLock() {
+    if (wakeLock !== null) {
+        wakeLock.release().catch(console.error);
+        wakeLock = null;
+        console.log('Wake Lock released manually');
+    }
+}
 
 // --- Dynamic Visualizer Logic ---
 const eqBarsList = document.querySelectorAll('.eq-bar');
