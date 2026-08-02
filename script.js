@@ -489,7 +489,8 @@ const fetchMappings = {
     'bollywood': [ { tag: 'bollywood', country: 'India' }, { tag: 'hindi', country: 'India' } ],
     'dj remix': [ { tag: 'dj remix', country: 'India' }, { tag: 'remix', country: 'India' }, { name: 'anbu fm hindi' }, { name: 'anbu fm' }, { name: 'radio deewana' }, { name: 'bollywoodandbeyond' }, { name: 'goldy blast' } ],
     'singer': [ { name: 'latamangeshkarradio' }, { name: 'kishorekumarradio' }, { name: 'Hits Of Lata Mangeshkar' }, { name: 'Rafi hit songs' }, { name: 'Mohammed Rafi' }, { name: 'Hits Of Kishor Kumar' }, { name: 'Goldy Mukesh' }, { name: 'hit of lata' }, { name: 'Mukesh Radio' }, { name: 'shreyaghosal' }, { name: 'arijitsingh' } ],
-    'news': [ { tag: 'news', country: 'India' }, { name: 'wion live tv' } ]
+    'news': [ { tag: 'news', country: 'India' }, { name: 'wion live tv' } ],
+    'vividh bharti': [ { name: 'vividh bharati' }, { name: 'vividh bharti' } ]
 };
 
 // API Functions
@@ -595,6 +596,24 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = true
         } else {
             const response = await fetch(url);
             currentStations = await response.json();
+        }
+        
+        // Ensure Vividh Bharti Mumbai plays first in India category (All and Vividh Bharti tags)
+        if (country === 'India' && (!tag || tag.toLowerCase() === 'vividh bharti') && !query) {
+            let vbIndex = currentStations.findIndex(s => s.name && s.name.trim().toLowerCase() === 'vividh bharti mumbai');
+            if (vbIndex > -1) {
+                const station = currentStations.splice(vbIndex, 1)[0];
+                currentStations.unshift(station);
+            } else {
+                try {
+                    const vbResp = await fetch(`${API_BASE}/stations/search?name=Vividh%20Bharti%20Mumbai&limit=1`);
+                    const vbStations = await vbResp.json();
+                    if (vbStations.length > 0) {
+                        currentStations.unshift(vbStations[0]);
+                        currentStations = currentStations.filter((v,i,a) => a.findIndex(t => (t.stationuuid === v.stationuuid)) === i);
+                    }
+                } catch(e) { console.error('Failed to fetch Vividh Bharti Mumbai', e); }
+            }
         }
         
         renderStations();

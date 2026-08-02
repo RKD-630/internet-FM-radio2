@@ -1377,3 +1377,46 @@ body.is-fullscreen .player-controls {
         width: 100%;
     }
 }
+
+/* Mobile Landscape Fullscreen Fixes */
+@media (max-height: 600px) and (orientation: landscape), (max-width: 900px) and (orientation: landscape) {
+    body.is-fullscreen .volume-controls,
+    body.is-fullscreen .banner-right {
+        display: none !important;
+    }
+    
+    body.is-fullscreen .now-playing-card {
+        flex-direction: row !important;
+        align-items: center;
+        justify-content: flex-start;
+        text-align: left !important;
+        gap: 2rem;
+    }
+
+    body.is-fullscreen .station-visual {
+        width: 140px !important;
+        height: 140px !important;
+        margin: 0 !important;
+    }
+    
+    body.is-fullscreen .station-visual img {
+        max-width: 140px !important;
+    }
+
+    body.is-fullscreen .station-details {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    body.is-fullscreen #current-station-name {
+        font-size: 2.5rem !important;
+        width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
