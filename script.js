@@ -1,7 +1,51 @@
 // Configuration
-const API_BASE = 'https://de1.api.radio-browser.info/json';
+const API_ENDPOINTS = [
+    'https://de1.api.radio-browser.info/json',
+    'https://at1.api.radio-browser.info/json',
+    'https://nl1.api.radio-browser.info/json',
+    'https://fr1.api.radio-browser.info/json'
+];
+let currentApiIndex = 0;
+let API_BASE = API_ENDPOINTS[currentApiIndex];
+let retryCount = 0;
+
 const DEFAULT_LIMIT = 200;
 const DEFAULT_LOGO = 'logo.png';
+
+const CUSTOM_SINGER_STATIONS = [
+    {
+        name: 'Asha Bhosle Hits',
+        url: 'https://stream.zeno.fm/gsqq2t9691zuv',
+        favicon: 'logo.png',
+        tags: 'asha bhosle, singer',
+        country: 'India',
+        stationuuid: 'custom-asha'
+    },
+    {
+        name: 'Udit Narayan Radio',
+        url: 'http://prclive1.listenon.in:9960/',
+        favicon: 'logo.png',
+        tags: 'udit narayan, singer',
+        country: 'India',
+        stationuuid: 'custom-udit'
+    },
+    {
+        name: 'Jagjit Singh Ghazals',
+        url: 'https://stream.zeno.fm/gsqq2t9691zuv',
+        favicon: 'logo.png',
+        tags: 'jagjit singh, ghazal',
+        country: 'India',
+        stationuuid: 'custom-jagjit'
+    },
+    {
+        name: 'R.D. Burman Classics',
+        url: 'https://stream.zeno.fm/gsqq2t9691zuv',
+        favicon: 'logo.png',
+        tags: 'rd burman, retro',
+        country: 'India',
+        stationuuid: 'custom-rd'
+    }
+];
 
 // State
 let currentStations = [];
@@ -23,6 +67,7 @@ let lastQuery = '';
 let lastCountry = '';
 let lastTag = '';
 let wakeLock = null;
+let consecutiveErrors = 0;
 
 // DOM Elements
 const audioPlayer = document.getElementById('audio-player');
@@ -67,18 +112,12 @@ const queueTickerText = document.getElementById('queue-ticker-text');
 const mainTabs = document.querySelectorAll('.tab-btn:not(.action-btn)');
 const views = {
     discovery: document.getElementById('discovery-view'),
-    playlist: document.getElementById('playlist-view'),
-    scanner: document.getElementById('scanner-view')
+    playlist: document.getElementById('playlist-view')
 };
 const quickPlaylistList = document.getElementById('quick-playlist-list');
 const fullPlaylistList = document.getElementById('full-playlist-list');
 
-// Scanner Elements
-const freqSlider = document.getElementById('freq-slider');
-const freqValue = document.getElementById('freq-value');
 
-const tuneInBtn = document.getElementById('tune-in-btn');
-const signalBars = document.querySelectorAll('.signal-bars span');
 
 
 // Initialize
@@ -362,21 +401,35 @@ function setupEventListeners() {
         });
     });
 
-    // Scanner Logic
-    if (freqSlider) {
-        freqSlider.addEventListener('input', (e) => {
-            const val = parseFloat(e.target.value).toFixed(1);
-            freqValue.textContent = val;
-            updateSignalStrength(val);
-        });
-    }
+    // Keyboard Controls
+    document.addEventListener('keydown', (e) => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
-    if (tuneInBtn) {
-        tuneInBtn.addEventListener('click', () => {
-            const freq = freqValue.textContent;
-            tuneInToFrequency(freq);
-        });
-    }
+        switch(e.code) {
+            case 'Space':
+                e.preventDefault();
+                togglePlay();
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                let upVol = Math.min(100, parseInt(volumeSlider.value || lastVolume || 80) + 5);
+                updateVolume(upVol);
+                break;
+            case 'ArrowDown':
+                e.preventDefault();
+                let downVol = Math.max(0, parseInt(volumeSlider.value || lastVolume || 80) - 5);
+                updateVolume(downVol);
+                break;
+            case 'ArrowLeft':
+                e.preventDefault();
+                playPrevious();
+                break;
+            case 'ArrowRight':
+                e.preventDefault();
+                playNext();
+                break;
+        }
+    });
 
     // Audio Player Events
     audioPlayer.onplay = () => {
@@ -389,6 +442,7 @@ function setupEventListeners() {
     };
 
     audioPlayer.onplaying = () => {
+        consecutiveErrors = 0; // Reset error count on successful play
         clearTimeout(playCheckTimeout); // Clear any buffering timeouts
         if (nowPlayingCard) nowPlayingCard.classList.add('playing');
         playerStatus.textContent = 'Playing';
@@ -417,29 +471,56 @@ function setupEventListeners() {
 
     audioPlayer.onwaiting = () => {
         playerStatus.textContent = 'Buffering...';
-        
-        // If it gets stuck buffering mid-stream for more than 8.5 seconds, skip to next
-        clearTimeout(playCheckTimeout);
-        playCheckTimeout = setTimeout(() => {
-            console.log('Stream stalled mid-playback. Auto-skipping to next...');
-            playerStatus.textContent = 'Stream Stalled - Auto-skipping...';
-            playNext();
-        }, 8500);
+        // Removed aggressive auto-skip on mid-stream buffering to allow smooth play
     };
 
     audioPlayer.onerror = (e) => {
         console.error('Audio playback error:', e);
-        playerStatus.textContent = 'Error Loading Stream - Skipping...';
-        playerStatus.style.color = 'var(--accent-color)';
-        setTimeout(() => {
-            playerStatus.style.color = 'var(--primary-color)';
-            playNext(); // Automatically skip on error
-        }, 1500);
+        consecutiveErrors++;
+        
+        if (consecutiveErrors < 10) {
+            playerStatus.textContent = 'Stream Error - Moving to end...';
+            playerStatus.style.color = 'var(--accent-color)';
+            
+            // Move the broken station to the end of the list
+            if (currentSource === 'search' && currentStations.length > 0) {
+                const broken = currentStations.splice(currentStationIndex, 1)[0];
+                currentStations.push(broken);
+                if (currentStationIndex >= currentStations.length - 1) {
+                    currentStationIndex = 0;
+                }
+                renderStations(currentStations);
+            } else if (currentSource === 'playlist' && currentPlaylist.length > 0) {
+                const broken = currentPlaylist.splice(currentStationIndex, 1)[0];
+                currentPlaylist.push(broken);
+                if (currentStationIndex >= currentPlaylist.length - 1) {
+                    currentStationIndex = 0;
+                }
+                renderPlaylist();
+            }
+
+            setTimeout(() => {
+                playerStatus.style.color = 'var(--primary-color)';
+                const list = currentSource === 'search' ? currentStations : currentPlaylist;
+                if (list.length > 0) {
+                    playStation(currentStationIndex, currentSource);
+                }
+            }, 1500);
+        } else {
+            playerStatus.textContent = 'Too many errors. Playback stopped.';
+            playerStatus.style.color = 'var(--accent-color)';
+            if (nowPlayingCard) nowPlayingCard.classList.remove('playing');
+            playPauseBtn.innerHTML = '<i data-lucide="play" id="play-icon"></i>';
+            lucide.createIcons();
+            consecutiveErrors = 0; // Reset for next manual play
+        }
     };
     
     audioPlayer.onended = () => {
-        console.log('Stream ended. Skipping to next...');
-        playNext();
+        console.log('Stream ended. Reconnecting...');
+        // Live streams shouldn't end. If they do, attempt to reconnect rather than skip.
+        audioPlayer.load();
+        audioPlayer.play().catch(e => console.error('Reconnect failed', e));
     };
 
     audioPlayer.onloadstart = () => {
@@ -488,7 +569,7 @@ const fetchMappings = {
     'gujarati': [ { tag: 'gujarati', country: 'India' }, { language: 'gujarati', country: 'India' }, { state: 'gujarat', country: 'India' } ],
     'bollywood': [ { tag: 'bollywood', country: 'India' }, { tag: 'hindi', country: 'India' } ],
     'dj remix': [ { tag: 'dj remix', country: 'India' }, { tag: 'remix', country: 'India' }, { name: 'anbu fm hindi' }, { name: 'anbu fm' }, { name: 'radio deewana' }, { name: 'bollywoodandbeyond' }, { name: 'goldy blast' } ],
-    'singer': [ { name: 'latamangeshkarradio' }, { name: 'kishorekumarradio' }, { name: 'Hits Of Lata Mangeshkar' }, { name: 'Rafi hit songs' }, { name: 'Mohammed Rafi' }, { name: 'Hits Of Kishor Kumar' }, { name: 'Goldy Mukesh' }, { name: 'hit of lata' }, { name: 'Mukesh Radio' }, { name: 'shreyaghosal' }, { name: 'arijitsingh' } ],
+    'singer': [ { name: 'latamangeshkarradio' }, { name: 'kishorekumarradio' }, { name: 'Hits Of Lata Mangeshkar' }, { name: 'Rafi hit songs' }, { name: 'Mohammed Rafi' }, { name: 'Hits Of Kishor Kumar' }, { name: 'Goldy Mukesh' }, { name: 'hit of lata' }, { name: 'Mukesh Radio' }, { name: 'shreyaghosal' }, { name: 'arijitsingh' }, { name: 'Asha Bhosle' }, { name: 'Udit Narayan' }, { name: 'Kumar Sanu' }, { name: 'Sonu Nigam' }, { name: 'Alka Yagnik' }, { name: 'Jagjit Singh' }, { name: 'rd burman' }, { name: 'Kishore Kumar' }, { name: 'Lata Mangeshkar' } ],
     'news': [ { tag: 'news', country: 'India' }, { name: 'wion live tv' } ]
 };
 
@@ -589,6 +670,9 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = true
                     const name = s.name ? s.name.toLowerCase().trim() : '';
                     return name !== 'wion' && !name.includes('wion am stereo 1430');
                 });
+            } else if (tag.toLowerCase() === 'singer') {
+                // Inject custom stations for artists that do not exist natively on the radio-browser API
+                filtered.unshift(...CUSTOM_SINGER_STATIONS);
             }
             
             currentStations = filtered;
@@ -637,11 +721,27 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = true
                 audioPlayer.removeAttribute('src'); 
             }
         }
+        
+        // Reset retry count on success
+        retryCount = 0;
     } catch (error) {
-        console.error('Failed to fetch stations:', error);
-        stationsGrid.innerHTML = '<p class="error">Failed to load stations. Please check your internet connection.</p>';
+        console.error('Failed to fetch stations on server:', API_BASE, error);
+        
+        retryCount++;
+        if (retryCount < API_ENDPOINTS.length) {
+            currentApiIndex = (currentApiIndex + 1) % API_ENDPOINTS.length;
+            API_BASE = API_ENDPOINTS[currentApiIndex];
+            console.log('Retrying with new server:', API_BASE);
+            await fetchStations(query, country, tag, autoPlay);
+            return; // Exit current function context, let the retry handle it
+        } else {
+            stationsGrid.innerHTML = '<p class="error">Failed to load stations after trying all servers. Please check your internet connection.</p>';
+            retryCount = 0; // Reset for next manual attempt
+        }
     } finally {
-        mainLoader.style.display = 'none';
+        if (retryCount === 0) {
+            mainLoader.style.display = 'none';
+        }
     }
 }
 
@@ -719,39 +819,6 @@ function switchView(target) {
     });
 }
 
-function updateSignalStrength(freq) {
-    // Simulate signal strength based on frequency (just for UI)
-    const seed = Math.sin(freq * 10);
-    signalBars.forEach((bar, i) => {
-        const height = 10 + (i * 10) + (seed * 5);
-        bar.style.height = `${Math.max(5, height)}px`;
-        bar.style.opacity = seed > 0.5 ? '1' : '0.4';
-    });
-}
-
-async function tuneInToFrequency(freq) {
-    if (tuneInBtn) {
-        tuneInBtn.disabled = true;
-        tuneInBtn.innerHTML = '<i class="spin" data-lucide="refresh-cw"></i> Tuning...';
-        lucide.createIcons();
-    }
-    
-    // We fetch a station whose name contains the frequency and in the current mode (India or Global)
-    const country = currentMode === 'India' ? 'India' : '';
-    
-    // fetchStations handles UI updates for loader and playing the station automatically
-    await fetchStations(freq, country, '', true);
-    
-    if (tuneInBtn) {
-        tuneInBtn.disabled = false;
-        tuneInBtn.innerHTML = '<i data-lucide="radio"></i> Tune Station';
-        lucide.createIcons();
-    }
-    
-    if (currentStations.length === 0) {
-        alert(`No stations found for frequency ${freq} MHz.`);
-    }
-}
 
 // Playback Logic
 function playStation(index, source = 'search', element = null) {
@@ -775,24 +842,28 @@ function playStation(index, source = 'search', element = null) {
         if (list.length > 0) {
             const pIdx = (index - 1 + list.length) % list.length;
             const nIdx = (index + 1) % list.length;
-            const prevStationText = `⏮️ Prev: ${list[pIdx].name || 'Unknown'}`;
-            const nextStationText = `⏭️ Next: ${list[nIdx].name || 'Unknown'}`;
+            const prevStationName = list[pIdx].name || 'Unknown';
+            const nextStationName = list[nIdx].name || 'Unknown';
+            const prevStationHTML = `<i data-lucide="skip-back" style="width:14px; height:14px; display:inline-block; vertical-align:middle; margin-right:4px;"></i><span style="vertical-align:middle;">Prev: ${prevStationName}</span>`;
+            const nextStationHTML = `<i data-lucide="skip-forward" style="width:14px; height:14px; display:inline-block; vertical-align:middle; margin-right:4px;"></i><span style="vertical-align:middle;">Next: ${nextStationName}</span>`;
             
-            queueTickerText.textContent = nextStationText;
+            queueTickerText.innerHTML = nextStationHTML;
             queueTickerText.className = 'queue-next';
             showingNextInQueue = true;
+            lucide.createIcons();
             
             clearInterval(queueTickerInterval);
             queueTickerInterval = setInterval(() => {
                 queueTickerText.style.opacity = '0';
                 setTimeout(() => {
                     if (showingNextInQueue) {
-                        queueTickerText.textContent = prevStationText;
+                        queueTickerText.innerHTML = prevStationHTML;
                         queueTickerText.className = 'queue-prev';
                     } else {
-                        queueTickerText.textContent = nextStationText;
+                        queueTickerText.innerHTML = nextStationHTML;
                         queueTickerText.className = 'queue-next';
                     }
+                    lucide.createIcons();
                     queueTickerText.style.opacity = '1';
                     showingNextInQueue = !showingNextInQueue;
                 }, 300);
@@ -820,24 +891,7 @@ function playStation(index, source = 'search', element = null) {
     // Also update button immediately before promise resolves for instant feedback
     if (nowPlayingCard) nowPlayingCard.classList.add('playing');
 
-    // Check if buffering takes too long (8.5 seconds auto-skip)
-    clearTimeout(playCheckTimeout);
-    playCheckTimeout = setTimeout(() => {
-        if (autoPlayBlocked) return;
-        
-        if (audioPlayer.paused || audioPlayer.readyState === 0 || audioPlayer.error) {
-            console.log('Station taking too long to buffer. Auto-skipping to next...');
-            if (!audioPlayer.error) {
-                playerStatus.textContent = 'Stream Slow - Auto-skipping...';
-            }
-            // Automatically play the next station
-            let list = source === 'search' ? currentStations : currentPlaylist;
-            if (list.length > 0) {
-                currentStationIndex = (currentStationIndex + 1) % list.length;
-                playStation(currentStationIndex, source);
-            }
-        }
-    }, 8500);
+    // Auto-skip logic removed to prevent stations from skipping before they finish loading.
 
     // Background Audio Support (Media Session)
     if ('mediaSession' in navigator) {
@@ -891,9 +945,9 @@ function updatePlayerUI(station) {
     } else {
         currentStationName.classList.remove('marquee-name');
         
-        // Decrease font size 15% for names between 16-24 characters
+        // Decrease font size 15% for names between 16-24 characters (scaled down by 25% for user request)
         if (name.length >= 16 && name.length <= 24) {
-            currentStationName.style.fontSize = 'clamp(1.275rem, 6.8vw, 2.125rem)';
+            currentStationName.style.fontSize = 'clamp(0.95rem, 5.1vw, 1.59rem)';
         }
     }
     
