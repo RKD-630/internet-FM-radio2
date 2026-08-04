@@ -696,6 +696,9 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
             return !excludedStations.some(ex => name.includes(ex));
         });
 
+        // Ensure strictly only active/working stations are allowed
+        currentStations = currentStations.filter(station => station.lastcheckok === 1);
+
         renderStations();
         resultsCount.textContent = `${currentStations.length} stations found`;
         
