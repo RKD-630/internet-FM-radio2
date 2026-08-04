@@ -556,9 +556,9 @@ body:not([data-theme="light"]) #current-station-name {
 }
 
 .station-details h1:not(.marquee-name) {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: break-word;
     max-width: 100%;
 }
 
@@ -577,9 +577,9 @@ body:not([data-theme="light"]) #current-station-name {
     color: var(--text-secondary);
     font-size: 1.1rem;
     margin-bottom: 2rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: break-word;
     max-width: 100%;
 }
 
@@ -685,10 +685,7 @@ body:not([data-theme="light"]) #current-station-name {
     margin-bottom: 0.25rem;
     white-space: normal;
     overflow-wrap: break-word;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    word-break: break-word;
 }
 
 .item-info p {
@@ -696,10 +693,7 @@ body:not([data-theme="light"]) #current-station-name {
     color: var(--text-secondary);
     white-space: normal;
     overflow-wrap: break-word;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    word-break: break-word;
 }
 
 .item-actions {
@@ -794,10 +788,7 @@ body:not([data-theme="light"]) #current-station-name {
     margin-bottom: 0.15rem;
     white-space: normal;
     overflow-wrap: break-word;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    word-break: break-word;
 }
 
 .player-text p {
@@ -805,10 +796,7 @@ body:not([data-theme="light"]) #current-station-name {
     color: var(--text-secondary);
     white-space: normal;
     overflow-wrap: break-word;
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    word-break: break-word;
 }
 
 /* Mobile Support Fixes */

@@ -12,40 +12,7 @@ let retryCount = 0;
 const DEFAULT_LIMIT = 200;
 const DEFAULT_LOGO = 'logo.png';
 
-const CUSTOM_SINGER_STATIONS = [
-    {
-        name: 'Asha Bhosle Hits',
-        url: 'https://stream.zeno.fm/gsqq2t9691zuv',
-        favicon: 'logo.png',
-        tags: 'asha bhosle, singer',
-        country: 'India',
-        stationuuid: 'custom-asha'
-    },
-    {
-        name: 'Udit Narayan Radio',
-        url: 'http://prclive1.listenon.in:9960/',
-        favicon: 'logo.png',
-        tags: 'udit narayan, singer',
-        country: 'India',
-        stationuuid: 'custom-udit'
-    },
-    {
-        name: 'Jagjit Singh Ghazals',
-        url: 'https://stream.zeno.fm/gsqq2t9691zuv',
-        favicon: 'logo.png',
-        tags: 'jagjit singh, ghazal',
-        country: 'India',
-        stationuuid: 'custom-jagjit'
-    },
-    {
-        name: 'R.D. Burman Classics',
-        url: 'https://stream.zeno.fm/gsqq2t9691zuv',
-        favicon: 'logo.png',
-        tags: 'rd burman, retro',
-        country: 'India',
-        stationuuid: 'custom-rd'
-    }
-];
+const CUSTOM_SINGER_STATIONS = [];
 
 // State
 let currentStations = [];
@@ -100,6 +67,7 @@ const nowPlayingCard = document.querySelector('.now-playing-card');
 const fullscreenBtn = document.getElementById('fullscreen-btn');
 const refreshBtn = document.getElementById('refresh-btn');
 const tabRefreshBtn = document.getElementById('tab-refresh-btn');
+const fsRefreshBtn = document.getElementById('fs-refresh-btn');
 const themeToggle = document.getElementById('theme-toggle');
 const themeIcon = document.getElementById('theme-icon');
 const eqHdBtn = document.getElementById('eq-hd-btn');
@@ -264,6 +232,15 @@ function setupEventListeners() {
     if (tabRefreshBtn) {
         tabRefreshBtn.addEventListener('click', () => {
             fetchStations(lastQuery, lastCountry, lastTag);
+        });
+    }
+
+    if (fsRefreshBtn) {
+        fsRefreshBtn.addEventListener('click', () => {
+            fetchStations(lastQuery, lastCountry, lastTag);
+            if (window.lucide) {
+                lucide.createIcons();
+            }
         });
     }
 
@@ -569,7 +546,7 @@ const fetchMappings = {
     'gujarati': [ { tag: 'gujarati', country: 'India' }, { language: 'gujarati', country: 'India' }, { state: 'gujarat', country: 'India' } ],
     'bollywood': [ { tag: 'bollywood', country: 'India' }, { tag: 'hindi', country: 'India' } ],
     'dj remix': [ { tag: 'dj remix', country: 'India' }, { tag: 'remix', country: 'India' }, { name: 'anbu fm hindi' }, { name: 'anbu fm' }, { name: 'radio deewana' }, { name: 'bollywoodandbeyond' }, { name: 'goldy blast' } ],
-    'singer': [ { name: 'latamangeshkarradio' }, { name: 'kishorekumarradio' }, { name: 'Hits Of Lata Mangeshkar' }, { name: 'Rafi hit songs' }, { name: 'Mohammed Rafi' }, { name: 'Hits Of Kishor Kumar' }, { name: 'Goldy Mukesh' }, { name: 'hit of lata' }, { name: 'Mukesh Radio' }, { name: 'shreyaghosal' }, { name: 'arijitsingh' }, { name: 'Asha Bhosle' }, { name: 'Udit Narayan' }, { name: 'Kumar Sanu' }, { name: 'Sonu Nigam' }, { name: 'Alka Yagnik' }, { name: 'Jagjit Singh' }, { name: 'rd burman' }, { name: 'Kishore Kumar' }, { name: 'Lata Mangeshkar' } ],
+    'singer': [ { name: 'latamangeshkarradio' }, { name: 'kishorekumarradio' }, { name: 'Hits Of Lata Mangeshkar' }, { name: 'Rafi hit songs' }, { name: 'Mohammed Rafi' }, { name: 'Hits Of Kishor Kumar' }, { name: 'Goldy Mukesh' }, { name: 'hit of lata' }, { name: 'Mukesh Radio' }, { name: 'shreyaghosal' }, { name: 'arijitsingh' }, { name: 'Kumar Sanu' }, { name: 'Sonu Nigam' }, { name: 'Alka Yagnik' }, { name: 'Kishore Kumar' }, { name: 'Lata Mangeshkar' } ],
     'news': [ { tag: 'news', country: 'India' }, { name: 'wion live tv' } ]
 };
 
@@ -680,9 +657,9 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = true
             const response = await fetch(url);
             currentStations = await response.json();
         }
-        // Prepend Vividh Bharti Mumbai and Bollywood Gaane Purane for India 'All' category
+        // Prepend Bollywood Gaane Purane for India 'All' category
         if (country === 'India' && !tag && !query) {
-            const stationsToPrepend = ['vividh bharti mumbai', 'bollywood gaane purane'];
+            const stationsToPrepend = ['bollywood gaane purane'];
             
             for (let i = stationsToPrepend.length - 1; i >= 0; i--) {
                 const stationName = stationsToPrepend[i];
@@ -705,6 +682,20 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = true
             currentStations = currentStations.filter((v,i,a) => a.findIndex(t => (t.stationuuid === v.stationuuid)) === i);
         }
         
+        const excludedStations = [
+            "air kolhapur", "air jalandhar", "air indore", "air nagpur", 
+            "air telgu", "air hydrabad a", "air jalendhar", "air alwar", 
+            "air tuticorin", "air madikeri", "air mevad kandva", 
+            "air satara", "air sasaram", "vivid bharti", "vividh bharati",
+            "vividh bharti", "my radio dj", "jesus alive radio",
+            "jesus radio malayalam", "hand of jesus",
+            "radio mariam", "nour mariam", "mariam"
+        ];
+        currentStations = currentStations.filter(station => {
+            const name = station.name ? station.name.toLowerCase().trim() : '';
+            return !excludedStations.some(ex => name.includes(ex));
+        });
+
         renderStations();
         resultsCount.textContent = `${currentStations.length} stations found`;
         
