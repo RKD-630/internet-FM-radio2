@@ -657,9 +657,9 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = true
             const response = await fetch(url);
             currentStations = await response.json();
         }
-        // Prepend Bollywood Gaane Purane for India 'All' category
+        // Prepend Vividh Bharti Mumbai and Bollywood Gaane Purane for India 'All' category
         if (country === 'India' && !tag && !query) {
-            const stationsToPrepend = ['bollywood gaane purane'];
+            const stationsToPrepend = ['vividh bharti mumbai', 'bollywood gaane purane'];
             
             for (let i = stationsToPrepend.length - 1; i >= 0; i--) {
                 const stationName = stationsToPrepend[i];
@@ -686,8 +686,7 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = true
             "air kolhapur", "air jalandhar", "air indore", "air nagpur", 
             "air telgu", "air hydrabad a", "air jalendhar", "air alwar", 
             "air tuticorin", "air madikeri", "air mevad kandva", 
-            "air satara", "air sasaram", "vivid bharti", "vividh bharati",
-            "vividh bharti", "my radio dj", "jesus alive radio",
+            "air satara", "air sasaram", "my radio dj", "jesus alive radio",
             "jesus radio malayalam", "hand of jesus",
             "radio mariam", "nour mariam", "mariam"
         ];

@@ -497,6 +497,7 @@ header {
 
 .station-details {
     flex: 1;
+    min-width: 0; /* Ensures flex container allows content to wrap */
     overflow: hidden;
 }
 
