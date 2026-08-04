@@ -21,7 +21,7 @@ let currentStationIndex = -1;
 let currentSource = 'search';
 let currentMode = 'India'; // 'Global' or 'India'
 let isMuted = false;
-let lastVolume = 80;
+let lastVolume = 30;
 let isHDEQEnabled = false;
 let isDJBoostEnabled = false;
 let isVolBoostEnabled = false;
@@ -93,7 +93,7 @@ function init() {
     setupEventListeners();
     fetchStations('', 'India'); // Initial load (Trending)
     renderPlaylist();
-    updateVolume(80);
+    updateVolume(30);
     loadTheme();
     
     // Status Badge Color Observer
@@ -389,12 +389,12 @@ function setupEventListeners() {
                 break;
             case 'ArrowUp':
                 e.preventDefault();
-                let upVol = Math.min(100, parseInt(volumeSlider.value || lastVolume || 80) + 5);
+                let upVol = Math.min(100, parseInt(volumeSlider.value || lastVolume || 30) + 5);
                 updateVolume(upVol);
                 break;
             case 'ArrowDown':
                 e.preventDefault();
-                let downVol = Math.max(0, parseInt(volumeSlider.value || lastVolume || 80) - 5);
+                let downVol = Math.max(0, parseInt(volumeSlider.value || lastVolume || 30) - 5);
                 updateVolume(downVol);
                 break;
             case 'ArrowLeft':
@@ -547,11 +547,12 @@ const fetchMappings = {
     'bollywood': [ { tag: 'bollywood', country: 'India' }, { tag: 'hindi', country: 'India' } ],
     'dj remix': [ { tag: 'dj remix', country: 'India' }, { tag: 'remix', country: 'India' }, { name: 'anbu fm hindi' }, { name: 'anbu fm' }, { name: 'radio deewana' }, { name: 'bollywoodandbeyond' }, { name: 'goldy blast' } ],
     'singer': [ { name: 'latamangeshkarradio' }, { name: 'kishorekumarradio' }, { name: 'Hits Of Lata Mangeshkar' }, { name: 'Rafi hit songs' }, { name: 'Mohammed Rafi' }, { name: 'Hits Of Kishor Kumar' }, { name: 'Goldy Mukesh' }, { name: 'hit of lata' }, { name: 'Mukesh Radio' }, { name: 'shreyaghosal' }, { name: 'arijitsingh' }, { name: 'Kumar Sanu' }, { name: 'Sonu Nigam' }, { name: 'Alka Yagnik' }, { name: 'Kishore Kumar' }, { name: 'Lata Mangeshkar' } ],
+    'ghazal': [ { name: 'gazal radio london' } ],
     'news': [ { tag: 'news', country: 'India' }, { name: 'wion live tv' } ]
 };
 
 // API Functions
-async function fetchStations(query = '', country = '', tag = '', autoPlay = true) {
+async function fetchStations(query = '', country = '', tag = '', autoPlay = false) {
     lastQuery = query;
     lastCountry = country;
     lastTag = tag;
@@ -688,7 +689,7 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = true
             "air tuticorin", "air madikeri", "air mevad kandva", 
             "air satara", "air sasaram", "my radio dj", "jesus alive radio",
             "jesus radio malayalam", "hand of jesus",
-            "radio mariam", "nour mariam", "mariam"
+            "radio mariam", "nour mariam", "mariam", "dipak"
         ];
         currentStations = currentStations.filter(station => {
             const name = station.name ? station.name.toLowerCase().trim() : '';
@@ -881,7 +882,15 @@ function playStation(index, source = 'search', element = null) {
     // Also update button immediately before promise resolves for instant feedback
     if (nowPlayingCard) nowPlayingCard.classList.add('playing');
 
-    // Auto-skip logic removed to prevent stations from skipping before they finish loading.
+    // Auto-skip logic if stream stalls or shows pause (unless user blocked auto-play)
+    clearTimeout(playCheckTimeout);
+    playCheckTimeout = setTimeout(() => {
+        if ((audioPlayer.paused || audioPlayer.readyState < 3) && !autoPlayBlocked && !isSmartScanning) {
+            console.log('Stream stalled or paused, automatically skipping to next station...');
+            playerStatus.textContent = 'Stalled - Skipping...';
+            setTimeout(() => playNext(), 1000);
+        }
+    }, 8000);
 
     // Background Audio Support (Media Session)
     if ('mediaSession' in navigator) {
