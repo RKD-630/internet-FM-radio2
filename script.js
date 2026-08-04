@@ -14,7 +14,7 @@ const DEFAULT_LOGO = 'logo.png';
 
 const CUSTOM_SINGER_STATIONS = [];
 
-const CUSTOM_DD_STATIONS = [
+const CUSTOM_NEWS_STATIONS = [
     {
         stationuuid: 'dd-national',
         name: 'DD National HD',
@@ -50,26 +50,9 @@ const CUSTOM_DD_STATIONS = [
         country: 'India',
         tags: 'tv, doordarshan, hindi',
         lastcheckok: 1
-    },
-    {
-        stationuuid: 'dd-sports',
-        name: 'DD Sports',
-        url_resolved: 'https://trs1.aynaott.com/ddsports/index.m3u8',
-        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/DD_Sports_logo.svg/512px-DD_Sports_logo.svg.png',
-        country: 'India',
-        tags: 'tv, doordarshan, sports',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'dd-bharati',
-        name: 'DD Bharati',
-        url_resolved: 'http://103.213.31.109:90/DDBharati/playlist.m3u8',
-        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/DD_Bharati.svg/512px-DD_Bharati.svg.png',
-        country: 'India',
-        tags: 'tv, doordarshan, hindi',
-        lastcheckok: 1
     }
 ];
+
 
 // State
 let currentStations = [];
@@ -604,7 +587,6 @@ const fetchMappings = {
         { tag: 'gujarati', country: 'India' }, { language: 'gujarati', country: 'India' }, { state: 'gujarat', country: 'India' }
     ],
     'bollywood': [ { tag: 'bollywood', country: 'India' }, { tag: 'hindi', country: 'India' } ],
-    'doordarshan': [],
     'dj remix': [ { tag: 'dj remix', country: 'India' }, { tag: 'remix', country: 'India' }, { name: 'anbu fm hindi' }, { name: 'anbu fm' }, { name: 'radio deewana' }, { name: 'bollywoodandbeyond' }, { name: 'goldy blast' } ],
     'singer': [ { name: 'latamangeshkarradio' }, { name: 'kishorekumarradio' }, { name: 'Hits Of Lata Mangeshkar' }, { name: 'Rafi hit songs' }, { name: 'Mohammed Rafi' }, { name: 'Hits Of Kishor Kumar' }, { name: 'Goldy Mukesh' }, { name: 'hit of lata' }, { name: 'Mukesh Radio' }, { name: 'shreyaghosal' }, { name: 'arijitsingh' }, { name: 'Kumar Sanu' }, { name: 'Sonu Nigam' }, { name: 'Alka Yagnik' }, { name: 'Kishore Kumar' }, { name: 'Lata Mangeshkar' } ],
     'ghazal': [ { name: 'gazal radio london' } ],
@@ -708,11 +690,10 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
                     const name = s.name ? s.name.toLowerCase().trim() : '';
                     return name !== 'wion' && !name.includes('wion am stereo 1430');
                 });
+                filtered.unshift(...CUSTOM_NEWS_STATIONS);
             } else if (tag.toLowerCase() === 'singer') {
                 // Inject custom stations for artists that do not exist natively on the radio-browser API
                 filtered.unshift(...CUSTOM_SINGER_STATIONS);
-            } else if (tag.toLowerCase() === 'doordarshan') {
-                filtered.unshift(...CUSTOM_DD_STATIONS);
             }
             
             currentStations = filtered;
