@@ -14,6 +14,63 @@ const DEFAULT_LOGO = 'logo.png';
 
 const CUSTOM_SINGER_STATIONS = [];
 
+const CUSTOM_DD_STATIONS = [
+    {
+        stationuuid: 'dd-national',
+        name: 'DD National HD',
+        url_resolved: 'https://mumt01.tangotv.in/O5aw8Zn3DDNATIONALHD/index.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/DD_National.svg/512px-DD_National.svg.png',
+        country: 'India',
+        tags: 'tv, doordarshan, hindi',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'dd-news',
+        name: 'DD News',
+        url_resolved: 'https://cdn-2.pishow.tv/live/12/master.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/DD_News_Logo.svg/512px-DD_News_Logo.svg.png',
+        country: 'India',
+        tags: 'tv, doordarshan, hindi, news',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'dd-news-hd',
+        name: 'DD News HD',
+        url_resolved: 'https://cdn-2.pishow.tv/live/12/master.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/DD_News_Logo.svg/512px-DD_News_Logo.svg.png',
+        country: 'India',
+        tags: 'tv, doordarshan, hindi, news, hd',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'dd-india',
+        name: 'DD India',
+        url_resolved: 'https://d2gvyg6lvauoko.cloudfront.net/230226/ddindia/chunks.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/DD_India_logo.svg/512px-DD_India_logo.svg.png',
+        country: 'India',
+        tags: 'tv, doordarshan, hindi',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'dd-sports',
+        name: 'DD Sports',
+        url_resolved: 'https://trs1.aynaott.com/ddsports/index.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/DD_Sports_logo.svg/512px-DD_Sports_logo.svg.png',
+        country: 'India',
+        tags: 'tv, doordarshan, sports',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'dd-bharati',
+        name: 'DD Bharati',
+        url_resolved: 'http://103.213.31.109:90/DDBharati/playlist.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/DD_Bharati.svg/512px-DD_Bharati.svg.png',
+        country: 'India',
+        tags: 'tv, doordarshan, hindi',
+        lastcheckok: 1
+    }
+];
+
 // State
 let currentStations = [];
 let currentPlaylist = JSON.parse(localStorage.getItem('fm_playlist')) || [];
@@ -172,7 +229,7 @@ function setupEventListeners() {
             // If dragging, let the capture phase handle prevention
             const tag = btn.dataset.tag;
             const country = currentMode === 'India' ? 'India' : '';
-            fetchStations('', country, tag);
+            fetchStations('', country, tag, true);
             updateActiveCat(btn.textContent);
             switchView('discovery');
         });
@@ -538,13 +595,16 @@ const fetchMappings = {
     'sports': [ { tag: 'sports' }, { tag: 'sport' }, { tag: 'live sports' } ],
     'talk': [ { tag: 'talk' }, { tag: 'talk radio' }, { tag: 'speech' }, { tag: 'podcast' } ],
     'hindi': [ { tag: 'hindi', country: 'India' }, { language: 'hindi', country: 'India' }, { name: 'hindi', country: 'India' } ],
-    'tamil': [ { tag: 'tamil', country: 'India' }, { language: 'tamil', country: 'India' }, { state: 'tamil nadu', country: 'India' } ],
-    'kannada': [ { tag: 'kannada', country: 'India' }, { language: 'kannada', country: 'India' }, { state: 'karnataka', country: 'India' } ],
-    'telugu': [ { tag: 'telugu', country: 'India' }, { language: 'telugu', country: 'India' }, { state: 'telangana', country: 'India' }, { state: 'andhra pradesh', country: 'India' } ],
-    'malayalam': [ { tag: 'malayalam', country: 'India' }, { language: 'malayalam', country: 'India' }, { state: 'kerala', country: 'India' } ],
-    'marathi': [ { tag: 'marathi', country: 'India' }, { language: 'marathi', country: 'India' }, { state: 'maharashtra', country: 'India' } ],
-    'gujarati': [ { tag: 'gujarati', country: 'India' }, { language: 'gujarati', country: 'India' }, { state: 'gujarat', country: 'India' } ],
+    'regional': [ 
+        { tag: 'tamil', country: 'India' }, { language: 'tamil', country: 'India' }, { state: 'tamil nadu', country: 'India' },
+        { tag: 'kannada', country: 'India' }, { language: 'kannada', country: 'India' }, { state: 'karnataka', country: 'India' },
+        { tag: 'telugu', country: 'India' }, { language: 'telugu', country: 'India' }, { state: 'telangana', country: 'India' }, { state: 'andhra pradesh', country: 'India' },
+        { tag: 'malayalam', country: 'India' }, { language: 'malayalam', country: 'India' }, { state: 'kerala', country: 'India' },
+        { tag: 'marathi', country: 'India' }, { language: 'marathi', country: 'India' }, { state: 'maharashtra', country: 'India' },
+        { tag: 'gujarati', country: 'India' }, { language: 'gujarati', country: 'India' }, { state: 'gujarat', country: 'India' }
+    ],
     'bollywood': [ { tag: 'bollywood', country: 'India' }, { tag: 'hindi', country: 'India' } ],
+    'doordarshan': [],
     'dj remix': [ { tag: 'dj remix', country: 'India' }, { tag: 'remix', country: 'India' }, { name: 'anbu fm hindi' }, { name: 'anbu fm' }, { name: 'radio deewana' }, { name: 'bollywoodandbeyond' }, { name: 'goldy blast' } ],
     'singer': [ { name: 'latamangeshkarradio' }, { name: 'kishorekumarradio' }, { name: 'Hits Of Lata Mangeshkar' }, { name: 'Rafi hit songs' }, { name: 'Mohammed Rafi' }, { name: 'Hits Of Kishor Kumar' }, { name: 'Goldy Mukesh' }, { name: 'hit of lata' }, { name: 'Mukesh Radio' }, { name: 'shreyaghosal' }, { name: 'arijitsingh' }, { name: 'Kumar Sanu' }, { name: 'Sonu Nigam' }, { name: 'Alka Yagnik' }, { name: 'Kishore Kumar' }, { name: 'Lata Mangeshkar' } ],
     'ghazal': [ { name: 'gazal radio london' } ],
@@ -651,6 +711,8 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
             } else if (tag.toLowerCase() === 'singer') {
                 // Inject custom stations for artists that do not exist natively on the radio-browser API
                 filtered.unshift(...CUSTOM_SINGER_STATIONS);
+            } else if (tag.toLowerCase() === 'doordarshan') {
+                filtered.unshift(...CUSTOM_DD_STATIONS);
             }
             
             currentStations = filtered;
