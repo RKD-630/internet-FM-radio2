@@ -496,24 +496,23 @@ function setupEventListeners() {
         consecutiveErrors++;
         
         if (consecutiveErrors < 10) {
-            playerStatus.textContent = 'Stream Error - Moving to end...';
+            playerStatus.textContent = 'Stream Error - Deleting Station...';
             playerStatus.style.color = 'var(--accent-color)';
             
-            // Move the broken station to the end of the list
+            // Delete the broken station from the list entirely
             if (currentSource === 'search' && currentStations.length > 0) {
-                const broken = currentStations.splice(currentStationIndex, 1)[0];
-                currentStations.push(broken);
-                if (currentStationIndex >= currentStations.length - 1) {
+                currentStations.splice(currentStationIndex, 1);
+                if (currentStationIndex >= currentStations.length) {
                     currentStationIndex = 0;
                 }
-                renderStations(currentStations);
+                renderStations();
             } else if (currentSource === 'playlist' && currentPlaylist.length > 0) {
-                const broken = currentPlaylist.splice(currentStationIndex, 1)[0];
-                currentPlaylist.push(broken);
-                if (currentStationIndex >= currentPlaylist.length - 1) {
+                currentPlaylist.splice(currentStationIndex, 1);
+                if (currentStationIndex >= currentPlaylist.length) {
                     currentStationIndex = 0;
                 }
                 renderPlaylist();
+                localStorage.setItem('fm_playlist', JSON.stringify(currentPlaylist));
             }
 
             setTimeout(() => {
@@ -577,8 +576,8 @@ const fetchMappings = {
     'educational': [ { tag: 'educational' }, { tag: 'education' }, { tag: 'learning' } ],
     'sports': [ { tag: 'sports' }, { tag: 'sport' }, { tag: 'live sports' } ],
     'talk': [ { tag: 'talk' }, { tag: 'talk radio' }, { tag: 'speech' }, { tag: 'podcast' } ],
-    'hindi': [ { tag: 'hindi', country: 'India' }, { language: 'hindi', country: 'India' }, { name: 'hindi', country: 'India' } ],
-    'regional': [ 
+    'hindi': [ { tag: 'hindi', country: 'India' }, { language: 'hindi', country: 'India' }, { name: 'hindi', country: 'India' }, { name: 'lucknow', country: 'India' } ],
+    'regional': [
         { tag: 'tamil', country: 'India' }, { language: 'tamil', country: 'India' }, { state: 'tamil nadu', country: 'India' },
         { tag: 'kannada', country: 'India' }, { language: 'kannada', country: 'India' }, { state: 'karnataka', country: 'India' },
         { tag: 'telugu', country: 'India' }, { language: 'telugu', country: 'India' }, { state: 'telangana', country: 'India' }, { state: 'andhra pradesh', country: 'India' },
@@ -932,11 +931,33 @@ function playStation(index, source = 'search', element = null) {
     clearTimeout(playCheckTimeout);
     playCheckTimeout = setTimeout(() => {
         if ((audioPlayer.paused || audioPlayer.readyState < 3) && !autoPlayBlocked && !isSmartScanning) {
-            console.log('Stream stalled or paused, automatically skipping to next station...');
-            playerStatus.textContent = 'Stalled - Skipping...';
-            setTimeout(() => playNext(), 1000);
+            console.log('Stream stalled, deleting broken station and skipping...');
+            playerStatus.textContent = 'Broken Stream - Deleting & Skipping...';
+            
+            // Delete the station completely
+            const list = currentSource === 'search' ? currentStations : currentPlaylist;
+            if (list && list.length > 0 && currentStationIndex >= 0 && currentStationIndex < list.length) {
+                list.splice(currentStationIndex, 1);
+                
+                // If we deleted the last item, wrap around
+                if (currentStationIndex >= list.length) {
+                    currentStationIndex = 0;
+                }
+                
+                if (currentSource === 'search') renderStations();
+                else {
+                    renderPlaylist();
+                    localStorage.setItem('fm_playlist', JSON.stringify(currentPlaylist));
+                }
+            }
+            
+            setTimeout(() => {
+                if (list && list.length > 0) {
+                    playStation(currentStationIndex, currentSource);
+                }
+            }, 1000);
         }
-    }, 8000);
+    }, 4500);
 
     // Background Audio Support (Media Session)
     if ('mediaSession' in navigator) {
@@ -1263,17 +1284,28 @@ function playSmartScanStation() {
     clearTimeout(playCheckTimeout);
     clearTimeout(smartScanTimeout);
     
-    // Check if station plays within 6 seconds
+    // Check if station plays within 4.5 seconds
     playCheckTimeout = setTimeout(() => {
         if (!isSmartScanning) return;
         
         if (audioPlayer.paused || audioPlayer.readyState < 3) {
-            // Failed or taking too long
-            playerStatus.textContent = 'Skipping unresponsive station...';
-            currentStationIndex = (currentStationIndex + 1) % currentStations.length;
-            playSmartScanStation();
+            // Failed or taking too long - delete station
+            playerStatus.textContent = 'Deleting unresponsive station...';
+            
+            if (currentStations.length > 0) {
+                currentStations.splice(currentStationIndex, 1);
+                if (currentStationIndex >= currentStations.length) {
+                    currentStationIndex = 0;
+                }
+                renderStations();
+            }
+            
+            setTimeout(() => {
+                if (currentStations.length > 0) playSmartScanStation();
+                else toggleSmartAutoScan(); // Stop if empty
+            }, 1000);
         }
-    }, 6000);
+    }, 4500);
 }
 
 // Start App
