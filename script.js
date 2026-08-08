@@ -76,6 +76,13 @@ let lastTag = '';
 let wakeLock = null;
 let consecutiveErrors = 0;
 
+// Web Audio API
+let audioContext = null;
+let audioAnalyser = null;
+let audioSource = null;
+let eqDataArray = null;
+let animationFrameId = null;
+
 // DOM Elements
 const audioPlayer = document.getElementById('audio-player');
 const keepAliveAudio = document.getElementById('keep-alive-audio');
@@ -115,6 +122,7 @@ const djBoostBtn = document.getElementById('dj-boost-btn');
 const volBoostCheck = document.getElementById('vol-boost-check');
 const smartAutoScanBtn = document.getElementById('smart-auto-scan-btn');
 const queueTickerText = document.getElementById('queue-ticker-text');
+const eqBars = document.querySelectorAll('.eq-bar');
 
 // New UI Elements
 const mainTabs = document.querySelectorAll('.tab-btn:not(.action-btn)');
@@ -418,6 +426,50 @@ function setupEventListeners() {
         });
     });
 
+    // Now Playing Card Gesture Volume Control
+    let isDraggingVol = false;
+    let startDragX = 0;
+    let startDragVol = 0;
+
+    const handleVolDragStart = (e) => {
+        if (!nowPlayingCard.classList.contains('playing')) return;
+        // Ignore if clicking interactive controls inside the card
+        if (e.target.closest('button') || e.target.closest('input')) return;
+        
+        isDraggingVol = true;
+        startDragX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        startDragVol = parseInt(volumeSlider.value) || lastVolume || 30;
+    };
+
+    const handleVolDragMove = (e) => {
+        if (!isDraggingVol || !nowPlayingCard.classList.contains('playing')) return;
+        // Prevent default scrolling on touch devices while adjusting volume
+        if (e.cancelable) e.preventDefault(); 
+        
+        const currentX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        const diffX = currentX - startDragX;
+        
+        // 150px drag width = full 100% volume change
+        const volChange = Math.round((diffX / 150) * 100);
+        let newVol = Math.max(0, Math.min(100, startDragVol + volChange));
+        
+        updateVolume(newVol);
+    };
+
+    const handleVolDragEnd = () => {
+        isDraggingVol = false;
+    };
+
+    if (nowPlayingCard) {
+        nowPlayingCard.addEventListener('mousedown', handleVolDragStart);
+        window.addEventListener('mousemove', handleVolDragMove, { passive: false });
+        window.addEventListener('mouseup', handleVolDragEnd);
+
+        nowPlayingCard.addEventListener('touchstart', handleVolDragStart, { passive: true });
+        window.addEventListener('touchmove', handleVolDragMove, { passive: false });
+        window.addEventListener('touchend', handleVolDragEnd);
+    }
+
     // Keyboard Controls
     document.addEventListener('keydown', (e) => {
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
@@ -456,6 +508,30 @@ function setupEventListeners() {
         if (nowPlayingCard) nowPlayingCard.classList.add('playing');
         requestWakeLock();
         if (keepAliveAudio) keepAliveAudio.play().catch(e => console.log('Keep-alive failed:', e));
+        
+        // Initialize Web Audio API on first play
+        if (!audioContext && (window.AudioContext || window.webkitAudioContext)) {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                audioAnalyser = audioContext.createAnalyser();
+                audioAnalyser.fftSize = 256; /* Higher resolution for specific instruments */
+                audioAnalyser.smoothingTimeConstant = 0.65; /* Lower smoothing for punchier, real-time sync with beats and voice */
+                
+                // Allow cross-origin audio processing
+                audioPlayer.crossOrigin = "anonymous";
+                
+                audioSource = audioContext.createMediaElementSource(audioPlayer);
+                audioSource.connect(audioAnalyser);
+                audioAnalyser.connect(audioContext.destination);
+                
+                eqDataArray = new Uint8Array(audioAnalyser.frequencyBinCount);
+                updateEqualizer();
+            } catch (e) {
+                console.warn('Web Audio API not supported or failed to initialize', e);
+            }
+        } else if (audioContext && audioContext.state === 'suspended') {
+            audioContext.resume();
+        }
     };
 
     audioPlayer.onplaying = () => {
@@ -554,6 +630,37 @@ function setupEventListeners() {
             requestWakeLock();
         }
     });
+}
+
+function updateEqualizer() {
+    if (!audioAnalyser || !eqBars || !eqBars.length) return;
+    
+    animationFrameId = requestAnimationFrame(updateEqualizer);
+    
+    if (audioPlayer.paused || audioPlayer.muted) {
+        // Reset to minimal height when paused
+        eqBars.forEach(bar => bar.style.height = '10%');
+        return;
+    }
+    
+    audioAnalyser.getByteFrequencyData(eqDataArray);
+    
+    // Non-linear mapping targeting specific frequency ranges
+    // Bins correspond to ~172Hz each (at 44.1kHz / 256 fftSize). 
+    // Mapped for: Kick(0-172), Bassline, Low-mid, Mid(Voice), Lead(Voice), Upper-Mid(Snare), High-mid, High, High, Treble, Treble, Air
+    const freqMap = [0, 1, 3, 6, 10, 15, 22, 30, 42, 56, 75, 100];
+    
+    for (let i = 0; i < eqBars.length; i++) {
+        const dataIndex = freqMap[i] || i; // Fallback just in case
+        
+        // Add a slight multiplier to higher frequencies to make them pop out more
+        let value = eqDataArray[dataIndex];
+        if (i > 4) value = Math.min(255, value * (1 + (i - 4) * 0.15));
+        
+        // Map 0-255 to 10%-100%
+        const heightPercent = 10 + (value / 255) * 90;
+        eqBars[i].style.height = `${heightPercent}%`;
+    }
 }
 
 // Custom API fetch mappings for complex categories
@@ -702,7 +809,7 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
         }
         // Prepend Vividh Bharti Mumbai and Bollywood Gaane Purane for India 'All' category
         if (country === 'India' && !tag && !query) {
-            const stationsToPrepend = ['vividh bharti mumbai', 'bollywood gaane purane'];
+            const stationsToPrepend = ['vividh bharti mumbai', 'bollywood gaane purane', 'akashvani fm rainbow lucknow'];
             
             for (let i = stationsToPrepend.length - 1; i >= 0; i--) {
                 const stationName = stationsToPrepend[i];

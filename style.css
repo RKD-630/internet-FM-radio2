@@ -425,11 +425,106 @@ header {
     width: 100%;
     border-radius: 16px;
     background-color: var(--glass-bg);
-    transition: box-shadow 0.4s ease, border-color 0.4s ease;
 }
 
+[data-theme="light"] .now-playing-card.glass {
+    background-color: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    
+    /* Shattered shard background effects */
+    background-image: 
+        /* Crack 1 */
+        linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.9) 35.2%, rgba(0,0,0,0.1) 35.5%, transparent 35.7%),
+        /* Crack 2 */
+        linear-gradient(-35deg, transparent 65%, rgba(255,255,255,0.95) 65.2%, rgba(0,0,0,0.15) 65.5%, transparent 65.8%),
+        /* Crack 3 */
+        linear-gradient(45deg, transparent 20%, rgba(255,255,255,0.8) 20.2%, rgba(0,0,0,0.1) 20.5%, transparent 20.8%),
+        /* Light reflecting off different angled shards */
+        linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 40%, rgba(255, 255, 255, 0.3) 100%),
+        linear-gradient(75deg, rgba(255, 255, 255, 0) 60%, rgba(255, 255, 255, 0.2) 60.1%, rgba(255, 255, 255, 0) 100%);
+        
+    box-shadow: 
+        inset 0 0 10px rgba(255, 255, 255, 0.8),
+        inset -5px -5px 15px rgba(0, 0, 0, 0.05),
+        5px 15px 30px rgba(0, 0, 0, 0.15);
+        
+    position: relative;
+    overflow: hidden;
+}
 
+/* Impact Point / Spiderweb Shatter */
+[data-theme="light"] .now-playing-card.glass::after {
+    content: '';
+    position: absolute;
+    top: 25%;
+    left: 30%;
+    width: 200%;
+    height: 200%;
+    transform: translate(-50%, -50%);
+    background: 
+        conic-gradient(from 0deg at 50% 50%, 
+            transparent 0deg, 
+            rgba(255,255,255,0.8) 1deg, rgba(0,0,0,0.1) 1.5deg, transparent 2deg,
+            transparent 45deg, 
+            rgba(255,255,255,0.7) 45.5deg, rgba(0,0,0,0.1) 46deg, transparent 46.5deg,
+            transparent 120deg, 
+            rgba(255,255,255,0.9) 121deg, rgba(0,0,0,0.15) 121.5deg, transparent 122deg,
+            transparent 180deg, 
+            rgba(255,255,255,0.6) 180.5deg, rgba(0,0,0,0.1) 181deg, transparent 181.5deg,
+            transparent 270deg, 
+            rgba(255,255,255,0.85) 271deg, rgba(0,0,0,0.1) 271.5deg, transparent 272deg,
+            transparent 330deg, 
+            rgba(255,255,255,0.6) 330.5deg, rgba(0,0,0,0.1) 331deg, transparent 331.5deg
+        );
+    pointer-events: none;
+    z-index: 0;
+}
 
+[data-theme="light"] .now-playing-card.glass > * {
+    position: relative;
+    z-index: 1; /* Keep content above the shatter overlay */
+}
+
+body:not([data-theme="light"]) .now-playing-card.glass {
+    /* TV Turned OFF / Paused State */
+    background: #050608; 
+    border: 1px solid #222;
+    border-radius: 24px;
+    box-shadow: 
+        inset 30px 0 40px -15px rgba(0, 0, 0, 0.9), /* Left curve shading */
+        inset -30px 0 40px -15px rgba(0, 0, 0, 0.9), /* Right curve shading */
+        inset 0 2px 2px rgba(255, 255, 255, 0.05), /* Dim top edge glare */
+        0 20px 50px rgba(0, 0, 0, 0.8); /* Heavy TV drop shadow */
+    position: relative;
+    overflow: hidden;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body:not([data-theme="light"]) .now-playing-card.glass.playing {
+    /* TV Turned ON / Playing State */
+    background: radial-gradient(ellipse at center, #1e212b 0%, #090a0f 100%);
+    border-color: #3a3d4a;
+    box-shadow: 
+        inset 30px 0 40px -15px rgba(0, 0, 0, 0.9),
+        inset -30px 0 40px -15px rgba(0, 0, 0, 0.9),
+        inset 0 2px 2px rgba(255, 255, 255, 0.15),
+        0 20px 50px rgba(0, 0, 0, 0.8),
+        0 0 50px rgba(99, 102, 241, 0.4); /* Ambient LED backlight turns on */
+}
+
+/* Subtle curved screen glare reflection */
+body:not([data-theme="light"]) .now-playing-card.glass::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 50%;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.05), transparent);
+    border-radius: 24px 24px 50% 50% / 24px 24px 20px 20px;
+    pointer-events: none;
+}
 
 .station-visual {
     position: relative;
