@@ -139,7 +139,7 @@ const fullPlaylistList = document.getElementById('full-playlist-list');
 // Initialize
 function init() {
     setupEventListeners();
-    fetchStations('', 'India'); // Initial load (Trending)
+    fetchStations('', 'India', '', true); // Initial load: Search and Auto-play immediately
     renderPlaylist();
     updateVolume(30);
     loadTheme();
@@ -186,7 +186,7 @@ function setupEventListeners() {
     searchBtn.addEventListener('click', () => {
         const query = searchInput.value.trim();
         const country = currentMode === 'India' ? 'India' : '';
-        fetchStations(query, country);
+        fetchStations(query, country, '', true); // Quick search and auto-play
         switchView('discovery');
     });
 
@@ -200,7 +200,7 @@ function setupEventListeners() {
             modeToggleBtn.classList.remove('india-active');
             indiaCats.style.display = 'none';
             globalCats.style.display = 'flex';
-            fetchStations('', '');
+            fetchStations('', '', '', true); // Auto-play first global station
         } else {
             currentMode = 'India';
             modeToggleText.textContent = 'India';
@@ -209,7 +209,7 @@ function setupEventListeners() {
             modeToggleBtn.classList.add('india-active');
             globalCats.style.display = 'none';
             indiaCats.style.display = 'flex';
-            fetchStations('', 'India');
+            fetchStations('', 'India', '', true); // Auto-play first Indian station
         }
         updateActiveCat('All');
         switchView('discovery');
@@ -304,71 +304,42 @@ function setupEventListeners() {
         });
     }
 
-    const stationDetailsEl = document.querySelector('.station-details');
-    if (stationDetailsEl) {
-        stationDetailsEl.addEventListener('dblclick', () => {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => console.log(err));
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
+    // Multi-click (2 or 3 times) to toggle Fullscreen
+    let cardClickCount = 0;
+    let cardClickTimeout = null;
+
+    if (nowPlayingCard) {
+        nowPlayingCard.addEventListener('click', (e) => {
+            // Ignore if clicking interactive controls (buttons, volume slider)
+            if (e.target.closest('button') || e.target.closest('input')) return;
+
+            cardClickCount++;
+            
+            // If user clicked 2 or more times quickly (handles double or triple tap)
+            if (cardClickCount >= 2) {
+                clearTimeout(cardClickTimeout);
+                cardClickCount = 0;
+                
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(err => console.log(err));
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    }
                 }
-            }
-            // Clear text selection after double click
-            if (window.getSelection) {
-                window.getSelection().removeAllRanges();
-            } else if (document.selection) {
-                document.selection.empty();
+                
+                // Clear any accidental text selection from tapping
+                if (window.getSelection) {
+                    window.getSelection().removeAllRanges();
+                } else if (document.selection) {
+                    document.selection.empty();
+                }
+            } else {
+                cardClickTimeout = setTimeout(() => {
+                    cardClickCount = 0; // Reset after short delay
+                }, 400); // 400ms window to tap again
             }
         });
-
-        // Volume drag logic
-        let isDraggingVolume = false;
-        let startX = 0;
-        let startVolume = 0;
-
-        const handleDragStart = (x) => {
-            isDraggingVolume = true;
-            startX = x;
-            startVolume = parseFloat(volumeSlider.value) || 0;
-            stationDetailsEl.style.cursor = 'ew-resize';
-        };
-
-        const handleDragMove = (x) => {
-            if (!isDraggingVolume) return;
-            const deltaX = x - startX;
-            // Map horizontal movement to volume change (approx 3px = 1%)
-            const volumeChange = deltaX * 0.33; 
-            let newVolume = startVolume + volumeChange;
-            newVolume = Math.max(0, Math.min(100, newVolume));
-            updateVolume(newVolume);
-        };
-
-        const handleDragEnd = () => {
-            isDraggingVolume = false;
-            stationDetailsEl.style.cursor = '';
-        };
-
-        // Mouse Events
-        stationDetailsEl.addEventListener('mousedown', (e) => {
-            if (e.button !== 0) return; // Left click only
-            handleDragStart(e.clientX);
-        });
-        document.addEventListener('mousemove', (e) => handleDragMove(e.clientX));
-        document.addEventListener('mouseup', handleDragEnd);
-
-        // Touch Events
-        stationDetailsEl.addEventListener('touchstart', (e) => {
-            if (e.touches.length === 1) {
-                handleDragStart(e.touches[0].clientX);
-            }
-        }, { passive: true });
-        document.addEventListener('touchmove', (e) => {
-            if (isDraggingVolume && e.touches.length === 1) {
-                handleDragMove(e.touches[0].clientX);
-            }
-        }, { passive: true });
-        document.addEventListener('touchend', handleDragEnd);
     }
 
     document.addEventListener('fullscreenchange', () => {
@@ -428,7 +399,7 @@ function setupEventListeners() {
 
     // Now Playing Card Gesture Volume Control
     let isDraggingVol = false;
-    let startDragX = 0;
+    let startDragY = 0;
     let startDragVol = 0;
 
     const handleVolDragStart = (e) => {
@@ -436,21 +407,32 @@ function setupEventListeners() {
         // Ignore if clicking interactive controls inside the card
         if (e.target.closest('button') || e.target.closest('input')) return;
         
+        const rect = nowPlayingCard.getBoundingClientRect();
+        const startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        const startY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+        
+        // Only allow volume control if dragging on the left half of the card
+        if (startX > rect.left + (rect.width / 2)) {
+            return; // Right side -> do nothing, allows default page scroll
+        }
+        
         isDraggingVol = true;
-        startDragX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        startDragY = startY;
         startDragVol = parseInt(volumeSlider.value) || lastVolume || 30;
     };
 
     const handleVolDragMove = (e) => {
         if (!isDraggingVol || !nowPlayingCard.classList.contains('playing')) return;
+        
         // Prevent default scrolling on touch devices while adjusting volume
         if (e.cancelable) e.preventDefault(); 
         
-        const currentX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-        const diffX = currentX - startDragX;
+        const currentY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+        // Moving up (negative diff) increases volume, moving down decreases it
+        const diffY = startDragY - currentY; 
         
-        // 150px drag width = full 100% volume change
-        const volChange = Math.round((diffX / 150) * 100);
+        // 150px drag height = full 100% volume change
+        const volChange = Math.round((diffY / 150) * 100);
         let newVol = Math.max(0, Math.min(100, startDragVol + volChange));
         
         updateVolume(newVol);
@@ -469,6 +451,28 @@ function setupEventListeners() {
         window.addEventListener('touchmove', handleVolDragMove, { passive: false });
         window.addEventListener('touchend', handleVolDragEnd);
     }
+
+    // Network Connection Monitoring
+    window.addEventListener('offline', () => {
+        playerStatus.textContent = 'Internet Disconnected';
+        playerStatus.style.color = '#ef4444'; // Red
+        resultsCount.textContent = 'Offline';
+        if (isSmartScanning) {
+            toggleSmartAutoScan(); // Stop auto-scan if running
+        }
+        if (!audioPlayer.paused) {
+            audioPlayer.pause();
+            if (nowPlayingCard) nowPlayingCard.classList.remove('playing');
+        }
+    });
+
+    window.addEventListener('online', () => {
+        playerStatus.textContent = 'Internet Restored';
+        playerStatus.style.color = '#22c55e'; // Green
+        setTimeout(() => {
+            fetchStations(lastQuery, lastCountry, lastTag, false);
+        }, 1500); // Re-fetch stations after a brief delay
+    });
 
     // Keyboard Controls
     document.addEventListener('keydown', (e) => {
@@ -701,6 +705,14 @@ const fetchMappings = {
 
 // API Functions
 async function fetchStations(query = '', country = '', tag = '', autoPlay = false) {
+    if (!navigator.onLine) {
+        playerStatus.textContent = 'Offline';
+        playerStatus.style.color = '#ef4444'; // Red error status
+        resultsCount.textContent = '0 stations found (No Internet)';
+        stationsGrid.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-secondary); grid-column: 1/-1;">No internet connection. Please check your network and try again.</div>';
+        return;
+    }
+
     lastQuery = query;
     lastCountry = country;
     lastTag = tag;
@@ -1353,6 +1365,11 @@ function toggleVolBoost(e) {
 
 // Smart Auto Scan Logic
 function toggleSmartAutoScan() {
+    if (!navigator.onLine) {
+        alert('Cannot start Auto Scan. No internet connection available.');
+        return;
+    }
+    
     isSmartScanning = !isSmartScanning;
     
     if (isSmartScanning) {
