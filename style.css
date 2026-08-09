@@ -428,64 +428,44 @@ header {
 }
 
 [data-theme="light"] .now-playing-card.glass {
-    background-color: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-radius: 4px;
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    
-    /* Shattered shard background effects */
-    background-image: 
-        /* Crack 1 */
-        linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.9) 35.2%, rgba(0,0,0,0.1) 35.5%, transparent 35.7%),
-        /* Crack 2 */
-        linear-gradient(-35deg, transparent 65%, rgba(255,255,255,0.95) 65.2%, rgba(0,0,0,0.15) 65.5%, transparent 65.8%),
-        /* Crack 3 */
-        linear-gradient(45deg, transparent 20%, rgba(255,255,255,0.8) 20.2%, rgba(0,0,0,0.1) 20.5%, transparent 20.8%),
-        /* Light reflecting off different angled shards */
-        linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 40%, rgba(255, 255, 255, 0.3) 100%),
-        linear-gradient(75deg, rgba(255, 255, 255, 0) 60%, rgba(255, 255, 255, 0.2) 60.1%, rgba(255, 255, 255, 0) 100%);
-        
+    /* TV Turned OFF / Paused State - Black Screen */
+    background: #050608; 
+    border: 1px solid #d1d5db; /* Light bezel */
+    border-radius: 24px;
     box-shadow: 
-        inset 0 0 10px rgba(255, 255, 255, 0.8),
-        inset -5px -5px 15px rgba(0, 0, 0, 0.05),
-        5px 15px 30px rgba(0, 0, 0, 0.15);
-        
+        inset 30px 0 40px -15px rgba(0, 0, 0, 0.8), /* Left curve shading on black screen */
+        inset -30px 0 40px -15px rgba(0, 0, 0, 0.8), /* Right curve shading */
+        inset 0 2px 2px rgba(255, 255, 255, 0.05), /* Dim top edge glare */
+        0 20px 50px rgba(0, 0, 0, 0.2); /* Heavy TV drop shadow adapted for light background */
     position: relative;
     overflow: hidden;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Impact Point / Spiderweb Shatter */
-[data-theme="light"] .now-playing-card.glass::after {
-    content: '';
-    position: absolute;
-    top: 25%;
-    left: 30%;
-    width: 200%;
-    height: 200%;
-    transform: translate(-50%, -50%);
-    background: 
-        conic-gradient(from 0deg at 50% 50%, 
-            transparent 0deg, 
-            rgba(255,255,255,0.8) 1deg, rgba(0,0,0,0.1) 1.5deg, transparent 2deg,
-            transparent 45deg, 
-            rgba(255,255,255,0.7) 45.5deg, rgba(0,0,0,0.1) 46deg, transparent 46.5deg,
-            transparent 120deg, 
-            rgba(255,255,255,0.9) 121deg, rgba(0,0,0,0.15) 121.5deg, transparent 122deg,
-            transparent 180deg, 
-            rgba(255,255,255,0.6) 180.5deg, rgba(0,0,0,0.1) 181deg, transparent 181.5deg,
-            transparent 270deg, 
-            rgba(255,255,255,0.85) 271deg, rgba(0,0,0,0.1) 271.5deg, transparent 272deg,
-            transparent 330deg, 
-            rgba(255,255,255,0.6) 330.5deg, rgba(0,0,0,0.1) 331deg, transparent 331.5deg
-        );
-    pointer-events: none;
-    z-index: 0;
+[data-theme="light"] .now-playing-card.glass.playing {
+    /* TV Turned ON / Playing State - Glowing White Screen */
+    background: radial-gradient(ellipse at center, #ffffff 0%, #e2e8f0 100%);
+    border-color: #cbd5e1;
+    box-shadow: 
+        inset 30px 0 40px -15px rgba(0, 0, 0, 0.15), /* Softer curve shading */
+        inset -30px 0 40px -15px rgba(0, 0, 0, 0.15),
+        inset 0 2px 2px rgba(255, 255, 255, 0.8),
+        0 20px 50px rgba(0, 0, 0, 0.2),
+        0 0 50px rgba(255, 255, 255, 1); /* Brilliant white ambient backlight */
 }
 
-[data-theme="light"] .now-playing-card.glass > * {
-    position: relative;
-    z-index: 1; /* Keep content above the shatter overlay */
+/* Dynamic text color transitions for the white theme TV */
+[data-theme="light"] .now-playing-card.glass #current-station-name,
+[data-theme="light"] .now-playing-card.glass #current-station-meta,
+[data-theme="light"] .now-playing-card.glass #queue-text-info {
+    color: #f8fafc; /* White text on black screen */
+    transition: color 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="light"] .now-playing-card.glass.playing #current-station-name,
+[data-theme="light"] .now-playing-card.glass.playing #current-station-meta,
+[data-theme="light"] .now-playing-card.glass.playing #queue-text-info {
+    color: #0f172a; /* Black text on white screen */
 }
 
 body:not([data-theme="light"]) .now-playing-card.glass {
