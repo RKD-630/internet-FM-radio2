@@ -16,6 +16,15 @@ const CUSTOM_SINGER_STATIONS = [];
 
 const CUSTOM_NEWS_STATIONS = [
     {
+        stationuuid: 'republic-bharat',
+        name: 'Republic Bharat TV',
+        url_resolved: 'https://raw.githubusercontent.com/amazeyourself/adaptive-streams/refs/heads/main/streams/in/YuppTV/RepublicBharat.m3u8',
+        favicon: 'https://dtil.tmsimg.com/assets/s143724_ld_h15_aa.png?lock=720x540',
+        country: 'India',
+        tags: 'tv, news, hindi, republic, bharat',
+        lastcheckok: 1
+    },
+    {
         stationuuid: 'dd-national',
         name: 'DD National HD',
         url_resolved: 'https://mumt01.tangotv.in/O5aw8Zn3DDNATIONALHD/index.m3u8',
