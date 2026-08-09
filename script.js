@@ -1139,7 +1139,21 @@ function updatePlayerUI(station) {
     const defaultLogo = DEFAULT_LOGO;
     const defaultMini = DEFAULT_LOGO;
 
-    currentStationName.textContent = name;
+    const nameLen = name.length;
+    if (nameLen >= 3) {
+        const center = (nameLen - 1) / 2;
+        let formattedName = '';
+        
+        for (let i = 0; i < nameLen; i++) {
+            const distance = Math.abs(i - center);
+            const scale = 1 + (distance / center) * 0.25; // Up to 25% increase at edges
+            let char = name[i] === ' ' ? '&nbsp;' : name[i];
+            formattedName += `<span style="font-size: ${scale}em; vertical-align: baseline; display: inline-block;">${char}</span>`;
+        }
+        currentStationName.innerHTML = formattedName;
+    } else {
+        currentStationName.textContent = name;
+    }
     
     // Reset inline styles
     currentStationName.style.fontSize = '';

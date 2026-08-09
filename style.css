@@ -324,9 +324,14 @@ header {
     text-shadow: 0 0 5px #000000, 1px 1px 2px #000000;
 }
 
-[data-theme="light"] .queue-next,
+[data-theme="light"] .queue-next {
+    color: #00ff00;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9), 0 0 6px rgba(0, 0, 0, 0.7);
+    font-weight: 800;
+}
+
 [data-theme="light"] .queue-prev {
-    color: #FFFFFF;
+    color: #ffff00;
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9), 0 0 6px rgba(0, 0, 0, 0.7);
     font-weight: 800;
 }
@@ -420,7 +425,7 @@ header {
     gap: 3rem;
     align-items: center;
     animation: fadeIn 0.8s ease-out;
-    max-width: 900px;
+    max-width: 100%;
     margin: 0 auto;
     width: 100%;
     border-radius: 16px;
@@ -604,6 +609,7 @@ h1 {
 
 #current-station-name {
     font-size: clamp(1.125rem, 6vw, 1.875rem);
+    text-transform: uppercase;
 }
 
 /* Thick Glass Text Effect with Green LED Glow for Dark Theme Station Name */
