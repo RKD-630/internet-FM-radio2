@@ -716,9 +716,9 @@ const fetchMappings = {
         { tag: 'gujarati', country: 'India' }, { language: 'gujarati', country: 'India' }, { state: 'gujarat', country: 'India' }
     ],
     'bollywood': [ { tag: 'bollywood', country: 'India' }, { tag: 'hindi', country: 'India' } ],
-    'dj remix': [ { tag: 'dj remix', country: 'India' }, { tag: 'remix', country: 'India' }, { name: 'anbu fm hindi' }, { name: 'anbu fm' }, { name: 'radio deewana' }, { name: 'bollywoodandbeyond' }, { name: 'goldy blast' } ],
-    'singer': [ { name: 'latamangeshkarradio' }, { name: 'kishorekumarradio' }, { name: 'Hits Of Lata Mangeshkar' }, { name: 'Rafi hit songs' }, { name: 'Mohammed Rafi' }, { name: 'Hits Of Kishor Kumar' }, { name: 'Goldy Mukesh' }, { name: 'hit of lata' }, { name: 'Mukesh Radio' }, { name: 'shreyaghosal' }, { name: 'arijitsingh' }, { name: 'Kumar Sanu' }, { name: 'Sonu Nigam' }, { name: 'Alka Yagnik' }, { name: 'Kishore Kumar' }, { name: 'Lata Mangeshkar' } ],
-    'ghazal': [ { name: 'gazal radio london' } ],
+    'dj remix': [ { tag: 'dj remix', country: 'India' }, { tag: 'remix', country: 'India' }, { name: 'anbu fm hindi' }, { name: 'anbu fm' }, { name: 'radio deewana' }, { name: 'bollywoodandbeyond' }, { name: 'goldy blast' }, { name: 'bollywood diwali party' } ],
+    'singer': [ { name: 'latamangeshkarradio' }, { name: 'kishorekumarradio' }, { name: 'Hits Of Lata Mangeshkar' }, { name: 'Rafi hit songs' }, { name: 'Mohammed Rafi' }, { name: 'Hits Of Kishor Kumar' }, { name: 'Goldy Mukesh' }, { name: 'hit of lata' }, { name: 'Mukesh Radio' }, { name: 'shreyaghosal' }, { name: 'arijitsingh' }, { name: 'Kumar Sanu' }, { name: 'Sonu Nigam' }, { name: 'Alka Yagnik' }, { name: 'Kishore Kumar' }, { name: 'Lata Mangeshkar' }, { name: 'Bollywood Arijit singh' }, { name: 'Bollywood Shaharukh khan' }, { name: 'Bollywood alkayagnik' }, { name: 'radio madhuban' }, { name: 'Bollywood sonu nigam' }, { name: 'Bollywood shreya ghosal' }, { name: 'Bollywood Vishal shekhar' }, { name: 'Bollywood armaan malik' }, { name: 'Bollywood nehakakkar' } ],
+    'ghazal': [ { name: 'gazal radio london' }, { name: 'Radio gyansthali 89.6 fm' } ],
     'news': [ { tag: 'news', country: 'India' }, { name: 'wion live tv' } ]
 };
 
@@ -834,6 +834,29 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
             }
             
             currentStations = filtered;
+        } else if (!tag && !query && country === 'India') {
+            const response = await fetch(url);
+            let defaultStations = await response.json();
+            
+            const promises = [];
+            Object.values(fetchMappings).forEach(mappings => {
+                mappings.forEach(params => {
+                    let pUrl = `${API_BASE}/stations/search?limit=15&order=clickcount&reverse=true&hidebroken=true`;
+                    if (params.tag) pUrl += `&tag=${encodeURIComponent(params.tag)}`;
+                    if (params.country) pUrl += `&country=${encodeURIComponent(params.country)}`;
+                    if (params.language) pUrl += `&language=${encodeURIComponent(params.language)}`;
+                    if (params.state) pUrl += `&state=${encodeURIComponent(params.state)}`;
+                    if (params.name) pUrl += `&name=${encodeURIComponent(params.name)}`;
+                    promises.push(fetch(pUrl).then(r => r.json()).catch(() => []));
+                });
+            });
+            const results = await Promise.all(promises);
+            let allCatStations = results.flat();
+            
+            // Add custom injected stations
+            allCatStations = [...allCatStations, ...CUSTOM_NEWS_STATIONS, ...CUSTOM_SINGER_STATIONS];
+            
+            currentStations = [...defaultStations, ...allCatStations];
         } else {
             const response = await fetch(url);
             currentStations = await response.json();
@@ -859,8 +882,6 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
                     } catch(e) { console.error(`Failed to fetch ${stationName}`, e); }
                 }
             }
-            // Ensure uniqueness
-            currentStations = currentStations.filter((v,i,a) => a.findIndex(t => (t.stationuuid === v.stationuuid)) === i);
         }
         
         const excludedStations = [
@@ -878,6 +899,14 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
 
         // Ensure strictly only active/working stations are allowed
         currentStations = currentStations.filter(station => station.lastcheckok === 1);
+
+        // Deduplicate stations globally (by UUID and by exact Name) to prevent repeats
+        currentStations = currentStations.filter((v,i,a) => 
+            a.findIndex(t => 
+                (t.stationuuid === v.stationuuid) || 
+                (t.name && v.name && t.name.trim().toLowerCase() === v.name.trim().toLowerCase())
+            ) === i
+        );
 
         renderStations();
         resultsCount.textContent = `${currentStations.length} stations found`;
