@@ -25,6 +25,15 @@ const CUSTOM_NEWS_STATIONS = [
         lastcheckok: 1
     },
     {
+        stationuuid: 'zee-news',
+        name: 'Zee News',
+        url_resolved: 'https://dknttpxmr0dwf.cloudfront.net/index_57.m3u8',
+        favicon: 'https://dtil.tmsimg.com/assets/GNLZZGG0023VWYC.png?lock=720x540',
+        country: 'India',
+        tags: 'tv, news, hindi, zee',
+        lastcheckok: 1
+    },
+    {
         stationuuid: 'dd-national',
         name: 'DD National HD',
         url_resolved: 'https://mumt01.tangotv.in/O5aw8Zn3DDNATIONALHD/index.m3u8',
