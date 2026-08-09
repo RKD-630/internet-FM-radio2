@@ -8,6 +8,7 @@ const API_ENDPOINTS = [
 let currentApiIndex = 0;
 let API_BASE = API_ENDPOINTS[currentApiIndex];
 let retryCount = 0;
+let userExplicitlyPaused = false; // Tracks if the user intentionally stopped playback
 
 const DEFAULT_LIMIT = 200;
 const DEFAULT_LOGO = 'logo.png';
@@ -882,7 +883,7 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
         resultsCount.textContent = `${currentStations.length} stations found`;
         
         if (currentStations.length > 0) {
-            if (autoPlay) {
+            if (autoPlay && !userExplicitlyPaused) {
                 playStation(0, 'search');
             } else {
                 // Just set up the UI for the first station without loading the stream yet
@@ -995,6 +996,7 @@ function switchView(target) {
 
 // Playback Logic
 function playStation(index, source = 'search', element = null) {
+    userExplicitlyPaused = false; // Playing a new station manually overrides explicit pause
     currentSource = source;
     let station;
     if (source === 'search') {
@@ -1064,10 +1066,10 @@ function playStation(index, source = 'search', element = null) {
     // Also update button immediately before promise resolves for instant feedback
     if (nowPlayingCard) nowPlayingCard.classList.add('playing');
 
-    // Auto-skip logic if stream stalls or shows pause (unless user blocked auto-play)
+    // Auto-skip logic if stream stalls or shows pause (unless user blocked auto-play or paused intentionally)
     clearTimeout(playCheckTimeout);
     playCheckTimeout = setTimeout(() => {
-        if ((audioPlayer.paused || audioPlayer.readyState < 3) && !autoPlayBlocked && !isSmartScanning) {
+        if ((audioPlayer.paused || audioPlayer.readyState < 3) && !autoPlayBlocked && !isSmartScanning && !userExplicitlyPaused) {
             console.log('Stream stalled, deleting broken station and skipping...');
             playerStatus.textContent = 'Broken Stream - Deleting & Skipping...';
             
@@ -1172,6 +1174,7 @@ function updatePlayerUI(station) {
 
 function togglePlay() {
     if (audioPlayer.paused) {
+        userExplicitlyPaused = false;
         if (!audioPlayer.getAttribute('src') && currentStations.length > 0) {
             playStation(currentStationIndex >= 0 ? currentStationIndex : 0, 'search');
         } else if (!audioPlayer.getAttribute('src') && currentPlaylist.length > 0) {
@@ -1183,6 +1186,8 @@ function togglePlay() {
             if (nowPlayingCard) nowPlayingCard.classList.add('playing');
         }
     } else {
+        userExplicitlyPaused = true;
+        clearTimeout(playCheckTimeout); // Stop any pending auto-skips
         audioPlayer.pause();
     }
     // Double check icon (already handled by event listeners, but for responsiveness)
