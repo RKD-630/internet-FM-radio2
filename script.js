@@ -1202,12 +1202,24 @@ function updatePlayerUI(station) {
     const defaultMini = DEFAULT_LOGO;
 
     const nameLen = name.length;
+    let isSpecialPrefix = false;
+
     if (nameLen >= 3) {
         const center = (nameLen - 1) / 2;
         let formattedName = '';
         let wrapIndex = -1;
         
-        if (nameLen > 18) {
+        let lowerName = name.toLowerCase();
+        if (lowerName.startsWith('hit of ')) {
+            wrapIndex = 'hit of '.length - 1;
+            isSpecialPrefix = true;
+        } else if (lowerName.startsWith('hits of ')) {
+            wrapIndex = 'hits of '.length - 1;
+            isSpecialPrefix = true;
+        } else if (lowerName.startsWith('bollywood ')) {
+            wrapIndex = 'bollywood '.length - 1;
+            isSpecialPrefix = true;
+        } else if (nameLen > 18) {
             wrapIndex = name.lastIndexOf(' ');
         }
         
@@ -1217,7 +1229,13 @@ function updatePlayerUI(station) {
                 continue;
             }
             const distance = Math.abs(i - center);
-            const scale = 1 + (distance / center) * 0.25; // Up to 25% increase at edges
+            let scale = 1 + (distance / center) * 0.25; // Up to 25% increase at edges
+            
+            // Only decrease the font size for the special prefix words
+            if (isSpecialPrefix && i < wrapIndex) {
+                scale = scale * 0.35;
+            }
+            
             let char = name[i] === ' ' ? '&nbsp;' : name[i];
             formattedName += `<span style="font-size: ${scale}em; vertical-align: baseline; display: inline-block;">${char}</span>`;
         }
@@ -1228,12 +1246,17 @@ function updatePlayerUI(station) {
     
     // Reset inline styles
     currentStationName.style.fontSize = '';
+    currentStationName.style.textAlign = '';
     
     if (name.length >= 25 && name.lastIndexOf(' ') === -1) {
         // Scroll right to left for very long names without spaces
         currentStationName.classList.add('marquee-name');
     } else {
         currentStationName.classList.remove('marquee-name');
+        
+        if (isSpecialPrefix) {
+            currentStationName.style.textAlign = 'center';
+        }
         
         if (name.length > 32) {
             // Decrease font size 25% for names over 32 characters
