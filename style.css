@@ -1257,12 +1257,31 @@ body.is-fullscreen .player-controls {
     }
     
     body.is-fullscreen .volume-controls {
-        margin-bottom: 5vh !important;
+        position: fixed;
+        bottom: 115px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: max-content;
+        margin-bottom: 0 !important;
+        z-index: 1000;
+        gap: 1rem;
+        flex-wrap: nowrap !important;
     }
     
     body.is-fullscreen #eq-hd-btn {
         position: fixed;
         left: 1.5rem;
+        bottom: 115px;
+        z-index: 1000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+
+    body.is-fullscreen #dj-boost-btn {
+        position: fixed;
+        right: 1.5rem;
         bottom: 115px;
         z-index: 1000;
         box-shadow: 0 4px 12px rgba(0,0,0,0.4);
