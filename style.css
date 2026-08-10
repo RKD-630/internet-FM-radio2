@@ -1254,6 +1254,10 @@ body.is-fullscreen .player-controls {
         padding-top: 4.5rem;
         padding-bottom: 4.5rem;
     }
+    
+    body.is-fullscreen #queue-text-info {
+        margin-top: 15vh !important;
+    }
 }
 
 /* Mobile Landscape Fullscreen Fixes */
@@ -1298,3 +1302,41 @@ body.is-fullscreen .player-controls {
     }
 }
 
+
+.volume-drag-overlay {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    width: 160px;
+    height: 160px;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 2px solid #ff0000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 100;
+    box-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, inset 0 0 15px rgba(255, 0, 0, 0.5);
+}
+
+.volume-drag-overlay.active {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+#volume-drag-text {
+    font-size: 3.85rem;
+    font-weight: 800;
+    color: #ffff00;
+    text-shadow: 0 0 5px #ffff00, 0 0 15px #ffff00, 0 0 25px rgba(255, 255, 0, 0.8);
+}
+
+.now-playing-card {
+    position: relative; /* required for absolute positioning of overlay */
+}

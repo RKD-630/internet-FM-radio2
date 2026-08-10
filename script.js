@@ -376,11 +376,15 @@ function setupEventListeners() {
     prevBtn.addEventListener('click', playPrevious);
     nextBtn.addEventListener('click', playNext);
 
-    muteBtn.addEventListener('click', toggleMute);
+    if (muteBtn) {
+        muteBtn.addEventListener('click', toggleMute);
+    }
     
-    volumeSlider.addEventListener('input', (e) => {
-        updateVolume(e.target.value);
-    });
+    if (volumeSlider) {
+        volumeSlider.addEventListener('input', (e) => {
+            updateVolume(e.target.value);
+        });
+    }
 
     addToPlaylistBtn.addEventListener('click', () => {
         if (currentStationIndex >= 0 && currentStations[currentStationIndex]) {
@@ -437,7 +441,14 @@ function setupEventListeners() {
         
         isDraggingVol = true;
         startDragY = startY;
-        startDragVol = parseInt(volumeSlider.value) || lastVolume || 30;
+        startDragVol = (volumeSlider ? parseInt(volumeSlider.value) : lastVolume) || 30;
+        
+        const dragOverlay = document.getElementById('volume-drag-overlay');
+        const dragText = document.getElementById('volume-drag-text');
+        if (dragOverlay && dragText) {
+            dragText.textContent = startDragVol;
+            dragOverlay.classList.add('active');
+        }
     };
 
     const handleVolDragMove = (e) => {
@@ -455,9 +466,20 @@ function setupEventListeners() {
         let newVol = Math.max(0, Math.min(100, startDragVol + volChange));
         
         updateVolume(newVol);
+        
+        const dragText = document.getElementById('volume-drag-text');
+        if (dragText) {
+            dragText.textContent = newVol;
+        }
     };
 
     const handleVolDragEnd = () => {
+        if (isDraggingVol) {
+            const dragOverlay = document.getElementById('volume-drag-overlay');
+            if (dragOverlay) {
+                dragOverlay.classList.remove('active');
+            }
+        }
         isDraggingVol = false;
     };
 
@@ -504,12 +526,12 @@ function setupEventListeners() {
                 break;
             case 'ArrowUp':
                 e.preventDefault();
-                let upVol = Math.min(100, parseInt(volumeSlider.value || lastVolume || 30) + 5);
+                let upVol = Math.min(100, parseInt((volumeSlider ? volumeSlider.value : lastVolume) || 30) + 5);
                 updateVolume(upVol);
                 break;
             case 'ArrowDown':
                 e.preventDefault();
-                let downVol = Math.max(0, parseInt(volumeSlider.value || lastVolume || 30) - 5);
+                let downVol = Math.max(0, parseInt((volumeSlider ? volumeSlider.value : lastVolume) || 30) - 5);
                 updateVolume(downVol);
                 break;
             case 'ArrowLeft':
@@ -1326,7 +1348,7 @@ function playPrevious() {
 // Volume Controls
 function updateVolume(value) {
     let volume = value / 100;
-    volumeSlider.value = value;
+    if (volumeSlider) volumeSlider.value = value;
     
     // Apply Boosts based on active features
     if (isVolBoostEnabled) {
@@ -1361,7 +1383,7 @@ function toggleMute() {
     if (isMuted) {
         updateVolume(lastVolume);
     } else {
-        lastVolume = volumeSlider.value;
+        lastVolume = volumeSlider ? volumeSlider.value : 30;
         updateVolume(0);
         isMuted = true;
     }
@@ -1451,7 +1473,7 @@ function toggleHDEQ() {
         playerStatus.textContent = 'HD/EQ Disabled';
     }
     
-    updateVolume(volumeSlider.value);
+    updateVolume(volumeSlider ? volumeSlider.value : lastVolume || 30);
     
     setTimeout(() => {
         if (audioPlayer.paused) playerStatus.textContent = 'Paused';
@@ -1472,7 +1494,7 @@ function toggleDJBoost() {
         playerStatus.textContent = 'DJ/Beats Boost OFF';
     }
     
-    updateVolume(volumeSlider.value);
+    updateVolume(volumeSlider ? volumeSlider.value : lastVolume || 30);
     
     setTimeout(() => {
         if (audioPlayer.paused) playerStatus.textContent = 'Paused';
@@ -1489,7 +1511,7 @@ function toggleVolBoost(e) {
         playerStatus.textContent = 'Volume Boost OFF';
     }
     
-    updateVolume(volumeSlider.value);
+    updateVolume(volumeSlider ? volumeSlider.value : lastVolume || 30);
     
     setTimeout(() => {
         if (audioPlayer.paused) playerStatus.textContent = 'Paused';
