@@ -1249,6 +1249,11 @@ body.is-fullscreen .player-controls {
     body.is-fullscreen .player-controls {
         width: 100%;
     }
+    
+    body.is-fullscreen .now-playing-card.playing {
+        padding-top: 4.5rem;
+        padding-bottom: 4.5rem;
+    }
 }
 
 /* Mobile Landscape Fullscreen Fixes */
