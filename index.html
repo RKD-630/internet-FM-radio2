@@ -150,20 +150,20 @@
                     </div>
                 </div>
 
-                <div class="volume-controls glass" style="margin: 1.5rem auto 0 auto; padding: 1rem 1.5rem; border-radius: 16px; display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap; width: 100%; max-width: 100%;">
-                    <button id="eq-hd-btn" class="control-btn" title="Toggle HD Quality & Bass/Treble" style="border: 1px solid var(--primary-color); border-radius: 8px; padding: 4px 12px; font-size: 0.85rem; font-weight: bold; background: transparent; color: inherit;">
+                <div class="volume-controls" style="margin: 1.5rem auto 0 auto; display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap; width: 100%; max-width: 100%;">
+                    <button id="eq-hd-btn" class="control-btn" title="Toggle HD Quality & Bass/Treble" style="border: 1px solid var(--primary-color); border-radius: 8px; padding: 4px 12px; font-size: 0.85rem; font-weight: bold; background: var(--glass-bg); color: inherit; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
                         HD / EQ
                     </button>
-                    <button id="dj-boost-btn" class="control-btn" title="Toggle DJ / Beats Boost" style="border: 1px solid var(--accent-color); border-radius: 8px; padding: 4px 12px; font-size: 0.85rem; font-weight: bold; background: transparent; color: inherit;">
+                    <button id="dj-boost-btn" class="control-btn" title="Toggle DJ / Beats Boost" style="border: 1px solid var(--accent-color); border-radius: 8px; padding: 4px 12px; font-size: 0.85rem; font-weight: bold; background: var(--glass-bg); color: inherit; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
                         DJ Boost
                     </button>
-                    <button id="fs-refresh-btn" class="icon-btn theme-btn" title="Reload Stations" style="transform: scale(0.94);">
-                        <i data-lucide="refresh-cw"></i>
-                    </button>
-                    <div class="vol-boost-check" style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: bold;">
+                    <div class="vol-boost-check" style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: bold; background: var(--glass-bg); padding: 4px 12px; border-radius: 8px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--glass-border);">
                         <input type="checkbox" id="vol-boost-check" style="width: 16px; height: 16px; accent-color: var(--primary-color);">
                         <label for="vol-boost-check" style="cursor: pointer;">Vol Boost</label>
                     </div>
+                    <button id="fs-refresh-btn" class="icon-btn theme-btn" title="Reload Stations" style="transform: scale(0.94); background: var(--glass-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--glass-border);">
+                        <i data-lucide="refresh-cw"></i>
+                    </button>
                 </div>
             </section>
 
