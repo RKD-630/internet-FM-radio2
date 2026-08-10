@@ -292,19 +292,19 @@ function setupEventListeners() {
 
     if (refreshBtn) {
         refreshBtn.addEventListener('click', () => {
-            fetchStations(lastQuery, lastCountry, lastTag);
+            fetchStations(lastQuery, lastCountry, lastTag, false, true);
         });
     }
 
     if (tabRefreshBtn) {
         tabRefreshBtn.addEventListener('click', () => {
-            fetchStations(lastQuery, lastCountry, lastTag);
+            fetchStations(lastQuery, lastCountry, lastTag, false, true);
         });
     }
 
     if (fsRefreshBtn) {
         fsRefreshBtn.addEventListener('click', () => {
-            fetchStations(lastQuery, lastCountry, lastTag);
+            fetchStations(lastQuery, lastCountry, lastTag, false, true);
             if (window.lucide) {
                 lucide.createIcons();
             }
@@ -723,7 +723,7 @@ const fetchMappings = {
 };
 
 // API Functions
-async function fetchStations(query = '', country = '', tag = '', autoPlay = false) {
+async function fetchStations(query = '', country = '', tag = '', autoPlay = false, forceRefresh = false) {
     if (!navigator.onLine) {
         playerStatus.textContent = 'Offline';
         playerStatus.style.color = '#ef4444'; // Red error status
@@ -736,8 +736,36 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
     lastCountry = country;
     lastTag = tag;
     
-    mainLoader.style.display = 'flex';
-    stationsGrid.innerHTML = '';
+    const cacheKey = `stations_cache_${query}_${country}_${tag}`;
+    let loadedFromCache = false;
+    
+    // Check if we have cached stations to load instantly
+    const cachedData = !forceRefresh ? localStorage.getItem(cacheKey) : null;
+    if (cachedData) {
+        try {
+            currentStations = JSON.parse(cachedData);
+            renderStations();
+            resultsCount.textContent = `${currentStations.length} stations found`;
+            
+            if (currentStations.length > 0) {
+                if (autoPlay && !userExplicitlyPaused && !audioPlayer.getAttribute('src')) {
+                    playStation(0, 'search');
+                } else if (!audioPlayer.getAttribute('src')) {
+                    currentStationIndex = 0;
+                    updatePlayerUI(currentStations[0]);
+                    playerStatus.textContent = 'Ready (Cached)';
+                }
+            }
+            loadedFromCache = true;
+        } catch (e) {
+            console.error('Cache parsing error', e);
+        }
+    }
+    
+    if (!loadedFromCache) {
+        mainLoader.style.display = 'flex';
+        stationsGrid.innerHTML = '';
+    }
     
     let url = `${API_BASE}/stations/search?limit=${DEFAULT_LIMIT}&order=clickcount&reverse=true&hidebroken=true`;
     if (country) {
@@ -908,10 +936,15 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
             ) === i
         );
 
+        // Save fresh fetched data to cache
+        try {
+            localStorage.setItem(cacheKey, JSON.stringify(currentStations));
+        } catch(e) { console.error('Cache save error', e); }
+
         renderStations();
         resultsCount.textContent = `${currentStations.length} stations found`;
         
-        if (currentStations.length > 0) {
+        if (currentStations.length > 0 && !loadedFromCache) {
             if (autoPlay && !userExplicitlyPaused) {
                 playStation(0, 'search');
             } else {
@@ -1172,8 +1205,17 @@ function updatePlayerUI(station) {
     if (nameLen >= 3) {
         const center = (nameLen - 1) / 2;
         let formattedName = '';
+        let wrapIndex = -1;
+        
+        if (nameLen > 18) {
+            wrapIndex = name.lastIndexOf(' ');
+        }
         
         for (let i = 0; i < nameLen; i++) {
+            if (i === wrapIndex) {
+                formattedName += `<br>`;
+                continue;
+            }
             const distance = Math.abs(i - center);
             const scale = 1 + (distance / center) * 0.25; // Up to 25% increase at edges
             let char = name[i] === ' ' ? '&nbsp;' : name[i];
@@ -1187,14 +1229,14 @@ function updatePlayerUI(station) {
     // Reset inline styles
     currentStationName.style.fontSize = '';
     
-    if (name.length >= 25) {
-        // Scroll right to left for very long names
+    if (name.length >= 25 && name.lastIndexOf(' ') === -1) {
+        // Scroll right to left for very long names without spaces
         currentStationName.classList.add('marquee-name');
     } else {
         currentStationName.classList.remove('marquee-name');
         
-        // Decrease font size 15% for names between 16-24 characters (scaled down by 25% for user request)
-        if (name.length >= 16 && name.length <= 24) {
+        // Decrease font size 15% for names 16 characters and over
+        if (name.length >= 16) {
             currentStationName.style.fontSize = 'clamp(0.95rem, 5.1vw, 1.59rem)';
         }
     }
