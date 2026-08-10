@@ -891,7 +891,7 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
         }
         // Prepend Vividh Bharti Mumbai and Bollywood Gaane Purane for India 'All' category
         if (country === 'India' && !tag && !query) {
-            const stationsToPrepend = ['vividh bharti mumbai', 'bollywood gaane purane', 'akashvani fm rainbow lucknow'];
+            const stationsToPrepend = ['vividh bharti mumbai', 'fm rainbow delhi 32 kbps', 'radio mirchi lucknow', 'bollywood gaane purane', 'akashvani fm rainbow lucknow'];
             
             for (let i = stationsToPrepend.length - 1; i >= 0; i--) {
                 const stationName = stationsToPrepend[i];
@@ -1235,8 +1235,11 @@ function updatePlayerUI(station) {
     } else {
         currentStationName.classList.remove('marquee-name');
         
-        // Decrease font size 15% for names 16 characters and over
-        if (name.length >= 16) {
+        if (name.length > 32) {
+            // Decrease font size 25% for names over 32 characters
+            currentStationName.style.fontSize = 'clamp(0.84rem, 4.5vw, 1.4rem)';
+        } else if (name.length >= 16) {
+            // Decrease font size 15% for names 16-32 characters
             currentStationName.style.fontSize = 'clamp(0.95rem, 5.1vw, 1.59rem)';
         }
     }
