@@ -1250,13 +1250,20 @@ body.is-fullscreen .player-controls {
         width: 100%;
     }
     
+    body.is-fullscreen .category-nav {
+        margin-bottom: 0 !important;
+    }
+    
     body.is-fullscreen .now-playing-card.playing {
         padding-top: 5rem;
         padding-bottom: 5rem;
         gap: 2rem;
+        margin-bottom: 0 !important;
+        min-height: calc(100vh - 240px);
     }
     
     body.is-fullscreen .volume-controls {
+        margin-top: 0 !important;
         position: fixed;
         bottom: 115px;
         left: 50%;
@@ -1292,7 +1299,7 @@ body.is-fullscreen .player-controls {
     
     body.is-fullscreen #eq-hd-btn {
         position: fixed;
-        left: 1.5rem;
+        right: 1.5rem;
         bottom: 115px;
         z-index: 1000;
         box-shadow: 0 4px 12px rgba(0,0,0,0.4);
@@ -1303,7 +1310,7 @@ body.is-fullscreen .player-controls {
 
     body.is-fullscreen #dj-boost-btn {
         position: fixed;
-        right: 1.5rem;
+        left: 1.5rem;
         bottom: 115px;
         z-index: 1000;
         box-shadow: 0 4px 12px rgba(0,0,0,0.4);
