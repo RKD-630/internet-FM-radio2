@@ -1251,8 +1251,9 @@ body.is-fullscreen .player-controls {
     }
     
     body.is-fullscreen .now-playing-card.playing {
-        padding-top: 4.5rem;
-        padding-bottom: 4.5rem;
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+        gap: 0.5rem;
     }
     
     body.is-fullscreen .volume-controls {
