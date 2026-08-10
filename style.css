@@ -1255,8 +1255,8 @@ body.is-fullscreen .player-controls {
         padding-bottom: 4.5rem;
     }
     
-    body.is-fullscreen #queue-text-info {
-        margin-top: 15vh !important;
+    body.is-fullscreen .volume-controls {
+        margin-bottom: 5vh !important;
     }
 }
 
