@@ -231,7 +231,6 @@ function setupEventListeners() {
             fetchStations('', 'India', '', true); // Auto-play first Indian station
         }
         updateActiveCat('All');
-        switchView('discovery');
     });
 
     catButtons.forEach(btn => {
@@ -241,12 +240,6 @@ function setupEventListeners() {
             const country = currentMode === 'India' ? 'India' : '';
             fetchStations('', country, tag, true);
             updateActiveCat(btn.textContent);
-            
-            // Exit fullscreen to show the loaded list
-            document.body.classList.remove('is-fullscreen');
-            
-            switchView('discovery');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     });
 
