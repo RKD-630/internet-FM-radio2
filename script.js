@@ -241,7 +241,12 @@ function setupEventListeners() {
             const country = currentMode === 'India' ? 'India' : '';
             fetchStations('', country, tag, true);
             updateActiveCat(btn.textContent);
+            
+            // Exit fullscreen to show the loaded list
+            document.body.classList.remove('is-fullscreen');
+            
             switchView('discovery');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     });
 
@@ -729,6 +734,7 @@ const fetchMappings = {
     'sports': [ { tag: 'sports' }, { tag: 'sport' }, { tag: 'live sports' } ],
     'talk': [ { tag: 'talk' }, { tag: 'talk radio' }, { tag: 'speech' }, { tag: 'podcast' } ],
     'hindi': [ { tag: 'hindi', country: 'India' }, { language: 'hindi', country: 'India' }, { name: 'hindi', country: 'India' }, { name: 'lucknow', country: 'India' } ],
+    'classic': [ { tag: 'classical', country: 'India' }, { tag: 'retro', country: 'India' }, { tag: 'gold', country: 'India' }, { name: 'hindi classical', country: 'India' }, { name: 'retro', country: 'India' }, { name: 'gold', country: 'India' }, { name: 'classic', country: 'India' } ],
     'regional': [
         { tag: 'tamil', country: 'India' }, { language: 'tamil', country: 'India' }, { state: 'tamil nadu', country: 'India' },
         { tag: 'kannada', country: 'India' }, { language: 'kannada', country: 'India' }, { state: 'karnataka', country: 'India' },
@@ -806,9 +812,13 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
             const p2 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=devotional`).then(r => r.json()).catch(() => []);
             const p3 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=hindu`).then(r => r.json()).catch(() => []);
             const p4 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=spiritual`).then(r => r.json()).catch(() => []);
+            const p5 = fetch(`${API_BASE}/stations/search?limit=5&order=clickcount&reverse=true&hidebroken=true&name=bhaktiworld%20media%20Bhagvad%20gita`).then(r => r.json()).catch(() => []);
+            const p6 = fetch(`${API_BASE}/stations/search?limit=5&order=clickcount&reverse=true&hidebroken=true&name=Bhaktisudha`).then(r => r.json()).catch(() => []);
+            const p7 = fetch(`${API_BASE}/stations/search?limit=5&order=clickcount&reverse=true&hidebroken=true&name=classic%20radio%20bhakti%20sangeet`).then(r => r.json()).catch(() => []);
+            const p8 = fetch(`${API_BASE}/stations/search?limit=5&order=clickcount&reverse=true&hidebroken=true&name=Bhagvad%20gita%20Radio`).then(r => r.json()).catch(() => []);
             
-            const [d1, d2, d3, d4] = await Promise.all([p1, p2, p3, p4]);
-            const combined = [...d1, ...d2, ...d3, ...d4];
+            const [d1, d2, d3, d4, d5, d6, d7, d8] = await Promise.all([p1, p2, p3, p4, p5, p6, p7, p8]);
+            const combined = [...d5, ...d6, ...d7, ...d8, ...d1, ...d2, ...d3, ...d4];
             
             // Remove duplicates based on stationuuid
             currentStations = combined.filter((v,i,a) => a.findIndex(t => (t.stationuuid === v.stationuuid)) === i);
@@ -818,13 +828,22 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
             const p3 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&language=bengali`).then(r => r.json()).catch(() => []);
             const p5 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&state=West%20Bengal`).then(r => r.json()).catch(() => []);
             const p6 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=kolkata`).then(r => r.json()).catch(() => []);
+            const p7 = fetch(`${API_BASE}/stations/search?limit=5&order=clickcount&reverse=true&hidebroken=true&name=Hot%20Now%20Bangla`).then(r => r.json()).catch(() => []);
+            const p8 = fetch(`${API_BASE}/stations/search?limit=5&order=clickcount&reverse=true&hidebroken=true&name=AIR%20FM%20Gold%20Kolkata`).then(r => r.json()).catch(() => []);
             
-            const [d1, d2, d3, d5, d6] = await Promise.all([p1, p2, p3, p5, p6]);
+            const [d1, d2, d3, d5, d6, d7, d8] = await Promise.all([p1, p2, p3, p5, p6, p7, p8]);
             // Place Indian stations first
-            const combined = [...d1, ...d2, ...d3, ...d5, ...d6];
+            const combined = [...d7, ...d8, ...d1, ...d2, ...d3, ...d5, ...d6];
             
             // Remove duplicates
             currentStations = combined.filter((v,i,a) => a.findIndex(t => (t.stationuuid === v.stationuuid)) === i);
+            
+            // Remove unwanted stations from Bangla category
+            const excludedBangla = ['my club remix', 'vividh bharti mumbai', 'radio bollyfm', 'fm rainbow delhi 32 kbps', 'radio mirchi lucknow', 'bollywood gaane purane'];
+            currentStations = currentStations.filter(s => {
+                const name = s.name ? s.name.toLowerCase().trim() : '';
+                return !excludedBangla.some(ex => name === ex || name.includes(ex));
+            });
         } else if (tag.toLowerCase() === 'punjabi') {
             const p1 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=punjabi`).then(r => r.json()).catch(() => []);
             const p2 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&language=punjabi`).then(r => r.json()).catch(() => []);
@@ -881,6 +900,20 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
             } else if (tag.toLowerCase() === 'singer') {
                 // Inject custom stations for artists that do not exist natively on the radio-browser API
                 filtered.unshift(...CUSTOM_SINGER_STATIONS);
+            } else if (tag.toLowerCase() === 'classic') {
+                const excludedClassic = [
+                    'london telugu radio', 'aural melodics', 'radio mattoli', 'jn fm tamil', 
+                    'اذاعة القرآن الكر', 'kathiravan fm', 'air coimbatore', 'air pune fm', 
+                    'fm kottarakkara', 'fm rainbow krishna vani vijayawada', 'chann pardesi radio', 
+                    'air warangal', 'air raagam', 'air kochi', 'vanavilfm - radio maestro', 
+                    'air fm gold chennai', 'retro ma', 'radio retro bollywood', 'air fm gold kolkata', 
+                    'tamil panpalai gold', 'fm-gold-chennai', 'goldy garba', 'fmgoldtamil', 
+                    'jn fm tamil classic', 'goldy bhal', 'golden voice radio'
+                ];
+                filtered = filtered.filter(s => {
+                    const name = s.name ? s.name.toLowerCase().trim() : '';
+                    return !excludedClassic.some(ex => name === ex || name.includes(ex));
+                });
             }
             
             currentStations = filtered;
@@ -940,12 +973,27 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
             "air tuticorin", "air madikeri", "air mevad kandva", 
             "air satara", "air sasaram", "my radio dj", "jesus alive radio",
             "jesus radio malayalam", "hand of jesus",
-            "radio mariam", "nour mariam", "mariam", "dipak"
+            "radio mariam", "nour mariam", "mariam", "dipak",
+            "london telugu radio", "aural melodics", "radio mattoli", "jn fm tamil", 
+            "اذاعة القرآن الكر", "kathiravan fm", "air coimbatore", "air pune fm", 
+            "fm kottarakkara", "fm rainbow krishna vani vijayawada", "chann pardesi radio", 
+            "air warangal", "air raagam", "air pune fm (high bit rate)", "air kochi", 
+            "vanavilfm - radio maestro", "air fm gold chennai", "retro ma", 
+            "radio retro bollywood", "air fm gold kolkata", "tamil panpalai gold", 
+            "fm-gold-chennai", "goldy garba", "fmgoldtamil", "jn fm tamil classic", 
+            "goldy bhal", "golden voice radio"
         ];
         currentStations = currentStations.filter(station => {
             const name = station.name ? station.name.toLowerCase().trim() : '';
             return !excludedStations.some(ex => name.includes(ex));
         });
+
+        // Strict category segregation
+        if (country === 'India') {
+            currentStations = currentStations.filter(station => station.country === 'India' || station.countrycode === 'IN' || station.countrycode === 'IN ');
+        } else if (!country) {
+            currentStations = currentStations.filter(station => station.country !== 'India' && station.countrycode !== 'IN' && station.countrycode !== 'IN ');
+        }
 
         // Ensure strictly only active/working stations are allowed
         currentStations = currentStations.filter(station => station.lastcheckok === 1);
@@ -1225,6 +1273,7 @@ function updatePlayerUI(station) {
 
     const nameLen = name.length;
     let isSpecialPrefix = false;
+    let prefixScale = 0.35;
 
     if (nameLen >= 3) {
         const center = (nameLen - 1) / 2;
@@ -1232,7 +1281,19 @@ function updatePlayerUI(station) {
         let wrapIndex = -1;
         
         let lowerName = name.toLowerCase();
-        if (lowerName.startsWith('hit of ')) {
+        if (lowerName.startsWith('2b! radio ')) {
+            wrapIndex = '2b! radio '.length - 1;
+            isSpecialPrefix = true;
+            prefixScale = 0.30;
+        } else if (lowerName.startsWith('bhakti world media ')) {
+            wrapIndex = 'bhakti world media '.length - 1;
+            isSpecialPrefix = true;
+            prefixScale = 0.45;
+        } else if (lowerName.startsWith('bhakti world ')) {
+            wrapIndex = 'bhakti world '.length - 1;
+            isSpecialPrefix = true;
+            prefixScale = 0.45;
+        } else if (lowerName.startsWith('hit of ')) {
             wrapIndex = 'hit of '.length - 1;
             isSpecialPrefix = true;
         } else if (lowerName.startsWith('hits of ')) {
@@ -1255,7 +1316,7 @@ function updatePlayerUI(station) {
             
             // Only decrease the font size for the special prefix words
             if (isSpecialPrefix && i < wrapIndex) {
-                scale = scale * 0.35;
+                scale = scale * prefixScale;
             }
             
             let char = name[i] === ' ' ? '&nbsp;' : name[i];

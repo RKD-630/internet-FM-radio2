@@ -239,6 +239,7 @@ header {
     color: #1a1a1a;
     border: 1px solid rgba(252, 246, 186, 0.5);
     text-shadow: none;
+    text-transform: uppercase;
 }
 
 #mode-toggle-btn:hover {
@@ -351,8 +352,9 @@ header {
     padding: 0.5rem 1rem;
     border-radius: 2rem;
     cursor: pointer;
-    font-size: 0.85rem;
+    font-size: 0.98rem;
     font-weight: 700;
+    text-transform: uppercase;
     transition: var(--transition);
     
     /* Shining Gold Text Effect */
@@ -1268,11 +1270,12 @@ body.is-fullscreen .player-controls {
         bottom: 115px;
         left: 50%;
         transform: translateX(-50%);
-        width: max-content;
+        width: 100%;
         margin-bottom: 0 !important;
         z-index: 1000;
         gap: 1rem;
-        flex-wrap: nowrap !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
         background: transparent !important;
         border: none !important;
         box-shadow: none !important;
@@ -1298,10 +1301,6 @@ body.is-fullscreen .player-controls {
     }
     
     body.is-fullscreen #eq-hd-btn {
-        position: fixed;
-        right: 1.5rem;
-        bottom: 115px;
-        z-index: 1000;
         box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         background: var(--glass-bg);
         backdrop-filter: blur(10px);
@@ -1309,10 +1308,6 @@ body.is-fullscreen .player-controls {
     }
 
     body.is-fullscreen #dj-boost-btn {
-        position: fixed;
-        left: 1.5rem;
-        bottom: 115px;
-        z-index: 1000;
         box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         background: var(--glass-bg);
         backdrop-filter: blur(10px);
