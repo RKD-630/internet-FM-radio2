@@ -769,7 +769,7 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
             resultsCount.textContent = `${currentStations.length} stations found`;
             
             if (currentStations.length > 0) {
-                if (autoPlay && !userExplicitlyPaused && !audioPlayer.getAttribute('src')) {
+                if (autoPlay) {
                     playStation(0, 'search');
                 } else if (!audioPlayer.getAttribute('src')) {
                     currentStationIndex = 0;
@@ -1008,9 +1008,9 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
         resultsCount.textContent = `${currentStations.length} stations found`;
         
         if (currentStations.length > 0 && !loadedFromCache) {
-            if (autoPlay && !userExplicitlyPaused) {
+            if (autoPlay) {
                 playStation(0, 'search');
-            } else {
+            } else if (!audioPlayer.getAttribute('src')) {
                 // Just set up the UI for the first station without loading the stream yet
                 currentStationIndex = 0;
                 updatePlayerUI(currentStations[0]);
