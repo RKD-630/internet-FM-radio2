@@ -158,7 +158,7 @@ const fullPlaylistList = document.getElementById('full-playlist-list');
 // Initialize
 function init() {
     setupEventListeners();
-    fetchStations('', 'India', '', true); // Initial load: Search and Auto-play immediately
+    fetchStations('', 'India', '', false); // Initial load: Search without Auto-play
     renderPlaylist();
     updateVolume(30);
     loadTheme();
@@ -603,6 +603,10 @@ function setupEventListeners() {
         }
         releaseWakeLock();
         if (keepAliveAudio) keepAliveAudio.pause();
+        
+        // Stop scanning/background checks when paused
+        clearTimeout(smartScanTimeout);
+        clearTimeout(playCheckTimeout);
     };
 
     audioPlayer.onwaiting = () => {
@@ -805,10 +809,10 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
             const p2 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=devotional`).then(r => r.json()).catch(() => []);
             const p3 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=hindu`).then(r => r.json()).catch(() => []);
             const p4 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=spiritual`).then(r => r.json()).catch(() => []);
-            const p5 = fetch(`${API_BASE}/stations/search?limit=5&order=clickcount&reverse=true&hidebroken=true&name=bhaktiworld%20media%20Bhagvad%20gita`).then(r => r.json()).catch(() => []);
+            const p5 = fetch(`${API_BASE}/stations/search?limit=5&order=clickcount&reverse=true&hidebroken=true&name=bhaktiworld%20media%20Bhagavad%20Gita`).then(r => r.json()).catch(() => []);
             const p6 = fetch(`${API_BASE}/stations/search?limit=5&order=clickcount&reverse=true&hidebroken=true&name=Bhaktisudha`).then(r => r.json()).catch(() => []);
             const p7 = fetch(`${API_BASE}/stations/search?limit=5&order=clickcount&reverse=true&hidebroken=true&name=classic%20radio%20bhakti%20sangeet`).then(r => r.json()).catch(() => []);
-            const p8 = fetch(`${API_BASE}/stations/search?limit=5&order=clickcount&reverse=true&hidebroken=true&name=Bhagvad%20gita%20Radio`).then(r => r.json()).catch(() => []);
+            const p8 = fetch(`${API_BASE}/stations/search?limit=5&order=clickcount&reverse=true&hidebroken=true&name=Bhagavad%20Gita%20Radio`).then(r => r.json()).catch(() => []);
             
             const [d1, d2, d3, d4, d5, d6, d7, d8] = await Promise.all([p1, p2, p3, p4, p5, p6, p7, p8]);
             const combined = [...d5, ...d6, ...d7, ...d8, ...d1, ...d2, ...d3, ...d4];
@@ -1376,6 +1380,8 @@ function togglePlay() {
         userExplicitlyPaused = true;
         clearTimeout(playCheckTimeout); // Stop any pending auto-skips
         audioPlayer.pause();
+        audioPlayer.removeAttribute('src'); // Stop downloading stream data
+        audioPlayer.load(); // Flush buffer
     }
     // Double check icon (already handled by event listeners, but for responsiveness)
     setTimeout(() => {

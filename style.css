@@ -376,8 +376,10 @@ header {
 }
 
 .cat-btn:hover {
-    border-color: #fcf6ba;
-    filter: drop-shadow(0 0 5px rgba(252, 246, 186, 0.5));
+    border-color: #00ff00;
+    background-color: rgba(0, 255, 0, 0.15);
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.8), inset 0 0 8px rgba(0, 255, 0, 0.5);
+    filter: drop-shadow(0 0 8px rgba(0, 255, 0, 0.6));
     font-size: 1.715rem;
 }
 .cat-btn:active {
@@ -1270,12 +1272,15 @@ body.is-fullscreen .player-controls {
         margin-top: 0 !important;
         position: fixed;
         bottom: 115px;
-        left: 50%;
-        transform: translateX(-50%);
+        right: 1.5rem;
+        left: auto;
+        transform: none;
         width: max-content;
         margin-bottom: 0 !important;
         z-index: 1000;
         gap: 1rem;
+        flex-direction: column;
+        align-items: flex-end;
         flex-wrap: nowrap !important;
         background: transparent !important;
         border: none !important;
@@ -1304,7 +1309,7 @@ body.is-fullscreen .player-controls {
     body.is-fullscreen #eq-hd-btn {
         position: fixed;
         right: 1.5rem;
-        bottom: 115px;
+        bottom: 225px;
         z-index: 1000;
         box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         background: var(--glass-bg);
