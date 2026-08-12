@@ -1261,71 +1261,99 @@ body.is-fullscreen .player-controls {
     }
     
     body.is-fullscreen .now-playing-card {
-        padding-top: 5rem;
-        padding-bottom: 5rem;
-        gap: 2rem;
+        padding-top: 3rem;
+        padding-bottom: 3rem;
+        gap: 1.25rem;
         margin-bottom: 0 !important;
         min-height: calc(100vh - 240px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    body.is-fullscreen #eq-hd-btn {
+        position: relative;
+        right: auto;
+        left: auto;
+        bottom: auto;
+        margin: 0.5rem auto;
+        z-index: 10;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid var(--primary-color);
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-weight: bold;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    body.is-fullscreen .banner-right {
+        margin: 0 auto;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        width: 100%;
     }
     
     body.is-fullscreen .volume-controls {
         margin-top: 0 !important;
         position: fixed;
         bottom: 115px;
-        right: 1.5rem;
-        left: auto;
-        transform: none;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
         width: max-content;
+        max-width: 95vw;
         margin-bottom: 0 !important;
         z-index: 1000;
-        gap: 1rem;
-        flex-direction: column;
-        align-items: flex-end;
+        gap: 0.75rem;
+        display: flex !important;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
         flex-wrap: nowrap !important;
-        background: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
-        padding: 0 !important;
+        background: var(--glass-bg) !important;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+        border: 1px solid var(--glass-border) !important;
+        border-radius: 16px;
+        padding: 8px 16px !important;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.4) !important;
     }
     
-    body.is-fullscreen .vol-boost-check,
-    body.is-fullscreen #fs-refresh-btn {
-        background: var(--glass-bg);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 1px solid var(--glass-border);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-        padding: 6px 12px;
-        border-radius: 8px;
-    }
-    
-    body.is-fullscreen #fs-refresh-btn {
-        padding: 8px;
-        border-radius: 50%;
-    }
-    
-    body.is-fullscreen #eq-hd-btn {
-        position: fixed;
-        right: 1.5rem;
-        bottom: 225px;
-        z-index: 1000;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-        background: var(--glass-bg);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
+    body.is-fullscreen #dj-boost-btn {
+        position: static;
+        left: auto;
+        bottom: auto;
+        z-index: auto;
+        box-shadow: none;
+        background: transparent;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
     }
 
-    body.is-fullscreen #dj-boost-btn {
-        position: fixed;
-        left: 1.5rem;
-        bottom: 115px;
-        z-index: 1000;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-        background: var(--glass-bg);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
+    body.is-fullscreen .vol-boost-check {
+        background: transparent;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+    }
+
+    body.is-fullscreen #fs-refresh-btn {
+        position: static;
+        background: transparent;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        border: none;
+        box-shadow: none;
+        padding: 6px;
+        border-radius: 50%;
     }
 }
 
