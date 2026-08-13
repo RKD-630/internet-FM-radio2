@@ -94,6 +94,7 @@ let lastCountry = '';
 let lastTag = '';
 let wakeLock = null;
 let consecutiveErrors = 0;
+let isSleepMode = false;
 
 // Web Audio API
 let audioContext = null;
@@ -140,6 +141,10 @@ const eqHdBtn = document.getElementById('eq-hd-btn');
 const djBoostBtn = document.getElementById('dj-boost-btn');
 const volBoostCheck = document.getElementById('vol-boost-check');
 const smartAutoScanBtn = document.getElementById('smart-auto-scan-btn');
+const sleepModeBtn = document.getElementById('sleep-mode-btn');
+const sleepBtn = document.getElementById('sleep-btn');
+const sleepOverlay = document.getElementById('sleep-overlay');
+const wakeUpBtn = document.getElementById('wake-up-btn');
 const queueTickerText = document.getElementById('queue-ticker-text');
 const eqBars = document.querySelectorAll('.eq-bar');
 
@@ -410,6 +415,26 @@ function setupEventListeners() {
         smartAutoScanBtn.addEventListener('click', toggleSmartAutoScan);
     }
 
+    if (sleepModeBtn) {
+        sleepModeBtn.addEventListener('click', toggleSleepMode);
+    }
+
+    if (sleepBtn) {
+        sleepBtn.addEventListener('click', toggleSleepMode);
+    }
+
+    if (wakeUpBtn) {
+        wakeUpBtn.addEventListener('click', () => enableSleepMode(false));
+    }
+
+    if (sleepOverlay) {
+        sleepOverlay.addEventListener('click', (e) => {
+            if (e.target === sleepOverlay || e.target.closest('#wake-up-btn')) {
+                enableSleepMode(false);
+            }
+        });
+    }
+
     // Tab Switching
     mainTabs.forEach(tab => {
         tab.addEventListener('click', () => {
@@ -545,6 +570,9 @@ function setupEventListeners() {
 
     // Audio Player Events
     audioPlayer.onplay = () => {
+        if (isSleepMode) {
+            enableSleepMode(false);
+        }
         playPauseBtn.innerHTML = '<i data-lucide="pause" id="play-icon"></i>';
         lucide.createIcons();
         playerStatus.textContent = 'Playing';
@@ -601,8 +629,13 @@ function setupEventListeners() {
         if ('mediaSession' in navigator) {
             navigator.mediaSession.playbackState = 'paused';
         }
+        
+        // Auto Release Wake Lock so screen light turns off automatically
         releaseWakeLock();
         if (keepAliveAudio) keepAliveAudio.pause();
+        
+        // Enter sleep mode visual state when paused
+        enableSleepMode(true);
         
         // Stop scanning/background checks when paused
         clearTimeout(smartScanTimeout);
@@ -1672,6 +1705,42 @@ function releaseWakeLock() {
         wakeLock = null;
         console.log('Wake Lock released manually');
     }
+}
+
+// --- Sleep Mode & Screen Auto-Off Functions ---
+function enableSleepMode(enable) {
+    isSleepMode = enable;
+    if (isSleepMode) {
+        document.body.classList.add('sleep-mode-active');
+        if (sleepOverlay) sleepOverlay.classList.add('active');
+        releaseWakeLock(); // Release screen lock so screen light automatically turns off via system screen timeout
+        if (keepAliveAudio) keepAliveAudio.pause();
+        
+        if (!audioPlayer.paused) {
+            userExplicitlyPaused = true;
+            audioPlayer.pause();
+        }
+        playerStatus.textContent = '🌙 Sleep Mode (Screen Auto-Off)';
+        if (sleepBtn) {
+            sleepBtn.style.backgroundColor = 'var(--secondary-color)';
+            sleepBtn.style.color = '#fff';
+        }
+    } else {
+        document.body.classList.remove('sleep-mode-active');
+        if (sleepOverlay) sleepOverlay.classList.remove('active');
+        if (sleepBtn) {
+            sleepBtn.style.backgroundColor = 'transparent';
+            sleepBtn.style.color = 'inherit';
+        }
+        if (!audioPlayer.paused) {
+            requestWakeLock();
+            if (keepAliveAudio) keepAliveAudio.play().catch(console.error);
+        }
+    }
+}
+
+function toggleSleepMode() {
+    enableSleepMode(!isSleepMode);
 }
 
 // --- Dynamic Visualizer Logic ---

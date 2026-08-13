@@ -30,6 +30,9 @@
             </div>
 
             <div style="display: flex; gap: 0.5rem;">
+                <button id="sleep-mode-btn" class="icon-btn theme-btn" title="Toggle Sleep Mode & Screen Auto-Off">
+                    <i data-lucide="moon-star" id="sleep-icon"></i>
+                </button>
                 <button id="fullscreen-btn" class="icon-btn theme-btn" title="Toggle Fullscreen">
                     <i data-lucide="maximize" id="fullscreen-icon"></i>
                 </button>
@@ -151,8 +154,14 @@
                 </div>
 
                 <div class="volume-controls glass" style="margin: 1.5rem auto 0 auto; padding: 1rem 1.5rem; border-radius: 16px; display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap; width: 100%; max-width: 100%;">
-                    <button id="dj-boost-btn" class="control-btn" title="Toggle DJ / Beats Boost" style="border: 1px solid var(--accent-color); border-radius: 8px; padding: 6px 14px; font-size: 0.85rem; font-weight: bold; background: transparent; color: inherit;">
+                    <button id="eq-hd-btn" class="control-btn" title="Toggle HD Quality & Bass/Treble" style="border: 1px solid var(--primary-color); border-radius: 8px; padding: 4px 12px; font-size: 0.85rem; font-weight: bold; background: transparent; color: inherit;">
+                        HD / EQ
+                    </button>
+                    <button id="dj-boost-btn" class="control-btn" title="Toggle DJ / Beats Boost" style="border: 1px solid var(--accent-color); border-radius: 8px; padding: 4px 12px; font-size: 0.85rem; font-weight: bold; background: transparent; color: inherit;">
                         DJ Boost
+                    </button>
+                    <button id="sleep-btn" class="control-btn" title="Toggle Sleep Mode & Screen Auto-Off" style="border: 1px solid #a855f7; border-radius: 8px; padding: 4px 12px; font-size: 0.85rem; font-weight: bold; background: transparent; color: inherit; display: inline-flex; align-items: center; gap: 4px;">
+                        <i data-lucide="moon" style="width: 14px; height: 14px;"></i> Sleep
                     </button>
                     <div class="vol-boost-check" style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: bold;">
                         <input type="checkbox" id="vol-boost-check" style="width: 16px; height: 16px; accent-color: var(--primary-color);">
@@ -160,9 +169,6 @@
                     </div>
                     <button id="fs-refresh-btn" class="icon-btn theme-btn" title="Reload Stations" style="transform: scale(0.94);">
                         <i data-lucide="refresh-cw"></i>
-                    </button>
-                    <button id="eq-hd-btn" class="control-btn" title="Toggle HD Quality & Bass/Treble" style="border: 1px solid var(--primary-color); border-radius: 8px; padding: 6px 14px; font-size: 0.85rem; font-weight: bold; background: transparent; color: inherit; flex-shrink: 0; cursor: pointer;">
-                        HD / EQ
                     </button>
                 </div>
             </section>
@@ -303,5 +309,15 @@
             }
         });
     </script>
+
+    <!-- Sleep Mode & Screen Auto-Off Overlay Shield -->
+    <div id="sleep-overlay">
+        <i data-lucide="moon-star" class="sleep-moon-icon"></i>
+        <div class="sleep-title">Sleep Mode Active</div>
+        <p class="sleep-subtext">Application is paused. Screen light will turn off automatically per device system settings.</p>
+        <button id="wake-up-btn" class="wake-up-btn">
+            <i data-lucide="power"></i> Wake Up &amp; Resume
+        </button>
+    </div>
 </body>
 </html>
