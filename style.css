@@ -1013,7 +1013,15 @@ body:not([data-theme="light"]) #current-station-name {
         height: 20px;
     }
 
-    .volume-controls { display: none; }
+    .volume-controls { 
+        display: flex !important; 
+        flex-wrap: wrap !important; 
+        justify-content: center !important; 
+        align-items: center !important; 
+        gap: 0.75rem !important; 
+        padding: 0.75rem 1rem !important; 
+        margin: 1rem auto 0 auto !important; 
+    }
 
 
 }
@@ -1269,63 +1277,39 @@ body.is-fullscreen .player-controls {
     }
     
     body.is-fullscreen .volume-controls {
-        margin-top: 0 !important;
-        position: fixed;
-        bottom: 115px;
-        right: 1.5rem;
-        left: auto;
-        transform: none;
-        width: max-content;
-        margin-bottom: 0 !important;
-        z-index: 1000;
-        gap: 1rem;
-        flex-direction: column;
-        align-items: flex-end;
-        flex-wrap: nowrap !important;
-        background: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
-        padding: 0 !important;
+        position: fixed !important;
+        bottom: 110px !important;
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%) !important;
+        width: max-content !important;
+        max-width: calc(100vw - 2rem) !important;
+        margin: 0 !important;
+        z-index: 1000 !important;
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 0.65rem !important;
+        background: var(--glass-bg) !important;
+        border: 1px solid var(--glass-border) !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        padding: 0.6rem 1rem !important;
+        border-radius: 20px !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
     }
     
+    body.is-fullscreen #eq-hd-btn,
+    body.is-fullscreen #dj-boost-btn,
     body.is-fullscreen .vol-boost-check,
     body.is-fullscreen #fs-refresh-btn {
-        background: var(--glass-bg);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 1px solid var(--glass-border);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-        padding: 6px 12px;
-        border-radius: 8px;
-    }
-    
-    body.is-fullscreen #fs-refresh-btn {
-        padding: 8px;
-        border-radius: 50%;
-    }
-    
-    body.is-fullscreen #eq-hd-btn {
-        position: fixed;
-        right: 1.5rem;
-        bottom: 225px;
-        z-index: 1000;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-        background: var(--glass-bg);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-    }
-
-    body.is-fullscreen #dj-boost-btn {
-        position: fixed;
-        left: 1.5rem;
-        bottom: 115px;
-        z-index: 1000;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-        background: var(--glass-bg);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
+        position: static !important;
+        bottom: auto !important;
+        left: auto !important;
+        right: auto !important;
+        transform: none !important;
     }
 }
 

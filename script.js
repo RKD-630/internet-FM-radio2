@@ -1011,7 +1011,7 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
             "vanavilfm - radio maestro", "air fm gold chennai", "retro ma", 
             "radio retro bollywood", "air fm gold kolkata", "tamil panpalai gold", 
             "fm-gold-chennai", "goldy garba", "fmgoldtamil", "jn fm tamil classic", 
-            "goldy bhal", "golden voice radio"
+            "goldy bhal", "golden voice radio", "mirchi top 20", "mirchi top", "radio mirchi top"
         ];
         currentStations = currentStations.filter(station => {
             const name = station.name ? station.name.toLowerCase().trim() : '';
