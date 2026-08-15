@@ -1,1986 +1,1790 @@
-"use strict";
-/* ============ helpers ============ */
-const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
-const frame=()=>new Promise(r=>requestAnimationFrame(()=>setTimeout(r,0)));
-const pad2=n=>String(n).padStart(2,"0");
-function fmtBytes(b){ if(!b)return "0 B"; const u=["B","KB","MB","GB"]; let i=0,n=b;
-  while(n>=1024 && i < u.length-1){n/=1024;i++;} return (i? n.toFixed(1):n)+" "+u[i]; }
-function dimsLabel(p){
-  const W=p.baseW,H=p.baseH;
-  if(p.kind==="pdf"){
-    const near=(a,b)=>Math.abs(a-b) < 3;
-    if((near(W,595)&&near(H,842))||(near(W,842)&&near(H,595)))return "A4";
-    if((near(W,420)&&near(H,595))||(near(W,595)&&near(H,420)))return "A5";
-    if((near(W,612)&&near(H,792))||(near(W,792)&&near(H,612)))return "Letter";
-    if((near(W,612)&&near(H,1008))||(near(W,1008)&&near(H,612)))return "Legal";
-    return Math.round(W)+" × "+Math.round(H)+" pt";
-  }
-  return Math.round(W)+" × "+Math.round(H);
-}
-if(!window.pdfjsLib||!window.PDFLib) $("#libWarn").hidden=false;
-if(window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
+// Configuration
+const API_ENDPOINTS = [
+    'https://de1.api.radio-browser.info/json',
+    'https://at1.api.radio-browser.info/json',
+    'https://nl1.api.radio-browser.info/json',
+    'https://fr1.api.radio-browser.info/json'
+];
+let currentApiIndex = 0;
+let API_BASE = API_ENDPOINTS[currentApiIndex];
+let retryCount = 0;
+let userExplicitlyPaused = false; // Tracks if the user intentionally stopped playback
 
-/* ============ state ============ */
-const state={pages:[],files:new Map(),images:new Map(),nextId:1,lastSelected:null,editingId:null};
-let undoStack=[],redoStack=[],adjDirty=false,textPropDirty=false,exportCancelled=false;
-const DEFAULT_ADJ=()=>({brightness:0,contrast:0,darkness:0,sharpness:0,hue:0,saturation:0,exposure:0,opacity:100});
-function newPage(o){return Object.assign({id:state.nextId++,kind:"image",fileId:null,pageIndex:0,imgId:null,
-  name:"page",sizeBytes:0,baseW:100,baseH:100,rotation:0,pts:null,selected:true,
-  edits:{crop:null,adj:DEFAULT_ADJ(),filter:"original",texts:[],erases:[]}},o);}
-const curPage=()=>state.pages.find(p=>p.id===state.editingId)||null;
-const idxOf=id=>state.pages.findIndex(p=>p.id===id);
+const DEFAULT_LIMIT = 200;
+const DEFAULT_LOGO = 'logo.png';
 
-/* ============ filters ============ */
-const FILTERS={
-  original:{name:"Original",css:""},
-  enhance:{name:"Auto Enhance",css:"brightness(1.07) contrast(1.12) saturate(1.18)"},
-  document:{name:"Document",css:"contrast(1.28) brightness(1.04) saturate(0.8)"},
-  clean:{name:"Clean Document",css:"brightness(1.14) contrast(1.2) saturate(0.5)"},
-  bw:{name:"Black & White",css:"grayscale(1) contrast(1.2)"},
-  gray:{name:"Grayscale",css:"grayscale(1)"},
-  hicon:{name:"High Contrast",css:"contrast(1.6) brightness(1.03)"},
-  light:{name:"Light Document",css:"brightness(1.24) contrast(1.06)"},
-  dark:{name:"Dark Document",css:"brightness(0.8) contrast(1.22)"},
-  scan:{name:"Scan",css:"contrast(1.4) brightness(1.08) saturate(0.55)"},
-  sharpen:{name:"Sharpen",css:"contrast(1.06)",sharp:45},
-  vintage:{name:"Vintage",css:"sepia(0.5) contrast(1.06) brightness(1.04)"},
-  cool:{name:"Cool",css:"hue-rotate(-14deg) saturate(1.12) brightness(1.02)"},
-  warm:{name:"Warm",css:"sepia(0.28) saturate(1.2) brightness(1.05)"}
+const CUSTOM_SINGER_STATIONS = [];
+
+const CUSTOM_NEWS_STATIONS = [
+    {
+        stationuuid: 'republic-bharat',
+        name: 'Republic Bharat TV',
+        url_resolved: 'https://raw.githubusercontent.com/amazeyourself/adaptive-streams/refs/heads/main/streams/in/YuppTV/RepublicBharat.m3u8',
+        favicon: 'https://dtil.tmsimg.com/assets/s143724_ld_h15_aa.png?lock=720x540',
+        country: 'India',
+        tags: 'tv, news, hindi, republic, bharat',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'zee-news',
+        name: 'Zee News',
+        url_resolved: 'https://dknttpxmr0dwf.cloudfront.net/index_57.m3u8',
+        favicon: 'https://dtil.tmsimg.com/assets/GNLZZGG0023VWYC.png?lock=720x540',
+        country: 'India',
+        tags: 'tv, news, hindi, zee',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'dd-national',
+        name: 'DD National HD',
+        url_resolved: 'https://mumt01.tangotv.in/O5aw8Zn3DDNATIONALHD/index.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/DD_National.svg/512px-DD_National.svg.png',
+        country: 'India',
+        tags: 'tv, doordarshan, hindi',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'dd-news',
+        name: 'DD News',
+        url_resolved: 'https://cdn-2.pishow.tv/live/12/master.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/DD_News_Logo.svg/512px-DD_News_Logo.svg.png',
+        country: 'India',
+        tags: 'tv, doordarshan, hindi, news',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'dd-news-hd',
+        name: 'DD News HD',
+        url_resolved: 'https://cdn-2.pishow.tv/live/12/master.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/DD_News_Logo.svg/512px-DD_News_Logo.svg.png',
+        country: 'India',
+        tags: 'tv, doordarshan, hindi, news, hd',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'dd-india',
+        name: 'DD India',
+        url_resolved: 'https://d2gvyg6lvauoko.cloudfront.net/230226/ddindia/chunks.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/DD_India_logo.svg/512px-DD_India_logo.svg.png',
+        country: 'India',
+        tags: 'tv, doordarshan, hindi',
+        lastcheckok: 1
+    }
+];
+
+
+// State
+let currentStations = [];
+let currentPlaylist = JSON.parse(localStorage.getItem('fm_playlist')) || [];
+let currentStationIndex = -1;
+let currentSource = 'search';
+let currentMode = 'India'; // 'Global' or 'India'
+let isMuted = false;
+let lastVolume = 30;
+let isHDEQEnabled = false;
+let isDJBoostEnabled = false;
+let isVolBoostEnabled = false;
+let isSmartScanning = false;
+let smartScanTimeout = null;
+let playCheckTimeout = null;
+let queueTickerInterval = null;
+let showingNextInQueue = true;
+let lastQuery = '';
+let lastCountry = '';
+let lastTag = '';
+let wakeLock = null;
+let consecutiveErrors = 0;
+let isSleepMode = false;
+
+// Web Audio API
+let audioContext = null;
+let audioAnalyser = null;
+let audioSource = null;
+let eqDataArray = null;
+let animationFrameId = null;
+
+// DOM Elements
+const audioPlayer = document.getElementById('audio-player');
+const keepAliveAudio = document.getElementById('keep-alive-audio');
+const stationsGrid = document.getElementById('stations-grid');
+const playlistList = document.getElementById('playlist-list');
+const searchInput = document.getElementById('station-search');
+const searchBtn = document.getElementById('search-btn');
+const modeToggleBtn = document.getElementById('mode-toggle-btn');
+const modeToggleText = document.getElementById('mode-toggle-text');
+const categoriesBar = document.getElementById('categories-bar');
+const indiaCats = document.getElementById('india-cats');
+const globalCats = document.getElementById('global-cats');
+const catButtons = document.querySelectorAll('.cat-btn');
+const playPauseBtn = document.getElementById('play-pause-btn');
+const playIcon = document.getElementById('play-icon');
+const prevBtn = document.getElementById('prev-btn');
+const nextBtn = document.getElementById('next-btn');
+const muteBtn = document.getElementById('mute-btn');
+const volumeIcon = document.getElementById('volume-icon');
+const volumeSlider = document.getElementById('volume-slider');
+const playerStatus = document.getElementById('player-status');
+const currentStationName = document.getElementById('current-station-name');
+const currentStationMeta = document.getElementById('current-station-meta');
+const currentStationImg = document.getElementById('current-station-info-img');
+const addToPlaylistBtn = document.getElementById('add-to-playlist-btn');
+const resultsCount = document.getElementById('results-count');
+const mainLoader = document.getElementById('main-loader');
+const nowPlayingCard = document.querySelector('.now-playing-card');
+const fullscreenBtn = document.getElementById('fullscreen-btn');
+const refreshBtn = document.getElementById('refresh-btn');
+const tabRefreshBtn = document.getElementById('tab-refresh-btn');
+const fsRefreshBtn = document.getElementById('fs-refresh-btn');
+const themeToggle = document.getElementById('theme-toggle');
+const themeIcon = document.getElementById('theme-icon');
+const eqHdBtn = document.getElementById('eq-hd-btn');
+const djBoostBtn = document.getElementById('dj-boost-btn');
+const volBoostCheck = document.getElementById('vol-boost-check');
+const smartAutoScanBtn = document.getElementById('smart-auto-scan-btn');
+const sleepModeBtn = document.getElementById('sleep-mode-btn');
+const sleepBtn = document.getElementById('sleep-btn');
+const sleepOverlay = document.getElementById('sleep-overlay');
+const wakeUpBtn = document.getElementById('wake-up-btn');
+const queueTickerText = document.getElementById('queue-ticker-text');
+const eqBars = document.querySelectorAll('.eq-bar');
+
+// New UI Elements
+const mainTabs = document.querySelectorAll('.tab-btn:not(.action-btn)');
+const views = {
+    discovery: document.getElementById('discovery-view'),
+    playlist: document.getElementById('playlist-view')
 };
-function cssFilterOf(p){
-  const a=p.edits.adj,parts=[],preset=FILTERS[p.edits.filter]||FILTERS.original;
-  if(preset.css)parts.push(preset.css);
-  const bri=(1+a.brightness/100)*(1-(a.darkness/100)*0.72)*(1+a.exposure/130);
-  if(Math.abs(bri-1)>0.004)parts.push("brightness("+bri.toFixed(3)+")");
-  const con=1+a.contrast/100; if(Math.abs(con-1)>0.004)parts.push("contrast("+con.toFixed(3)+")");
-  const sat=Math.max(0,1+a.saturation/100); if(Math.abs(sat-1)>0.004)parts.push("saturate("+sat.toFixed(3)+")");
-  if(a.hue)parts.push("hue-rotate("+a.hue+"deg)");
-  return parts.join(" ");
-}
-const opacityOf=p=>clamp((p.edits.adj.opacity??100)/100,0,1);
-const sharpOf=p=>Math.min(100,(p.edits.adj.sharpness||0)+((FILTERS[p.edits.filter]||{}).sharp||0));
+const quickPlaylistList = document.getElementById('quick-playlist-list');
+const fullPlaylistList = document.getElementById('full-playlist-list');
 
-/* ============ toasts / confirm / progress ============ */
-function toast(msg,type,ms){
-  type=type||"info"; ms=ms||3600;
-  const t=document.createElement("div"); t.className="toast "+(type==="error"?"error":type==="ok"?"ok":"");
-  const ic=type==="error"?"i-alert":type==="ok"?"i-check":"i-spark";
-  t.innerHTML='<svg><use href="#'+ic+'"/></svg><span></span>'; t.lastChild.textContent=msg;
-  $("#toasts").appendChild(t);
-  setTimeout(()=>{t.classList.add("out"); setTimeout(()=>t.remove(),320);},ms);
-}
-function confirmDialog(o){
-  return new Promise(res=>{
-    $("#cfTitle").textContent=o.title; $("#cfMsg").textContent=o.msg;
-    const yes=$("#cfYes"); yes.textContent=o.okLabel||"Delete";
-    yes.className="btn "+(o.danger===false?"primary":"danger");
-    $("#confirmBd").hidden=false;
-    const done=v=>{$("#confirmBd").hidden=true; yes.onclick=$("#cfNo").onclick=null; res(v);};
-    yes.onclick=()=>done(true); $("#cfNo").onclick=()=>done(false);
-  });
-}
-function showProgress(title,cancellable){
-  $("#progTitle").textContent=title; $("#progFill").style.width="0%"; $("#progDetail").textContent="—";
-  $("#progCancel").hidden=!cancellable; $("#progCancel").disabled=false;
-  $("#progOverlay").hidden=false;
-}
-function setProgress(f,txt){ $("#progFill").style.width=clamp(f*100,0,100)+"%"; if(txt)$("#progDetail").textContent=txt; }
-function hideProgress(){ $("#progOverlay").hidden=true; }
-$("#progCancel").onclick=()=>{exportCancelled=true; $("#progCancel").disabled=true;};
 
-/* ============ history ============ */
-function pushHistory(){ undoStack.push(JSON.stringify(state.pages));
-  if(undoStack.length>80)undoStack.shift(); redoStack.length=0; updateHistoryBtns(); }
-function applySnapshot(json){
-  state.pages=JSON.parse(json); clearThumbCache();
-  if(state.editingId!=null&&!curPage()) closeEditor();
-  renderGrid(); updateStats(); buildStrip();
-  if(curPage()) loadEditorPage();
-}
-function undo(){ if(!undoStack.length)return; redoStack.push(JSON.stringify(state.pages));
-  applySnapshot(undoStack.pop()); updateHistoryBtns(); toast("Undo","info",1200); }
-function redo(){ if(!redoStack.length)return; undoStack.push(JSON.stringify(state.pages));
-  applySnapshot(redoStack.pop()); updateHistoryBtns(); toast("Redo","info",1200); }
-function updateHistoryBtns(){ $("#btnUndo").disabled=!undoStack.length; $("#btnRedo").disabled=!redoStack.length; }
 
-/* ============ theme ============ */
-function setTheme(t){ document.documentElement.dataset.theme=t;
-  $("#btnTheme").innerHTML='<svg><use href="#'+(t==="dark"?"i-sun":"i-moon")+'"/></svg>';
-  try{localStorage.setItem("pdfc-theme",t);}catch(e){} }
-$("#btnTheme").onclick=()=>setTheme(document.documentElement.dataset.theme==="dark"?"light":"dark");
-(function(){ let t=null; try{t=localStorage.getItem("pdfc-theme");}catch(e){}
-  setTheme(t||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")); })();
 
-/* ============ base rendering ============ */
-const MAX_AREA=12000000;
-async function renderBase(page,opts){
-  opts=opts||{}; const maxEdge=opts.maxEdge||1200, targetW=opts.targetW||0;
-  const applyCrop=opts.applyCrop!==false;
-  const crop=applyCrop?page.edits.crop:null;
-  let full;
-  if(page.kind==="pdf"){
-    const f=state.files.get(page.fileId);
-    if(!f||!f.doc) throw new Error("PDF source missing");
-    const p=await f.doc.getPage(page.pageIndex);
-    const vp1=p.getViewport({scale:1,rotation:page.rotation});
-    let s=targetW?(targetW/(crop?crop.w:1))/vp1.width:maxEdge/Math.max(vp1.width,vp1.height);
-    s=Math.min(s,6);
-    if(vp1.width*s*vp1.height*s>MAX_AREA) s=Math.sqrt(MAX_AREA/(vp1.width*vp1.height));
-    const vp=p.getViewport({scale:s,rotation:page.rotation});
-    full=document.createElement("canvas");
-    full.width=Math.max(1,Math.round(vp.width)); full.height=Math.max(1,Math.round(vp.height));
-    const ctx=full.getContext("2d"); ctx.fillStyle="#fff"; ctx.fillRect(0,0,full.width,full.height);
-    await p.render({canvasContext:ctx,viewport:vp}).promise;
-    try{p.cleanup();}catch(e){}
-  } else {
-    const ent=state.images.get(page.imgId);
-    if(!ent) throw new Error("Image source missing");
-    let rw=page.baseW,rh=page.baseH; if(page.rotation%180){const t2=rw;rw=rh;rh=t2;}
-    let s=targetW?(targetW/(crop?crop.w:1))/rw:maxEdge/Math.max(rw,rh);
-    s=Math.min(s,6);
-    if(rw*s*rh*s>MAX_AREA) s=Math.sqrt(MAX_AREA/(rw*rh));
-    full=document.createElement("canvas");
-    full.width=Math.max(1,Math.round(rw*s)); full.height=Math.max(1,Math.round(rh*s));
-    const ctx=full.getContext("2d"); ctx.fillStyle="#fff"; ctx.fillRect(0,0,full.width,full.height);
-    ctx.save();
-    const r=((page.rotation%360)+360)%360;
-    if(r===90){ctx.translate(full.width,0);ctx.rotate(Math.PI/2);}
-    else if(r===180){ctx.translate(full.width,full.height);ctx.rotate(Math.PI);}
-    else if(r===270){ctx.translate(0,full.height);ctx.rotate(-Math.PI/2);}
-    ctx.drawImage(ent.src,0,0,page.baseW*s,page.baseH*s);
-    ctx.restore();
-  }
-  if(crop){
-    const sx=crop.x*full.width,sy=crop.y*full.height,sw=Math.max(1,crop.w*full.width),sh=Math.max(1,crop.h*full.height);
-    const c2=document.createElement("canvas"); c2.width=Math.round(sw); c2.height=Math.round(sh);
-    c2.getContext("2d").drawImage(full,sx,sy,sw,sh,0,0,c2.width,c2.height);
-    full.width=full.height=0; return c2;
-  }
-  return full;
+// Initialize
+function init() {
+    setupEventListeners();
+    fetchStations('', 'India', '', false); // Initial load: Search without Auto-play
+    renderPlaylist();
+    updateVolume(30);
+    loadTheme();
+    
+    // Status Badge Color Observer
+    const statusObserver = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'childList' || mutation.type === 'characterData') {
+                const text = playerStatus.textContent.toLowerCase();
+                
+                if (text.includes('buffer') || text.includes('load') || text.includes('scan') || text.includes('tune')) {
+                    playerStatus.style.color = '#eab308'; // yellow
+                    playerStatus.style.background = 'rgba(234, 179, 8, 0.15)';
+                    playerStatus.style.borderColor = 'rgba(234, 179, 8, 0.3)';
+                    playerStatus.style.boxShadow = '0 0 15px rgba(234, 179, 8, 0.4)';
+                } else if (text.includes('play')) {
+                    playerStatus.style.color = '#22c55e'; // green
+                    playerStatus.style.background = 'rgba(34, 197, 94, 0.15)';
+                    playerStatus.style.borderColor = 'rgba(34, 197, 94, 0.3)';
+                    playerStatus.style.boxShadow = '0 0 15px rgba(34, 197, 94, 0.4)';
+                } else if (text.includes('pause') || text.includes('stop') || text.includes('error') || text.includes('fail') || text.includes('stall')) {
+                    playerStatus.style.color = '#ef4444'; // red
+                    playerStatus.style.background = 'rgba(239, 68, 68, 0.15)';
+                    playerStatus.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                    playerStatus.style.boxShadow = '0 0 15px rgba(239, 68, 68, 0.4)';
+                } else {
+                    playerStatus.style.color = 'orange'; // default
+                    playerStatus.style.background = 'rgba(255, 165, 0, 0.15)';
+                    playerStatus.style.borderColor = 'rgba(255, 165, 0, 0.3)';
+                    playerStatus.style.boxShadow = '0 0 15px rgba(255, 165, 0, 0.4)';
+                }
+            }
+        });
+    });
+    statusObserver.observe(playerStatus, { childList: true, characterData: true, subtree: true });
+
+    // Auto-adjusting helper for mobile
+    window.addEventListener('resize', () => {
+        lucide.createIcons();
+    });
 }
-function applySharpen(canvas,amount){
-  const a=Math.min(1.5,(amount/100)*1.4); if(a<=0.02)return;
-  const w=canvas.width,h=canvas.height; if(w < 3 || h < 3)return;
-  try{
-    const ctx=canvas.getContext("2d");
-    const src=ctx.getImageData(0,0,w,h),dst=ctx.createImageData(w,h);
-    const s=src.data,d=dst.data;
-    for(let y=0; y < h; y++){
-      const y0=Math.max(0,y-1)*w,y1=y*w,y2=Math.min(h-1,y+1)*w;
-      for(let x=0; x < w; x++){
-        const xm=Math.max(0,x-1),xp=Math.min(w-1,x+1),i=(y1+x)*4;
-        for(let c=0; c < 3; c++){
-          const ctr=s[i+c];
-          const blur=(s[(y0+xm)*4+c]+s[(y0+x)*4+c]+s[(y0+xp)*4+c]+s[(y1+xm)*4+c]+ctr+s[(y1+xp)*4+c]+s[(y2+xm)*4+c]+s[(y2+x)*4+c]+s[(y2+xp)*4+c])/9;
-          let v=ctr+a*(ctr-blur); d[i+c]=v < 0?0:v>255?255:v;
+
+function setupEventListeners() {
+    searchBtn.addEventListener('click', () => {
+        const query = searchInput.value.trim();
+        const country = currentMode === 'India' ? 'India' : '';
+        fetchStations(query, country, '', true); // Quick search and auto-play
+        switchView('discovery');
+    });
+
+    modeToggleBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        if (currentMode === 'India') {
+            currentMode = 'Global';
+            modeToggleText.textContent = 'Global';
+            const icon = document.getElementById('mode-toggle-icon');
+            if (icon) icon.textContent = '🌍';
+            modeToggleBtn.classList.remove('india-active');
+            indiaCats.style.display = 'none';
+            globalCats.style.display = 'flex';
+            fetchStations('', '', '', true); // Auto-play first global station
+        } else {
+            currentMode = 'India';
+            modeToggleText.textContent = 'India';
+            const icon = document.getElementById('mode-toggle-icon');
+            if (icon) icon.textContent = '🇮🇳';
+            modeToggleBtn.classList.add('india-active');
+            globalCats.style.display = 'none';
+            indiaCats.style.display = 'flex';
+            fetchStations('', 'India', '', true); // Auto-play first Indian station
         }
-        d[i+3]=s[i+3];
-      }
-    }
-    ctx.putImageData(dst,0,0);
-  }catch(e){console.warn("sharpen failed",e);}
-}
-function wrapText(ctx,text,maxW){
-  const out=[];
-  String(text).split("\n").forEach(raw=>{
-    const words=raw.split(" "); let line="";
-    words.forEach(wd=>{
-      const test=line?line+" "+wd:wd;
-      if(ctx.measureText(test).width<=maxW||!line)line=test;
-      else{out.push(line);line=wd;}
+        updateActiveCat('All');
     });
-    out.push(line);
-  });
-  return out;
-}
-function drawErases(ctx,page,W,H){
-  if(!page||!page.edits||!page.edits.erases||!page.edits.erases.length)return;
-  page.edits.erases.forEach(stroke=>{
-    if(!stroke.pts||!stroke.pts.length)return;
-    ctx.save();
-    ctx.strokeStyle=stroke.color||"#ffffff";
-    ctx.fillStyle=stroke.color||"#ffffff";
-    const minDim=Math.min(W,H);
-    ctx.lineWidth=Math.max(1,(stroke.size||0.03)*minDim);
-    ctx.lineCap="round"; ctx.lineJoin="round";
-    if(stroke.pts.length===1){
-      const p=stroke.pts[0];
-      ctx.beginPath(); ctx.arc(p.x*W,p.y*H,ctx.lineWidth/2,0,Math.PI*2); ctx.fill();
-    } else {
-      ctx.beginPath(); ctx.moveTo(stroke.pts[0].x*W,stroke.pts[0].y*H);
-      for(let i=1; i < stroke.pts.length; i++){
-        ctx.lineTo(stroke.pts[i].x*W,stroke.pts[i].y*H);
-      }
-      ctx.stroke();
-    }
-    ctx.restore();
-  });
-}
-function drawTexts(ctx,page,W,H){
-  page.edits.texts.forEach(t=>{
-    ctx.save();
-    const fs=Math.max(4,t.size*H),bw=t.w*W,lh=fs*1.3;
-    ctx.font=(t.italic?"italic ":"")+(t.bold?"700 ":"400 ")+fs+'px "'+t.font+'", sans-serif';
-    const lines=wrapText(ctx,t.text||"",Math.max(10,bw-fs*0.7));
-    const blockH=lines.length*lh,x=t.x*W,y=t.y*H,padX=fs*0.35,padY=fs*0.25;
-    const cx=x+bw/2,cy=y+blockH/2;
-    ctx.translate(cx,cy); ctx.rotate((t.rot||0)*Math.PI/180); ctx.translate(-cx,-cy);
-    ctx.globalAlpha=clamp(t.opacity==null?1:t.opacity,0,1);
-    if(t.bg){ ctx.fillStyle=t.bg;
-      const rx=x-padX,ry=y-padY,rw2=bw+padX*2,rh2=blockH+padY*2,rr=Math.min(fs*0.2,8);
-      ctx.beginPath();
-      if(ctx.roundRect)ctx.roundRect(rx,ry,rw2,rh2,rr); else ctx.rect(rx,ry,rw2,rh2);
-      ctx.fill(); }
-    if(t.shadow){ctx.shadowColor=t.shadowColor||"rgba(0,0,0,.5)";ctx.shadowBlur=fs*0.18;ctx.shadowOffsetY=fs*0.07;}
-    ctx.fillStyle=t.color; ctx.textBaseline="top";
-    lines.forEach((ln,i)=>{
-      let lx=x; ctx.textAlign="left";
-      if(t.align==="center"){ctx.textAlign="center";lx=x+bw/2;}
-      if(t.align==="right"){ctx.textAlign="right";lx=x+bw;}
-      ctx.fillText(ln,lx,y+i*lh);
-      if(t.underline){
-        const wL=ctx.measureText(ln).width; let x0=x;
-        if(t.align==="center")x0=x+bw/2-wL/2;
-        if(t.align==="right")x0=x+bw-wL;
-        ctx.fillRect(x0,y+i*lh+fs*1.04,wL,Math.max(1,fs*0.06));
-      }
+
+    catButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            // If dragging, let the capture phase handle prevention
+            const tag = btn.dataset.tag;
+            const country = currentMode === 'India' ? 'India' : '';
+            fetchStations('', country, tag, true);
+            updateActiveCat(btn.textContent);
+        });
     });
-    ctx.restore();
-  });
-}
-function pagePhysical(page){
-  const c=page.edits.crop; let w,h;
-  if(page.kind==="pdf"){w=page.baseW;h=page.baseH;}
-  else if(page.pts){w=page.pts[0];h=page.pts[1];}
-  else{w=page.baseW*0.75;h=page.baseH*0.75;}
-  if(page.rotation%180){const t2=w;w=h;h=t2;}
-  if(c){w*=c.w;h*=c.h;}
-  return [Math.max(20,w),Math.max(20,h)];
-}
 
-/* ============ thumbnails ============ */
-const thumbCache=new Map();
-const thumbKey=p=>p.rotation+"|"+JSON.stringify(p.edits.crop);
-function clearThumbCache(){ thumbCache.forEach(e=>{try{URL.revokeObjectURL(e.url);}catch(x){}}); thumbCache.clear(); }
-async function ensureThumb(p,w){
-  w=w||320; const k=thumbKey(p),c=thumbCache.get(p.id);
-  if(c&&c.key===k)return c.url;
-  if(c){try{URL.revokeObjectURL(c.url);}catch(x){} thumbCache.delete(p.id);}
-  const cv=await renderBase(p,{maxEdge:w});
-  const blob=await new Promise(r=>cv.toBlob(r,"image/jpeg",0.82));
-  cv.width=cv.height=0;
-  const url=URL.createObjectURL(blob);
-  thumbCache.set(p.id,{url:url,key:k});
-  if(thumbCache.size>280){
-    const first=thumbCache.keys().next().value,e=thumbCache.get(first);
-    try{URL.revokeObjectURL(e.url);}catch(x){} thumbCache.delete(first);
-  }
-  return url;
-}
-function refreshThumbFor(p){
-  const c=thumbCache.get(p.id);
-  if(c){try{URL.revokeObjectURL(c.url);}catch(x){} thumbCache.delete(p.id);}
-  const card=grid.querySelector('.pcard[data-id="'+p.id+'"]');
-  if(card){card.dataset.thumbKey=""; paintCardThumb(card,p);}
-  refreshStripItem(p);
-}
+    // Drag to scroll for category bar
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+    let isDragging = false;
 
-/* ============ import ============ */
-const isImageFile=f=>/^image\//.test(f.type)||/\.(png|jpe?g|gif|webp|bmp|svg|tiff?|avif|ico)$/i.test(f.name);
-const isPdfFile=f=>f.type==="application/pdf"||/\.pdf$/i.test(f.name);
-async function loadDrawable(file){
-  const buf=await file.arrayBuffer();
-  const blob=new Blob([buf],{type:file.type||"image/*"});
-  try{const bmp=await createImageBitmap(blob); if(bmp.width)return bmp;}catch(e){}
-  return await new Promise((res,rej)=>{
-    const url=URL.createObjectURL(blob),img=new Image();
-    img.onload=()=>{URL.revokeObjectURL(url); img.width?res(img):rej(new Error("empty image"));};
-    img.onerror=()=>{URL.revokeObjectURL(url);rej(new Error("decode failed"));};
-    img.src=url;
-  });
-}
-async function importImageFile(file,insertAt){
-  const src=await loadDrawable(file);
-  const imgId=state.nextId++;
-  state.images.set(imgId,{src:src,w:src.width||src.naturalWidth,h:src.height||src.naturalHeight});
-  const fileId=state.nextId++;
-  state.files.set(fileId,{kind:"image",name:file.name,size:file.size});
-  const pg=newPage({kind:"image",imgId:imgId,fileId:fileId,name:file.name,sizeBytes:file.size,
-    baseW:src.width||src.naturalWidth,baseH:src.height||src.naturalHeight});
-  if(insertAt==null||insertAt < 0)state.pages.push(pg); else state.pages.splice(insertAt,0,pg);
-  return pg;
-}
-async function importPdfFile(file, insertAt, isQuickMode = false) {
-  const bytes = new Uint8Array(await file.arrayBuffer());
-  const task = pdfjsLib.getDocument({ data: bytes.slice() });
-  task.onProgress = pr => { if (pr.total) setProgress(pr.loaded / pr.total, "Reading " + file.name + " · " + fmtBytes(pr.loaded) + " / " + fmtBytes(pr.total)); };
-  const doc = await task.promise;
-  const isHeavy = doc.numPages > 50 || file.size > 15 * 1024 * 1024;
-  const useQuick = isQuickMode || isHeavy;
+    categoriesBar.addEventListener('mousedown', (e) => {
+        isDown = true;
+        isDragging = false;
+        categoriesBar.style.cursor = 'grabbing';
+        startX = e.pageX - categoriesBar.offsetLeft;
+        scrollLeft = categoriesBar.scrollLeft;
+    });
+    categoriesBar.addEventListener('mouseleave', () => {
+        isDown = false;
+        categoriesBar.style.cursor = 'grab';
+    });
+    categoriesBar.addEventListener('mouseup', () => {
+        isDown = false;
+        categoriesBar.style.cursor = 'grab';
+    });
+    categoriesBar.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - categoriesBar.offsetLeft;
+        const walk = (x - startX) * 2; // Scroll-fast multiplier
+        if (Math.abs(walk) > 5) isDragging = true;
+        categoriesBar.scrollLeft = scrollLeft - walk;
+    });
+    // Prevent click if dragged
+    categoriesBar.addEventListener('click', (e) => {
+        if (isDragging) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    }, true);
 
-  const fileId = state.nextId++;
-  state.files.set(fileId, { kind: "pdf", name: file.name, size: file.size, doc: doc, numPages: doc.numPages });
-  const made = [];
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const country = currentMode === 'India' ? 'India' : '';
+            fetchStations(searchInput.value.trim(), country);
+            switchView('discovery');
+        }
+    });
 
-  if (useQuick) {
-    setProgress(0.4, `⚡ Quick Importing ${file.name} (${doc.numPages} pages)…`);
-    await frame();
-    let defW = 595, defH = 842;
-    try {
-      const p1 = await doc.getPage(1);
-      const vp1 = p1.getViewport({ scale: 1 });
-      defW = vp1.width; defH = vp1.height;
-      try { p1.cleanup(); } catch (e) {}
-    } catch (e) {}
-
-    for (let i = 1; i <= doc.numPages; i++) {
-      made.push(newPage({
-        kind: "pdf",
-        fileId: fileId,
-        pageIndex: i,
-        name: file.name,
-        sizeBytes: file.size,
-        baseW: defW,
-        baseH: defH
-      }));
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', () => {
+            fetchStations(lastQuery, lastCountry, lastTag, false, true);
+        });
     }
 
-    setTimeout(async () => {
-      for (let i = 2; i <= doc.numPages; i++) {
+    if (tabRefreshBtn) {
+        tabRefreshBtn.addEventListener('click', () => {
+            fetchStations(lastQuery, lastCountry, lastTag, false, true);
+        });
+    }
+
+    if (fsRefreshBtn) {
+        fsRefreshBtn.addEventListener('click', () => {
+            fetchStations(lastQuery, lastCountry, lastTag, false, true);
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        });
+    }
+
+    if (fullscreenBtn) {
+        fullscreenBtn.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => console.log(err));
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        });
+    }
+
+    // Multi-click (2 or 3 times) to toggle Fullscreen
+    let cardClickCount = 0;
+    let cardClickTimeout = null;
+
+    if (nowPlayingCard) {
+        nowPlayingCard.addEventListener('click', (e) => {
+            // Ignore if clicking interactive controls (buttons, volume slider)
+            if (e.target.closest('button') || e.target.closest('input')) return;
+
+            cardClickCount++;
+            
+            // If user clicked 2 or more times quickly (handles double or triple tap)
+            if (cardClickCount >= 2) {
+                clearTimeout(cardClickTimeout);
+                cardClickCount = 0;
+                
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(err => console.log(err));
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    }
+                }
+                
+                // Clear any accidental text selection from tapping
+                if (window.getSelection) {
+                    window.getSelection().removeAllRanges();
+                } else if (document.selection) {
+                    document.selection.empty();
+                }
+            } else {
+                cardClickTimeout = setTimeout(() => {
+                    cardClickCount = 0; // Reset after short delay
+                }, 400); // 400ms window to tap again
+            }
+        });
+    }
+
+    document.addEventListener('fullscreenchange', () => {
+        if (document.fullscreenElement) {
+            document.body.classList.add('is-fullscreen');
+        } else {
+            document.body.classList.remove('is-fullscreen');
+        }
+    });
+
+    themeToggle.addEventListener('click', toggleTheme);
+
+    playPauseBtn.addEventListener('click', togglePlay);
+    
+    prevBtn.addEventListener('click', playPrevious);
+    nextBtn.addEventListener('click', playNext);
+
+    if (muteBtn) {
+        muteBtn.addEventListener('click', toggleMute);
+    }
+    
+    if (volumeSlider) {
+        volumeSlider.addEventListener('input', (e) => {
+            updateVolume(e.target.value);
+        });
+    }
+
+    addToPlaylistBtn.addEventListener('click', () => {
+        if (currentStationIndex >= 0 && currentStations[currentStationIndex]) {
+            addToPlaylist(currentStations[currentStationIndex]);
+        }
+    });
+
+    currentStationImg.addEventListener('click', () => {
+        addToPlaylistBtn.click();
+    });
+
+    if (eqHdBtn) {
+        eqHdBtn.addEventListener('click', toggleHDEQ);
+    }
+    
+    if (djBoostBtn) {
+        djBoostBtn.addEventListener('click', toggleDJBoost);
+    }
+    
+    if (volBoostCheck) {
+        volBoostCheck.addEventListener('change', toggleVolBoost);
+    }
+
+    if (smartAutoScanBtn) {
+        smartAutoScanBtn.addEventListener('click', toggleSmartAutoScan);
+    }
+
+    if (sleepModeBtn) {
+        sleepModeBtn.addEventListener('click', toggleSleepMode);
+    }
+
+    if (sleepBtn) {
+        sleepBtn.addEventListener('click', toggleSleepMode);
+    }
+
+    if (wakeUpBtn) {
+        wakeUpBtn.addEventListener('click', () => enableSleepMode(false));
+    }
+
+    if (sleepOverlay) {
+        sleepOverlay.addEventListener('click', (e) => {
+            if (e.target === sleepOverlay || e.target.closest('#wake-up-btn')) {
+                enableSleepMode(false);
+            }
+        });
+    }
+
+    // Tab Switching
+    mainTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const target = tab.dataset.tab;
+            switchView(target);
+        });
+    });
+
+    // Now Playing Card Gesture Volume Control
+    let isDraggingVol = false;
+    let startDragY = 0;
+    let startDragVol = 0;
+
+    const handleVolDragStart = (e) => {
+        if (!nowPlayingCard.classList.contains('playing')) return;
+        // Ignore if clicking interactive controls inside the card
+        if (e.target.closest('button') || e.target.closest('input')) return;
+        
+        const rect = nowPlayingCard.getBoundingClientRect();
+        const startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        const startY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+        
+        // Only allow volume control if dragging on the left half of the card
+        if (startX > rect.left + (rect.width / 2)) {
+            return; // Right side -> do nothing, allows default page scroll
+        }
+        
+        isDraggingVol = true;
+        startDragY = startY;
+        startDragVol = (volumeSlider ? parseInt(volumeSlider.value) : lastVolume) || 30;
+        
+        const dragOverlay = document.getElementById('volume-drag-overlay');
+        const dragText = document.getElementById('volume-drag-text');
+        if (dragOverlay && dragText) {
+            dragText.textContent = startDragVol;
+            dragOverlay.classList.add('active');
+        }
+    };
+
+    const handleVolDragMove = (e) => {
+        if (!isDraggingVol || !nowPlayingCard.classList.contains('playing')) return;
+        
+        // Prevent default scrolling on touch devices while adjusting volume
+        if (e.cancelable) e.preventDefault(); 
+        
+        const currentY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+        // Moving up (negative diff) increases volume, moving down decreases it
+        const diffY = startDragY - currentY; 
+        
+        // 150px drag height = full 100% volume change
+        const volChange = Math.round((diffY / 150) * 100);
+        let newVol = Math.max(0, Math.min(100, startDragVol + volChange));
+        
+        updateVolume(newVol);
+        
+        const dragText = document.getElementById('volume-drag-text');
+        if (dragText) {
+            dragText.textContent = newVol;
+        }
+    };
+
+    const handleVolDragEnd = () => {
+        if (isDraggingVol) {
+            const dragOverlay = document.getElementById('volume-drag-overlay');
+            if (dragOverlay) {
+                dragOverlay.classList.remove('active');
+            }
+        }
+        isDraggingVol = false;
+    };
+
+    if (nowPlayingCard) {
+        nowPlayingCard.addEventListener('mousedown', handleVolDragStart);
+        window.addEventListener('mousemove', handleVolDragMove, { passive: false });
+        window.addEventListener('mouseup', handleVolDragEnd);
+
+        nowPlayingCard.addEventListener('touchstart', handleVolDragStart, { passive: true });
+        window.addEventListener('touchmove', handleVolDragMove, { passive: false });
+        window.addEventListener('touchend', handleVolDragEnd);
+    }
+
+    // Network Connection Monitoring
+    window.addEventListener('offline', () => {
+        playerStatus.textContent = 'Internet Disconnected';
+        playerStatus.style.color = '#ef4444'; // Red
+        resultsCount.textContent = 'Offline';
+        if (isSmartScanning) {
+            toggleSmartAutoScan(); // Stop auto-scan if running
+        }
+        if (!audioPlayer.paused) {
+            audioPlayer.pause();
+            if (nowPlayingCard) nowPlayingCard.classList.remove('playing');
+        }
+    });
+
+    window.addEventListener('online', () => {
+        playerStatus.textContent = 'Internet Restored';
+        playerStatus.style.color = '#22c55e'; // Green
+        setTimeout(() => {
+            fetchStations(lastQuery, lastCountry, lastTag, false);
+        }, 1500); // Re-fetch stations after a brief delay
+    });
+
+    // Keyboard Controls
+    document.addEventListener('keydown', (e) => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+        switch(e.code) {
+            case 'Space':
+                e.preventDefault();
+                togglePlay();
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                let upVol = Math.min(100, parseInt((volumeSlider ? volumeSlider.value : lastVolume) || 30) + 5);
+                updateVolume(upVol);
+                break;
+            case 'ArrowDown':
+                e.preventDefault();
+                let downVol = Math.max(0, parseInt((volumeSlider ? volumeSlider.value : lastVolume) || 30) - 5);
+                updateVolume(downVol);
+                break;
+            case 'ArrowLeft':
+                e.preventDefault();
+                playPrevious();
+                break;
+            case 'ArrowRight':
+                e.preventDefault();
+                playNext();
+                break;
+        }
+    });
+
+    // Audio Player Events
+    audioPlayer.onplay = () => {
+        if (isSleepMode) {
+            enableSleepMode(false);
+        }
+        playPauseBtn.innerHTML = '<i data-lucide="pause" id="play-icon"></i>';
+        lucide.createIcons();
+        playerStatus.textContent = 'Playing';
+        if (nowPlayingCard) nowPlayingCard.classList.add('playing');
+        requestWakeLock();
+        if (keepAliveAudio) keepAliveAudio.play().catch(e => console.log('Keep-alive failed:', e));
+        
+        // Initialize Web Audio API on first play
+        if (!audioContext && (window.AudioContext || window.webkitAudioContext)) {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                audioAnalyser = audioContext.createAnalyser();
+                audioAnalyser.fftSize = 256; /* Higher resolution for specific instruments */
+                audioAnalyser.smoothingTimeConstant = 0.65; /* Lower smoothing for punchier, real-time sync with beats and voice */
+                
+                // Allow cross-origin audio processing
+                audioPlayer.crossOrigin = "anonymous";
+                
+                audioSource = audioContext.createMediaElementSource(audioPlayer);
+                audioSource.connect(audioAnalyser);
+                audioAnalyser.connect(audioContext.destination);
+                
+                eqDataArray = new Uint8Array(audioAnalyser.frequencyBinCount);
+                updateEqualizer();
+            } catch (e) {
+                console.warn('Web Audio API not supported or failed to initialize', e);
+            }
+        } else if (audioContext && audioContext.state === 'suspended') {
+            audioContext.resume();
+        }
+    };
+
+    audioPlayer.onplaying = () => {
+        consecutiveErrors = 0; // Reset error count on successful play
+        clearTimeout(playCheckTimeout); // Clear any buffering timeouts
+        if (nowPlayingCard) nowPlayingCard.classList.add('playing');
+        playerStatus.textContent = 'Playing';
+        
+        if (isSmartScanning) {
+            clearTimeout(smartScanTimeout);
+            smartScanTimeout = setTimeout(() => {
+                if (!isSmartScanning) return;
+                currentStationIndex = (currentStationIndex + 1) % currentStations.length;
+                playSmartScanStation();
+            }, 8000);
+        }
+    };
+
+    audioPlayer.onpause = () => {
+        playPauseBtn.innerHTML = '<i data-lucide="play" id="play-icon"></i>';
+        lucide.createIcons();
+        playerStatus.textContent = 'Paused';
+        if (nowPlayingCard) nowPlayingCard.classList.remove('playing');
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.playbackState = 'paused';
+        }
+        
+        // Auto Release Wake Lock so screen light turns off automatically
+        releaseWakeLock();
+        if (keepAliveAudio) keepAliveAudio.pause();
+        
+        // Enter sleep mode visual state when paused
+        enableSleepMode(true);
+        
+        // Stop scanning/background checks when paused
+        clearTimeout(smartScanTimeout);
+        clearTimeout(playCheckTimeout);
+    };
+
+    audioPlayer.onwaiting = () => {
+        playerStatus.textContent = 'Buffering...';
+        // Removed aggressive auto-skip on mid-stream buffering to allow smooth play
+    };
+
+    audioPlayer.onerror = (e) => {
+        console.error('Audio playback error:', e);
+        consecutiveErrors++;
+        
+        if (consecutiveErrors < 10) {
+            playerStatus.textContent = 'Stream Error - Deleting Station...';
+            playerStatus.style.color = 'var(--accent-color)';
+            
+            // Delete the broken station from the list entirely
+            if (currentSource === 'search' && currentStations.length > 0) {
+                currentStations.splice(currentStationIndex, 1);
+                if (currentStationIndex >= currentStations.length) {
+                    currentStationIndex = 0;
+                }
+                renderStations();
+            } else if (currentSource === 'playlist' && currentPlaylist.length > 0) {
+                currentPlaylist.splice(currentStationIndex, 1);
+                if (currentStationIndex >= currentPlaylist.length) {
+                    currentStationIndex = 0;
+                }
+                renderPlaylist();
+                localStorage.setItem('fm_playlist', JSON.stringify(currentPlaylist));
+            }
+
+            setTimeout(() => {
+                playerStatus.style.color = 'var(--primary-color)';
+                const list = currentSource === 'search' ? currentStations : currentPlaylist;
+                if (list.length > 0) {
+                    playStation(currentStationIndex, currentSource);
+                }
+            }, 1500);
+        } else {
+            playerStatus.textContent = 'Too many errors. Playback stopped.';
+            playerStatus.style.color = 'var(--accent-color)';
+            if (nowPlayingCard) nowPlayingCard.classList.remove('playing');
+            playPauseBtn.innerHTML = '<i data-lucide="play" id="play-icon"></i>';
+            lucide.createIcons();
+            consecutiveErrors = 0; // Reset for next manual play
+        }
+    };
+    
+    audioPlayer.onended = () => {
+        console.log('Stream ended. Reconnecting...');
+        // Live streams shouldn't end. If they do, attempt to reconnect rather than skip.
+        audioPlayer.load();
+        audioPlayer.play().catch(e => console.error('Reconnect failed', e));
+    };
+
+    audioPlayer.onloadstart = () => {
+        playerStatus.textContent = 'Buffering...';
+    };
+
+    // Prevent background pausing
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden && !audioPlayer.paused) {
+            // Re-assert playback state to OS
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.playbackState = 'playing';
+            }
+        } else if (document.visibilityState === 'visible' && !audioPlayer.paused) {
+            requestWakeLock();
+        }
+    });
+}
+
+function updateEqualizer() {
+    if (!audioAnalyser || !eqBars || !eqBars.length) return;
+    
+    animationFrameId = requestAnimationFrame(updateEqualizer);
+    
+    if (audioPlayer.paused || audioPlayer.muted) {
+        // Reset to minimal height when paused
+        eqBars.forEach(bar => bar.style.height = '10%');
+        return;
+    }
+    
+    audioAnalyser.getByteFrequencyData(eqDataArray);
+    
+    // Non-linear mapping targeting specific frequency ranges
+    // Bins correspond to ~172Hz each (at 44.1kHz / 256 fftSize). 
+    // Mapped for: Kick(0-172), Bassline, Low-mid, Mid(Voice), Lead(Voice), Upper-Mid(Snare), High-mid, High, High, Treble, Treble, Air
+    const freqMap = [0, 1, 3, 6, 10, 15, 22, 30, 42, 56, 75, 100];
+    
+    for (let i = 0; i < eqBars.length; i++) {
+        const dataIndex = freqMap[i] || i; // Fallback just in case
+        
+        // Add a slight multiplier to higher frequencies to make them pop out more
+        let value = eqDataArray[dataIndex];
+        if (i > 4) value = Math.min(255, value * (1 + (i - 4) * 0.15));
+        
+        // Map 0-255 to 10%-100%
+        const heightPercent = 10 + (value / 255) * 90;
+        eqBars[i].style.height = `${heightPercent}%`;
+    }
+}
+
+// Custom API fetch mappings for complex categories
+const fetchMappings = {
+    'australia news': [ { tag: 'news', country: 'Australia' } ],
+    'euro news': [ { name: 'euronews' }, { tag: 'news', language: 'english' } ],
+    'bbc news': [ { name: 'bbc news' }, { name: 'bbc radio', tag: 'news' } ],
+    'us news': [ { tag: 'news', country: 'United States' }, { tag: 'news', country: 'United States of America' } ],
+    'world news': [ { tag: 'world news' }, { tag: 'international news' }, { tag: 'global news' } ],
+    'russian news': [ { tag: 'news', country: 'Russia' }, { tag: 'news', language: 'russian' } ],
+    'france news': [ { tag: 'news', country: 'France' }, { tag: 'news', language: 'french' } ],
+    'pop': [ { tag: 'pop' }, { tag: 'top 40' }, { tag: 'hits' } ],
+    'rock': [ { tag: 'rock' }, { tag: 'classic rock' }, { tag: 'hard rock' } ],
+    'jazz': [ { tag: 'jazz' }, { tag: 'smooth jazz' } ],
+    'classical': [ { tag: 'classical' }, { tag: 'symphony' } ],
+    'hip hop': [ { tag: 'hip hop' }, { tag: 'rap' }, { tag: 'rnb' } ],
+    'electronic': [ { tag: 'electronic' }, { tag: 'edm' }, { tag: 'techno' } ],
+    'ambient': [ { tag: 'ambient' }, { tag: 'chillout' }, { tag: 'relax' } ],
+    'dance music': [ { tag: 'dance' }, { tag: 'dance music' }, { tag: 'club' } ],
+    'educational': [ { tag: 'educational' }, { tag: 'education' }, { tag: 'learning' } ],
+    'sports': [ { tag: 'sports' }, { tag: 'sport' }, { tag: 'live sports' } ],
+    'talk': [ { tag: 'talk' }, { tag: 'talk radio' }, { tag: 'speech' }, { tag: 'podcast' } ],
+    'hindi': [ { tag: 'hindi', country: 'India' }, { language: 'hindi', country: 'India' }, { name: 'hindi', country: 'India' }, { name: 'lucknow', country: 'India' } ],
+    'classic': [ { tag: 'classical', country: 'India' }, { tag: 'retro', country: 'India' }, { tag: 'gold', country: 'India' }, { name: 'hindi classical', country: 'India' }, { name: 'retro', country: 'India' }, { name: 'gold', country: 'India' }, { name: 'classic', country: 'India' } ],
+    'regional': [
+        { tag: 'tamil', country: 'India' }, { language: 'tamil', country: 'India' }, { state: 'tamil nadu', country: 'India' },
+        { tag: 'kannada', country: 'India' }, { language: 'kannada', country: 'India' }, { state: 'karnataka', country: 'India' },
+        { tag: 'telugu', country: 'India' }, { language: 'telugu', country: 'India' }, { state: 'telangana', country: 'India' }, { state: 'andhra pradesh', country: 'India' },
+        { tag: 'malayalam', country: 'India' }, { language: 'malayalam', country: 'India' }, { state: 'kerala', country: 'India' },
+        { tag: 'marathi', country: 'India' }, { language: 'marathi', country: 'India' }, { state: 'maharashtra', country: 'India' },
+        { tag: 'gujarati', country: 'India' }, { language: 'gujarati', country: 'India' }, { state: 'gujarat', country: 'India' }
+    ],
+    'bollywood': [ { tag: 'bollywood', country: 'India' }, { tag: 'hindi', country: 'India' } ],
+    'dj remix': [ { tag: 'dj remix', country: 'India' }, { tag: 'remix', country: 'India' }, { name: 'anbu fm hindi' }, { name: 'anbu fm' }, { name: 'radio deewana' }, { name: 'bollywoodandbeyond' }, { name: 'goldy blast' }, { name: 'bollywood diwali party' } ],
+    'singer': [ { name: 'latamangeshkarradio' }, { name: 'kishorekumarradio' }, { name: 'Hits Of Lata Mangeshkar' }, { name: 'Rafi hit songs' }, { name: 'Mohammed Rafi' }, { name: 'Hits Of Kishor Kumar' }, { name: 'Goldy Mukesh' }, { name: 'hit of lata' }, { name: 'Mukesh Radio' }, { name: 'shreyaghosal' }, { name: 'arijitsingh' }, { name: 'Kumar Sanu' }, { name: 'Sonu Nigam' }, { name: 'Alka Yagnik' }, { name: 'Kishore Kumar' }, { name: 'Lata Mangeshkar' }, { name: 'Bollywood Arijit singh' }, { name: 'Bollywood Shaharukh khan' }, { name: 'Bollywood alkayagnik' }, { name: 'radio madhuban' }, { name: 'Bollywood sonu nigam' }, { name: 'Bollywood shreya ghosal' }, { name: 'Bollywood Vishal shekhar' }, { name: 'Bollywood armaan malik' }, { name: 'Bollywood nehakakkar' } ],
+    'ghazal': [ { name: 'gazal radio london' }, { name: 'Radio gyansthali 89.6 fm' } ],
+    'news': [ { tag: 'news', country: 'India' }, { name: 'wion live tv' } ]
+};
+
+// API Functions
+async function fetchStations(query = '', country = '', tag = '', autoPlay = false, forceRefresh = false) {
+    if (!navigator.onLine) {
+        playerStatus.textContent = 'Offline';
+        playerStatus.style.color = '#ef4444'; // Red error status
+        resultsCount.textContent = '0 stations found (No Internet)';
+        stationsGrid.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-secondary); grid-column: 1/-1;">No internet connection. Please check your network and try again.</div>';
+        return;
+    }
+
+    lastQuery = query;
+    lastCountry = country;
+    lastTag = tag;
+    
+    const cacheKey = `stations_cache_${query}_${country}_${tag}`;
+    let loadedFromCache = false;
+    
+    // Check if we have cached stations to load instantly
+    const cachedData = !forceRefresh ? localStorage.getItem(cacheKey) : null;
+    if (cachedData) {
         try {
-          const p = await doc.getPage(i);
-          const vp = p.getViewport({ scale: 1 });
-          const pgItem = made[i - 1];
-          if (pgItem && (pgItem.baseW !== vp.width || pgItem.baseH !== vp.height)) {
-            pgItem.baseW = vp.width; pgItem.baseH = vp.height;
-          }
-          try { p.cleanup(); } catch (e) {}
-        } catch (e) {}
-        if (i % 60 === 0) await frame();
-      }
-    }, 150);
-  } else {
-    for (let i = 1; i <= doc.numPages; i++) {
-      const p = await doc.getPage(i); const vp = p.getViewport({ scale: 1 });
-      made.push(newPage({ kind: "pdf", fileId: fileId, pageIndex: i, name: file.name, sizeBytes: file.size, baseW: vp.width, baseH: vp.height }));
-      try { p.cleanup(); } catch (e) {}
-      if (i % 25 === 0) { setProgress(i / doc.numPages, "Parsing " + file.name + " · page " + i + "/" + doc.numPages); await frame(); }
-    }
-  }
-
-  if (insertAt == null || insertAt < 0) state.pages.push.apply(state.pages, made);
-  else state.pages.splice.apply(state.pages, [insertAt, 0].concat(made));
-  return made.length;
-}
-
-function loadError(e, name) {
-  if (e && e.name === "PasswordException") toast('"' + name + '" is password-protected and can\'t be opened.', "error");
-  else if (e && e.name === "InvalidPDFException") toast('"' + name + '" is corrupted or not a valid PDF.', "error");
-  else toast('Could not load "' + name + '" — ' + (e.message || "unsupported format") + ".", "error");
-}
-
-async function importFiles(list, opts = {}) {
-  const files = [...list]; if (!files.length) return;
-  const isQuickMode = !!opts.isQuickMode;
-  const total = files.reduce((s, f) => s + f.size, 0);
-  if (total > 350 * 1024 * 1024 && !isQuickMode) {
-    const ok = await confirmDialog({ title: "Very large import", msg: "You are importing " + fmtBytes(total) + ". Continue with Quick Import?", okLabel: "⚡ Quick Import", danger: false });
-    if (!ok) return;
-  }
-  showProgress(isQuickMode ? "⚡ Quick Importing heavy PDF…" : "Importing files…"); pushHistory();
-  let okC = 0, failC = 0, pageC = 0;
-  for (let i = 0; i < files.length; i++) {
-    const f = files[i];
-    setProgress(i / files.length, (isQuickMode ? "⚡ Quick Processing " : "File ") + (i + 1) + " / " + files.length + " · " + f.name);
-    await frame();
-    try {
-      if (isPdfFile(f)) pageC += await importPdfFile(f, null, isQuickMode);
-      else if (isImageFile(f)) { await importImageFile(f); pageC++; }
-      else { failC++; toast("Unsupported file type: " + f.name, "error"); continue; }
-      okC++;
-    } catch (e) { failC++; loadError(e, f.name); }
-  }
-  hideProgress(); renderGrid(); updateStats(); switchView();
-  if (okC) toast((isQuickMode ? "⚡ Quick imported " : "Imported ") + pageC + " page" + (pageC !== 1 ? "s" : "") + " from " + okC + " file" + (okC !== 1 ? "s" : "") + (failC ? " · " + failC + " failed" : ""), "ok");
-}
-
-$("#importInput").addEventListener("change", e => { importFiles(e.target.files); e.target.value = ""; });
-if ($("#quickImportInput")) $("#quickImportInput").addEventListener("change", e => { importFiles(e.target.files, { isQuickMode: true }); e.target.value = ""; });
-if ($("#btnImport")) $("#btnImport").onclick = () => $("#importInput").click();
-if ($("#heroImport")) $("#heroImport").onclick = () => $("#importInput").click();
-if ($("#btnQuickImport")) $("#btnQuickImport").onclick = () => $("#quickImportInput").click();
-if ($("#heroQuickImport")) $("#heroQuickImport").onclick = () => $("#quickImportInput").click();
-let dragDepth=0;
-let isInternalCardDrag=false;
-addEventListener("dragenter",e=>{if(!isInternalCardDrag&&e.dataTransfer&&[...e.dataTransfer.types].includes("Files")){dragDepth++;document.body.classList.add("dragging-file");}});
-addEventListener("dragleave",()=>{if(!isInternalCardDrag&&--dragDepth<=0){dragDepth=0;document.body.classList.remove("dragging-file");}});
-addEventListener("dragover",e=>{e.preventDefault();if(isInternalCardDrag)e.dataTransfer.dropEffect="move";});
-addEventListener("drop",e=>{e.preventDefault();dragDepth=0;document.body.classList.remove("dragging-file");
-  if(!isInternalCardDrag&&e.dataTransfer.files&&e.dataTransfer.files.length)importFiles(e.dataTransfer.files);});
-
-/* ============ grid ============ */
-const grid=$("#grid");
-const io=new IntersectionObserver(entries=>{
-  entries.forEach(en=>{
-    if(!en.isIntersecting)return;
-    const card=en.target,id=+card.dataset.id,p=state.pages.find(x=>x.id===id);
-    if(p&&card.dataset.thumbKey!==thumbKey(p)&&!card.dataset.loading)paintCardThumb(card,p);
-  });
-},{rootMargin:"700px"});
-function makeCard(p,i){
-  const card=document.createElement("article");
-  card.className="pcard"+(p.selected!==false?" selected":""); card.dataset.id=p.id; card.style.setProperty("--i",Math.min(i,24));
-  const kind=p.kind==="pdf"?"PDF":"IMG";
-  card.innerHTML=
-    '<div class="pc-thumb" data-act="edit" title="Open in editor">'+
-      '<div class="thumb-load"></div>'+
-      '<label class="pg-chk" title="Select page for PDF export" onclick="event.stopPropagation()">'+
-        '<input type="checkbox" class="pg-select-chk" data-id="'+p.id+'" '+(p.selected!==false?'checked':'')+' />'+
-        '<span class="pg-chk-mark"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'+
-      '</label>'+
-      '<span class="p-num">Page '+pad2(i+1)+'</span>'+
-      '<span class="p-kind '+(p.kind==="pdf"?"pdf":"img")+'">'+kind+'</span>'+
-    '</div>'+
-    '<div class="pc-info"><div class="pc-name" title="'+p.name+'">'+p.name+'</div>'+
-      '<div class="pc-meta"><span>'+(p.sizeBytes?fmtBytes(p.sizeBytes):"—")+'</span>'+
-      '<span>'+dimsLabel(p)+' • '+(p.kind==="pdf"?"PDF":"IMAGE")+'</span></div></div>'+
-    '<div class="pc-actions">'+
-      '<button class="ib sm" data-act="moveL" title="Move left"><svg><use href="#i-left"/></svg></button>'+
-      '<button class="ib sm" data-act="moveR" title="Move right"><svg><use href="#i-right"/></svg></button>'+
-      '<button class="ib sm" data-act="add" title="Add page after"><svg><use href="#i-plus"/></svg></button>'+
-      '<button class="ib sm" data-act="replace" title="Replace page"><svg><use href="#i-swap"/></svg></button>'+
-      '<button class="ib sm" data-act="dup" title="Duplicate"><svg><use href="#i-copy"/></svg></button>'+
-      '<button class="ib sm" data-act="rotL" title="Rotate counter-clockwise"><svg><use href="#i-rotccw"/></svg></button>'+
-      '<button class="ib sm" data-act="rotR" title="Rotate clockwise"><svg><use href="#i-rotcw"/></svg></button>'+
-      '<button class="ib sm" data-act="del" title="Delete"><svg><use href="#i-trash"/></svg></button>'+
-      '<button class="ib sm" data-act="preview" title="Preview"><svg><use href="#i-eye"/></svg></button>'+
-      '<button class="ib sm" data-act="edit" title="Edit page"><svg><use href="#i-edit"/></svg></button>'+
-    '</div>';
-  attachCardDragEvents(card);
-  io.observe(card);
-  return card;
-}
-async function paintCardThumb(card,p){
-  card.dataset.loading="1";
-  const thumb=card.querySelector(".pc-thumb");
-  try{
-    const url=await ensureThumb(p);
-    delete card.dataset.loading;
-    if(!card.isConnected||+card.dataset.id!==p.id)return;
-    const old=thumb.querySelector("img"); if(old)old.remove();
-    const errEl=thumb.querySelector(".thumb-err"); if(errEl)errEl.remove();
-    const img=document.createElement("img"); img.alt=p.name; img.src=url;
-    img.style.filter=cssFilterOf(p); img.style.opacity=opacityOf(p);
-    thumb.insertBefore(img,thumb.firstChild);
-    const ld=thumb.querySelector(".thumb-load"); if(ld)ld.remove();
-    card.dataset.thumbKey=thumbKey(p);
-  }catch(e){
-    delete card.dataset.loading;
-    if(!card.isConnected)return;
-    const ld=thumb.querySelector(".thumb-load"); if(ld)ld.remove();
-    if(!thumb.querySelector(".thumb-err")){
-      const d=document.createElement("div"); d.className="thumb-err";
-      d.innerHTML='<svg><use href="#i-alert"/></svg><span>render failed</span>';
-      thumb.insertBefore(d,thumb.firstChild);
-    }
-  }
-}
-
-function getDragInsertPosition(card, clientX, clientY) {
-  const rect = card.getBoundingClientRect();
-  const dx = (clientX - rect.left) / rect.width;
-  const dy = (clientY - rect.top) / rect.height;
-  let side = "left", isBefore = true;
-  if (dy < 0.35) {
-    side = "top"; isBefore = true;
-  } else if (dy > 0.65) {
-    side = "bottom"; isBefore = false;
-  } else if (dx < 0.5) {
-    side = "left"; isBefore = true;
-  } else {
-    side = "right"; isBefore = false;
-  }
-  return { side, isBefore };
-}
-
-function clearCardDragClasses() {
-  grid.querySelectorAll(".pcard").forEach(c => {
-    c.classList.remove("drag-over-left", "drag-over-right", "drag-over-top", "drag-over-bottom");
-  });
-}
-
-let draggedCardIndex = null;
-let touchDragCard = null;
-let touchDragIndex = null;
-
-function attachCardDragEvents(card){
-  card.draggable = true;
-  card.addEventListener("dragstart", e => {
-    if(e.target.closest("button") || e.target.closest("input") || e.target.closest("label")){
-      e.preventDefault(); return;
-    }
-    isInternalCardDrag = true;
-    draggedCardIndex = state.pages.findIndex(p => p.id === +card.dataset.id);
-    card.classList.add("dragging");
-    e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("text/plain", card.dataset.id);
-    e.stopPropagation();
-  });
-
-  card.addEventListener("dragend", () => {
-    card.classList.remove("dragging");
-    clearCardDragClasses();
-    draggedCardIndex = null;
-    isInternalCardDrag = false;
-  });
-
-  card.addEventListener("dragover", e => {
-    e.preventDefault();
-    e.stopPropagation();
-    if(draggedCardIndex === null) return;
-    const targetIndex = state.pages.findIndex(p => p.id === +card.dataset.id);
-    if(targetIndex === -1 || targetIndex === draggedCardIndex) return;
-
-    e.dataTransfer.dropEffect = "move";
-    clearCardDragClasses();
-    const { side } = getDragInsertPosition(card, e.clientX, e.clientY);
-    card.classList.add("drag-over-" + side);
-  });
-
-  card.addEventListener("dragleave", () => {
-    clearCardDragClasses();
-  });
-
-  card.addEventListener("drop", e => {
-    e.preventDefault();
-    e.stopPropagation();
-    isInternalCardDrag = false;
-    clearCardDragClasses();
-    if(draggedCardIndex === null) return;
-
-    const targetIndex = state.pages.findIndex(p => p.id === +card.dataset.id);
-    if(targetIndex === -1 || targetIndex === draggedCardIndex) return;
-
-    const { isBefore } = getDragInsertPosition(card, e.clientX, e.clientY);
-    let insertIndex = isBefore ? targetIndex : targetIndex + 1;
-    if(draggedCardIndex < insertIndex) insertIndex--;
-
-    pushHistory();
-    const [movedPage] = state.pages.splice(draggedCardIndex, 1);
-    state.pages.splice(insertIndex, 0, movedPage);
-
-    renderGrid();
-    buildStrip();
-    renumber();
-    toast(`Moved page to position ${insertIndex + 1}`, "ok", 1200);
-  });
-
-  card.addEventListener("touchstart", e => {
-    if(e.touches.length !== 1) return;
-    if(e.target.closest("button") || e.target.closest("input") || e.target.closest("label")) return;
-    touchDragCard = card;
-    touchDragIndex = state.pages.findIndex(p => p.id === +card.dataset.id);
-  }, { passive: true });
-
-  card.addEventListener("touchmove", e => {
-    if(!touchDragCard || e.touches.length !== 1) return;
-    const touch = e.touches[0];
-    const targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
-    clearCardDragClasses();
-    if(targetEl){
-      const targetCard = targetEl.closest(".pcard");
-      if(targetCard && targetCard !== touchDragCard){
-        const { side } = getDragInsertPosition(targetCard, touch.clientX, touch.clientY);
-        targetCard.classList.add("drag-over-" + side);
-      }
-    }
-  }, { passive: true });
-
-  card.addEventListener("touchend", e => {
-    if(!touchDragCard) return;
-    const touch = e.changedTouches[0];
-    clearCardDragClasses();
-    const targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
-    if(targetEl){
-      const targetCard = targetEl.closest(".pcard");
-      if(targetCard && targetCard !== touchDragCard){
-        const targetIndex = state.pages.findIndex(p => p.id === +targetCard.dataset.id);
-        if(targetIndex !== -1 && touchDragIndex !== null && targetIndex !== touchDragIndex){
-          const { isBefore } = getDragInsertPosition(targetCard, touch.clientX, touch.clientY);
-          let insertIndex = isBefore ? targetIndex : targetIndex + 1;
-          if(touchDragIndex < insertIndex) insertIndex--;
-
-          pushHistory();
-          const [movedPage] = state.pages.splice(touchDragIndex, 1);
-          state.pages.splice(insertIndex, 0, movedPage);
-
-          renderGrid();
-          buildStrip();
-          renumber();
-          toast(`Moved page to position ${insertIndex + 1}`, "ok", 1200);
+            currentStations = JSON.parse(cachedData);
+            renderStations();
+            resultsCount.textContent = `${currentStations.length} stations found`;
+            
+            if (currentStations.length > 0) {
+                if (autoPlay) {
+                    playStation(0, 'search');
+                } else if (!audioPlayer.getAttribute('src')) {
+                    currentStationIndex = 0;
+                    updatePlayerUI(currentStations[0]);
+                    playerStatus.textContent = 'Ready (Cached)';
+                }
+            }
+            loadedFromCache = true;
+        } catch (e) {
+            console.error('Cache parsing error', e);
         }
-      }
     }
-    touchDragCard = null;
-    touchDragIndex = null;
-  });
-}
-
-let draggedStripIndex = null;
-function attachStripDragEvents(btn){
-  btn.draggable = true;
-  btn.addEventListener("dragstart", e => {
-    isInternalCardDrag = true;
-    draggedStripIndex = state.pages.findIndex(p => p.id === +btn.dataset.id);
-    btn.classList.add("dragging");
-    e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("text/plain", btn.dataset.id);
-    e.stopPropagation();
-  });
-
-  btn.addEventListener("dragend", () => {
-    btn.classList.remove("dragging");
-    $$("#edStrip .strip-item").forEach(b => b.classList.remove("drag-over"));
-    draggedStripIndex = null;
-    isInternalCardDrag = false;
-  });
-
-  btn.addEventListener("dragover", e => {
-    e.preventDefault();
-    e.stopPropagation();
-    if(draggedStripIndex === null) return;
-    const targetIndex = state.pages.findIndex(p => p.id === +btn.dataset.id);
-    if(targetIndex === -1 || targetIndex === draggedStripIndex) return;
-    e.dataTransfer.dropEffect = "move";
-    btn.classList.add("drag-over");
-  });
-
-  btn.addEventListener("dragleave", () => {
-    btn.classList.remove("drag-over");
-  });
-
-  btn.addEventListener("drop", e => {
-    e.preventDefault();
-    e.stopPropagation();
-    isInternalCardDrag = false;
-    btn.classList.remove("drag-over");
-    if(draggedStripIndex === null) return;
-
-    const targetIndex = state.pages.findIndex(p => p.id === +btn.dataset.id);
-    if(targetIndex === -1 || targetIndex === draggedStripIndex) return;
-
-    pushHistory();
-    const [movedPage] = state.pages.splice(draggedStripIndex, 1);
-    state.pages.splice(targetIndex, 0, movedPage);
-
-    renderGrid();
-    buildStrip();
-    renumber();
-    toast(`Moved page to position ${targetIndex + 1}`, "ok", 1200);
-  });
-}
-function renderGrid(){
-  grid.innerHTML="";
-  const frag=document.createDocumentFragment();
-  state.pages.forEach((p,i)=>frag.appendChild(makeCard(p,i)));
-  grid.appendChild(frag);
-  renumber();
-}
-function renumber(){
-  const cards=[...grid.children];
-  cards.forEach((c,i)=>{
-    const num=c.querySelector(".p-num"); if(num)num.textContent="Page "+pad2(i+1);
-    c.querySelector('[data-act="moveL"]').disabled=i===0;
-    c.querySelector('[data-act="moveR"]').disabled=i===cards.length-1;
-  });
-}
-function refreshCardFx(p){
-  const card=grid.querySelector('.pcard[data-id="'+p.id+'"]'); if(!card)return;
-  const img=card.querySelector(".pc-thumb img");
-  if(img){img.style.filter=cssFilterOf(p);img.style.opacity=opacityOf(p);}
-  const si=$("#edStrip").querySelector('.strip-item[data-id="'+p.id+'"] img');
-  if(si){si.style.filter=cssFilterOf(p);si.style.opacity=opacityOf(p);}
-}
-function updateStats(){
-  const bytes=[...state.files.values()].reduce((s,f)=>s+f.size,0);
-  $("#chipPages").textContent=state.pages.length+" pages";
-  $("#chipFiles").textContent=state.files.size+" files";
-  $("#chipSize").textContent=fmtBytes(bytes);
-  const has=state.pages.length>0;
-  ["btnAddPage","btnEdit","btnClear","btnPreview"].forEach(id=>{
-    const el=$("#"+id); if(el) el.disabled=!has;
-  });
-  updateSelectedStats();
-}
-function updateSelectedStats(){
-  const sel=state.pages.filter(p=>p.selected!==false);
-  const count=sel.length;
-  if($("#selCount")) $("#selCount").textContent=count;
-  if($("#btnExportSelected")) $("#btnExportSelected").disabled=(count===0);
-  const chkAll=$("#chkSelectAll");
-  if(chkAll){
-    const total=state.pages.length;
-    chkAll.checked=total>0 && count===total;
-    chkAll.indeterminate=count>0 && count<total;
-  }
-}
-function switchView(){
-  const has=state.pages.length>0;
-  $("#heroView").hidden=has; $("#workspaceView").hidden=!has;
-}
-grid.addEventListener("change",e=>{
-  if(e.target.classList.contains("pg-select-chk")){
-    const id=+e.target.dataset.id;
-    const p=state.pages.find(x=>x.id===id);
-    if(p){
-      p.selected=e.target.checked;
-      const card=grid.querySelector('.pcard[data-id="'+id+'"]');
-      if(card) card.classList.toggle("selected",p.selected);
-      updateSelectedStats();
+    
+    if (!loadedFromCache) {
+        mainLoader.style.display = 'flex';
+        stationsGrid.innerHTML = '';
     }
-  }
-});
-grid.addEventListener("click",async e=>{
-  const card=e.target.closest(".pcard"); if(!card)return;
-  const id=+card.dataset.id,i=idxOf(id),p=state.pages[i]; if(!p)return;
-  state.lastSelected=id;
-  const btn=e.target.closest("[data-act]"); const act=btn?btn.dataset.act:null; if(!act)return;
-  if(act==="edit"){openEditor(id);return;}
-  if(act==="preview"){openPreview(i);return;}
-  if(act==="moveL"&&i>0){
-    pushHistory();
-    const t2=state.pages[i-1];state.pages[i-1]=state.pages[i];state.pages[i]=t2;
-    grid.insertBefore(card,card.previousElementSibling); renumber(); buildStrip(); return;
-  }
-  if(act==="moveR" && i < state.pages.length-1){
-    pushHistory();
-    const t2=state.pages[i+1];state.pages[i+1]=state.pages[i];state.pages[i]=t2;
-    grid.insertBefore(card,card.nextElementSibling?card.nextElementSibling.nextElementSibling:null);
-    renumber(); buildStrip(); return;
-  }
-  if(act==="add"){openAddPageModal(id);return;}
-  if(act==="replace"){pendingReplace=id;$("#replaceInput").click();return;}
-  if(act==="dup"){
-    pushHistory();
-    const clone=JSON.parse(JSON.stringify(p)); clone.id=state.nextId++;
-    clone.edits.texts.forEach(t=>t.id=state.nextId++);
-    state.pages.splice(i+1,0,clone);
-    const nc=makeCard(clone,i+1); card.after(nc); paintCardThumb(nc,clone);
-    renumber(); updateStats(); buildStrip(); toast("Page duplicated","ok",1600); return;
-  }
-  if(act==="rotL"||act==="rotR"){
-    pushHistory();
-    p.rotation=(((p.rotation+(act==="rotR"?90:-90))%360)+360)%360;
-    card.querySelector(".pc-meta").innerHTML='<span>'+(p.sizeBytes?fmtBytes(p.sizeBytes):"—")+'</span><span>'+dimsLabel(p)+' • '+(p.kind==="pdf"?"PDF":"IMAGE")+'</span>';
-    refreshThumbFor(p);
-    if(state.editingId===id)repaintEditor();
-    return;
-  }
-  if(act==="del"){
-    const ok=await confirmDialog({title:"Delete Page "+pad2(i+1)+"?",msg:'"'+p.name+'" will be removed from the document. You can press Undo to bring it back.',okLabel:"Delete"});
-    if(!ok)return;
-    pushHistory();
-    state.pages.splice(i,1);
-    card.style.transition="all .22s"; card.style.opacity="0"; card.style.transform="scale(.9)";
-    setTimeout(()=>{card.remove();renumber();},210);
-    updateStats(); buildStrip();
-    if(state.editingId===id)closeEditor();
-    if(!state.pages.length)switchView();
-    toast("Page "+pad2(i+1)+" deleted","info",2000);
-  }
-});
-/* replace flow */
-let pendingReplace=null;
-$("#replaceInput").addEventListener("change",async e=>{
-  const f=e.target.files[0]; e.target.value="";
-  if(!f||pendingReplace==null)return;
-  const i=idxOf(pendingReplace); pendingReplace=null; if(i < 0)return;
-  const old=state.pages[i];
-  const ok=await confirmDialog({title:"Replace page?",msg:"Page "+pad2(i+1)+' ("'+old.name+'") will be replaced by the new file. Its edits will be reset; its position is kept.',okLabel:"Replace",danger:false});
-  if(!ok)return;
-  showProgress("Replacing page…");
-  try{
-    let np;
-    if(isPdfFile(f)){
-      const bytes=new Uint8Array(await f.arrayBuffer());
-      const doc=await pdfjsLib.getDocument({data:bytes.slice()}).promise;
-      const fileId=state.nextId++;
-      state.files.set(fileId,{kind:"pdf",name:f.name,size:f.size,doc:doc,numPages:doc.numPages});
-      const p=await doc.getPage(1); const vp=p.getViewport({scale:1});
-      np=newPage({kind:"pdf",fileId:fileId,pageIndex:1,name:f.name,sizeBytes:f.size,baseW:vp.width,baseH:vp.height});
-      if(doc.numPages>1)toast("Multi-page PDF: only page 1 was used","info");
-    } else if(isImageFile(f)){
-      np=await importImageFilePop(f);
-    } else throw new Error("unsupported file type");
-    np.id=old.id;
-    pushHistory();
-    state.pages[i]=np;
-    hideProgress();
-    refreshThumbFor(np);
-    const card=grid.querySelector('.pcard[data-id="'+np.id+'"]');
-    if(card){const fresh=makeCard(np,i);card.replaceWith(fresh);paintCardThumb(fresh,np);renumber();}
-    if(state.editingId===np.id){loadEditorPage();}
-    toast("Page "+pad2(i+1)+" replaced","ok");
-  }catch(err){hideProgress();loadError(err,f.name);}
-});
-async function importImageFilePop(file){
-  const src=await loadDrawable(file);
-  const imgId=state.nextId++;
-  state.images.set(imgId,{src:src,w:src.width||src.naturalWidth,h:src.height||src.naturalHeight});
-  const fileId=state.nextId++; state.files.set(fileId,{kind:"image",name:file.name,size:file.size});
-  return newPage({kind:"image",imgId:imgId,fileId:fileId,name:file.name,sizeBytes:file.size,
-    baseW:src.width||src.naturalWidth,baseH:src.height||src.naturalHeight});
-}
-$("#btnClear").onclick=async()=>{
-  const ok=await confirmDialog({title:"Clear document?",msg:"All pages will be removed. This cannot be undone.",okLabel:"Clear all"});
-  if(!ok)return;
-  state.pages=[]; state.files.clear(); state.images.clear();
-  undoStack=[];redoStack=[];updateHistoryBtns();
-  clearThumbCache(); renderGrid(); updateStats(); switchView(); closeEditor();
-  toast("Document cleared","info");
-};
-
-/* ============ add page modal ============ */
-let apAnchor=null,apKind="blank",pendingAddAt=-1;
-const PAGE_PT={a4:[595.28,841.89],a5:[419.53,595.28],letter:[612,792],legal:[612,1008]};
-function openAddPageModal(anchorId){
-  apAnchor=anchorId==null?null:anchorId;
-  const pos=$("#apPos");
-  if(apAnchor!=null&&idxOf(apAnchor)>=0){
-    pos.options[1].textContent="After Page "+pad2(idxOf(apAnchor)+1);
-    pos.options[2].textContent="Before Page "+pad2(idxOf(apAnchor)+1);
-    pos.value="after";
-  } else {
-    pos.options[1].textContent="After selected page";
-    pos.options[2].textContent="Before selected page";
-    pos.value="end";
-  }
-  $("#addPageModal").hidden=false;
-}
-$("#btnAddPage").onclick=()=>openAddPageModal(state.lastSelected);
-$$("#apType button").forEach(b=>b.onclick=()=>{
-  $$("#apType button").forEach(x=>x.classList.remove("on")); b.classList.add("on");
-  apKind=b.dataset.ap; $("#apBlankOpts").hidden=apKind!=="blank";
-});
-$("#apSize").onchange=e=>{$("#apCustom").hidden=e.target.value!=="custom";};
-$$("[data-close]").forEach(b=>b.onclick=()=>b.closest(".modal-bd").hidden=true);
-$$(".modal-bd").forEach(m=>m.addEventListener("pointerdown",e=>{if(e.target===m)m.hidden=true;}));
-$("#apConfirm").onclick=async()=>{
-  const posVal=$("#apPos").value;
-  let at=state.pages.length;
-  if(apAnchor!=null&&posVal==="after")at=idxOf(apAnchor)+1;
-  if(apAnchor!=null&&posVal==="before")at=idxOf(apAnchor);
-  $("#addPageModal").hidden=true;
-  if(apKind==="image"){pendingAddAt=at;$("#apImageInput").value="";$("#apImageInput").click();return;}
-  if(apKind==="pdf"){pendingAddAt=at;$("#apPdfInput").value="";$("#apPdfInput").click();return;}
-  let wPt,hPt; const sz=$("#apSize").value;
-  if(sz==="custom"){
-    const mmW=clamp(+$("#apW").value||210,20,2000),mmH=clamp(+$("#apH").value||297,20,2000);
-    wPt=mmW*2.8346; hPt=mmH*2.8346;
-  } else {wPt=PAGE_PT[sz][0];hPt=PAGE_PT[sz][1];}
-  pushHistory();
-  const c=document.createElement("canvas");
-  c.width=Math.round(wPt*2); c.height=Math.round(hPt*2);
-  const ctx=c.getContext("2d"); ctx.fillStyle="#fff"; ctx.fillRect(0,0,c.width,c.height);
-  const imgId=state.nextId++; state.images.set(imgId,{src:c,w:c.width,h:c.height});
-  const pg=newPage({kind:"image",imgId:imgId,name:"Blank page",sizeBytes:0,baseW:c.width,baseH:c.height,pts:[wPt,hPt]});
-  state.pages.splice(at,0,pg);
-  renderGrid(); updateStats(); buildStrip(); switchView();
-  toast("Blank "+sz.toUpperCase()+" page added","ok",1800);
-};
-$("#apImageInput").addEventListener("change",async e=>{
-  const fl=[...e.target.files]; e.target.value=""; if(!fl.length)return;
-  showProgress("Adding image…");
-  try{
-    pushHistory();
-    let at=pendingAddAt < 0?state.pages.length:pendingAddAt;
-    for(const f of fl){await importImageFile(f,at);at++;}
-    hideProgress(); renderGrid(); updateStats(); buildStrip(); switchView();
-    toast(fl.length+" image page(s) added","ok");
-  }catch(err){hideProgress();loadError(err,err.message||"image");}
-});
-$("#apPdfInput").addEventListener("change",async e=>{
-  const fl=[...e.target.files]; e.target.value=""; if(!fl.length)return;
-  showProgress("Adding PDF…");
-  try{
-    pushHistory();
-    let at=pendingAddAt < 0?state.pages.length:pendingAddAt,total=0;
-    for(const f of fl){const n=await importPdfFile(f,at);at+=n;total+=n;}
-    hideProgress(); renderGrid(); updateStats(); buildStrip(); switchView();
-    if(total)toast(total+" PDF page(s) added","ok");
-  }catch(err){hideProgress();loadError(err,err.message||"pdf");}
-});
-
-/* ============ editor core ============ */
-const stageWrap=$("#stageWrap"),stage=$("#stage"),pageBox=$("#pageBox"),
-      editCanvas=$("#editCanvas"),textsLayer=$("#textsLayer"),
-      cropLayer=$("#cropLayer"),cropBoxEl=$("#cropBox");
-let editorBase=null,view={scale:1,x:0,y:0},selTextId=null,curTool="adjust";
-function openEditor(id){
-  state.editingId=id; state.lastSelected=id;
-  $("#editorView").hidden=false; document.body.style.overflow="hidden";
-  selTextId=null; adjDirty=false;
-  buildStrip(); setTool("adjust"); loadEditorPage();
-}
-function closeEditor(){
-  state.editingId=null; editorBase=null;
-  $("#editorView").hidden=true; document.body.style.overflow="";
-  state.pages.forEach(p=>refreshCardFx(p));
-}
-$("#edBack").onclick=closeEditor;
-function updateEditorHeader(){
-  const p=curPage(); if(!p)return;
-  const i=idxOf(p.id);
-  $("#edPageName").textContent="Page "+pad2(i+1)+" — "+p.name;
-  $("#edPageMeta").textContent=dimsLabel(p)+" · "+(p.kind==="pdf"?"PDF":"IMAGE")+(p.edits.crop?" · CROPPED":"");
-  $("#edPageInfo").textContent="PAGE "+pad2(i+1)+" / "+pad2(state.pages.length);
-}
-async function loadEditorPage(){
-  const p=curPage(); if(!p)return;
-  updateEditorHeader(); adjDirty=false; selTextId=null; textPropDirty=false;
-  await repaintEditor();
-  syncSlidersFromPage(); renderTextList(); refreshTextProps(); highlightStrip();
-  if(curTool==="crop")initCropBox();
-  if(curTool==="filters")buildFilterGrid();
-}
-async function repaintEditor(){
-  const p=curPage(); if(!p)return;
-  $("#stageLoad").hidden=false; await frame();
-  try{
-    const maxE=clamp(Math.max(stageWrap.clientWidth,stageWrap.clientHeight)*1.15,800,1700);
-    editorBase=await renderBase(p,{maxEdge:maxE});
-    editCanvas.width=editorBase.width; editCanvas.height=editorBase.height;
-    redrawDisplay(); layoutPageBox(); fitView(); syncTexts();
-    if(curTool==="crop")initCropBox();
-  }catch(e){toast("Could not render this page: "+e.message,"error");}
-  $("#stageLoad").hidden=true;
-}
-function redrawDisplay(){
-  const p=curPage(); if(!p||!editorBase)return;
-  const ctx=editCanvas.getContext("2d");
-  ctx.drawImage(editorBase,0,0);
-  drawErases(ctx,p,editCanvas.width,editCanvas.height);
-  const sh=sharpOf(p); if(sh > 0)applySharpen(editCanvas,sh);
-  liveFx(false);
-}
-function liveFx(markThumb){
-  const p=curPage(); if(!p)return;
-  editCanvas.style.filter=cssFilterOf(p);
-  editCanvas.style.opacity=opacityOf(p);
-  if(markThumb!==false)refreshCardFx(p);
-}
-function layoutPageBox(){
-  const W=editCanvas.width,H=editCanvas.height; if(!W||!H)return;
-  const availW=stageWrap.clientWidth-28,availH=stageWrap.clientHeight-28;
-  let bw=Math.min(availW,availH*(W/H),1100),bh=bw*(H/W);
-  if(bh>availH){bh=availH;bw=bh*(W/H);}
-  pageBox.style.width=Math.max(60,bw)+"px"; pageBox.style.height=Math.max(60,bh)+"px";
-}
-function fitView(){
-  view.scale=1;
-  view.x=(stageWrap.clientWidth-pageBox.offsetWidth)/2;
-  view.y=(stageWrap.clientHeight-pageBox.offsetHeight)/2;
-  applyView();
-}
-function applyView(){
-  stage.style.transform="translate("+view.x+"px,"+view.y+"px) scale("+view.scale+")";
-  $("#zoomLbl").textContent=Math.round(view.scale*100)+"%";
-}
-function zoomAt(cx,cy,f){
-  const r=stageWrap.getBoundingClientRect(),px=cx-r.left,py=cy-r.top;
-  const ns=clamp(view.scale*f,0.3,6),k=ns/view.scale;
-  view.x=px-(px-view.x)*k; view.y=py-(py-view.y)*k; view.scale=ns; applyView();
-}
-$("#zoomIn").onclick=()=>zoomAt(stageWrap.getBoundingClientRect().left+stageWrap.clientWidth/2,stageWrap.getBoundingClientRect().top+stageWrap.clientHeight/2,1.25);
-$("#zoomOut").onclick=()=>zoomAt(stageWrap.getBoundingClientRect().left+stageWrap.clientWidth/2,stageWrap.getBoundingClientRect().top+stageWrap.clientHeight/2,0.8);
-$("#zoomFit").onclick=fitView;
-stageWrap.addEventListener("wheel",e=>{e.preventDefault();zoomAt(e.clientX,e.clientY,Math.exp(-e.deltaY*0.0016));},{passive:false});
-/* pan + pinch */
-const activePts=new Map(); let pinch=null,panLast=null;
-stageWrap.addEventListener("pointerdown",e=>{
-  if(e.target.closest(".txt")||e.target.closest(".ch")||e.target===cropBoxEl||e.target.closest("#cropLayer"))return;
-  stageWrap.setPointerCapture(e.pointerId);
-  activePts.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  if(activePts.size===2){
-    const arr=[...activePts.values()],a=arr[0],b=arr[1];
-    pinch={d0:Math.hypot(a.x-b.x,a.y-b.y),mid0:{x:(a.x+b.x)/2,y:(a.y+b.y)/2},s0:view.scale,x0:view.x,y0:view.y};
-    panLast=null;
-  } else if(activePts.size===1){panLast={x:e.clientX,y:e.clientY}; deselectText();}
-});
-stageWrap.addEventListener("pointermove",e=>{
-  if(!activePts.has(e.pointerId))return;
-  activePts.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  if(activePts.size===2&&pinch){
-    const arr=[...activePts.values()],a=arr[0],b=arr[1];
-    const d=Math.hypot(a.x-b.x,a.y-b.y),mid={x:(a.x+b.x)/2,y:(a.y+b.y)/2};
-    const r=stageWrap.getBoundingClientRect();
-    const ns=clamp(pinch.s0*(d/Math.max(20,pinch.d0)),0.3,6),k=ns/pinch.s0;
-    view.scale=ns;
-    view.x=(mid.x-r.left)-((pinch.mid0.x-r.left)-pinch.x0)*k;
-    view.y=(mid.y-r.top)-((pinch.mid0.y-r.top)-pinch.y0)*k;
-    applyView();
-  } else if(activePts.size===1&&panLast){
-    view.x+=e.clientX-panLast.x; view.y+=e.clientY-panLast.y;
-    panLast={x:e.clientX,y:e.clientY}; applyView();
-  }
-});
-function endPt(e){activePts.delete(e.pointerId); if(activePts.size < 2)pinch=null; if(!activePts.size)panLast=null;}
-stageWrap.addEventListener("pointerup",endPt);
-stageWrap.addEventListener("pointercancel",endPt);
-
-/* ============ tools ============ */
-function setTool(tool){
-  curTool=tool;
-  $$("#edTools .tool-btn").forEach(b=>b.classList.toggle("on",b.dataset.tool===tool));
-  $$("#edPanel section").forEach(s=>s.classList.toggle("on",s.dataset.panel===tool));
-  cropLayer.hidden=tool!=="crop";
-  const el=$("#eraseLayer"); if(el)el.hidden=tool!=="erase";
-  if(tool==="crop")initCropBox();
-  if(tool==="filters")buildFilterGrid();
-  if(tool==="text")renderTextList();
-}
-$$("#edTools .tool-btn").forEach(b=>b.onclick=()=>setTool(b.dataset.tool));
-
-/* ---- adjust ---- */
-const ADJ_CONFIG = {
-  brightness: { name: 'Brightness', icon: 'i-sun', min: -100, max: 100, def: 0, unit: '' },
-  contrast:   { name: 'Contrast',   icon: 'i-contrast', min: -100, max: 100, def: 0, unit: '' },
-  darkness:   { name: 'Darkness',   icon: 'i-moon', min: 0, max: 100, def: 0, unit: '' },
-  sharpness:  { name: 'Sharpness',  icon: 'i-sharpness', min: 0, max: 100, def: 0, unit: '' },
-  hue:        { name: 'Hue',        icon: 'i-hue', min: -180, max: 180, def: 0, unit: '°' },
-  saturation: { name: 'Saturation', icon: 'i-saturation', min: -100, max: 100, def: 0, unit: '' },
-  exposure:   { name: 'Exposure',   icon: 'i-exposure', min: -100, max: 100, def: 0, unit: '' },
-  opacity:    { name: 'Opacity',    icon: 'i-opacity', min: 0, max: 100, def: 100, unit: '%' }
-};
-let activeAdj = 'brightness';
-
-function valToAngle(key, val) {
-  const cfg = ADJ_CONFIG[key] || ADJ_CONFIG.brightness;
-  const norm = clamp((val - cfg.min) / (cfg.max - cfg.min), 0, 1);
-  return (norm * 270) - 135;
-}
-
-function angleToVal(key, angle) {
-  const cfg = ADJ_CONFIG[key] || ADJ_CONFIG.brightness;
-  const norm = clamp((angle + 135) / 270, 0, 1);
-  return Math.round(cfg.min + norm * (cfg.max - cfg.min));
-}
-
-function generateArcTicks() {
-  const ticks = [];
-  const R1 = 75, R2 = 82, cx = 90, cy = 90;
-  for (let i = 0; i <= 20; i++) {
-    const aDeg = -135 + (i * 270 / 20);
-    const rad = (aDeg - 90) * Math.PI / 180;
-    const x1 = (cx + R1 * Math.cos(rad)).toFixed(1);
-    const y1 = (cy + R1 * Math.sin(rad)).toFixed(1);
-    const x2 = (cx + R2 * Math.cos(rad)).toFixed(1);
-    const y2 = (cy + R2 * Math.sin(rad)).toFixed(1);
-    const isMajor = i % 5 === 0;
-    ticks.push(`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="vol-tick ${isMajor ? 'major' : ''}" />`);
-  }
-  return ticks.join('');
-}
-
-function buildAdjustUI() {
-  const keys = Object.keys(ADJ_CONFIG);
-  const container = $("#adjRows");
-  if (!container) return;
-  container.innerHTML =
-    `<div class="adj-options-grid">` +
-      keys.map(k => {
-        const c = ADJ_CONFIG[k];
-        return `<button class="adj-opt-btn" id="adj-opt-${k}" data-mode="${k}">
-          <span class="adj-opt-dot"></span>
-          <svg><use href="#${c.icon}"/></svg>
-          <span class="adj-opt-label">${c.name}</span>
-        </button>`;
-      }).join('') +
-    `</div>` +
-    `<div class="vol-controller">
-      <div class="vol-slider-fallback">
-        <input type="range" id="volRangeFallback" />
-      </div>
-    </div>`;
-
-  $$('#adjRows .adj-opt-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      activeAdj = btn.dataset.mode;
-      syncSlidersFromPage();
-    });
-  });
-
-  const rangeFB = $('#volRangeFallback');
-  rangeFB.addEventListener('input', () => {
-    const p = curPage(); if (!p) return;
-    const newVal = +rangeFB.value;
-    if (!adjDirty) { pushHistory(); adjDirty = true; }
-    p.edits.adj[activeAdj] = newVal;
-    syncSlidersFromPage();
-    liveFx();
-    if (activeAdj === 'sharpness') {
-      clearTimeout(sharpTimer);
-      sharpTimer = setTimeout(() => { if (editorBase) redrawDisplay(); }, 260);
+    
+    let url = `${API_BASE}/stations/search?limit=${DEFAULT_LIMIT}&order=clickcount&reverse=true&hidebroken=true`;
+    if (country) {
+        url += `&country=${encodeURIComponent(country)}`;
     }
-  });
-}
-
-let sharpTimer = null;
-
-function syncSlidersFromPage() {
-  const p = curPage(); if (!p) return;
-  const keys = Object.keys(ADJ_CONFIG);
-  keys.forEach(k => {
-    const cfg = ADJ_CONFIG[k];
-    const val = p.edits.adj[k] ?? cfg.def;
-    const btn = $('#adj-opt-' + k);
-    if (btn) {
-      btn.classList.toggle('on', k === activeAdj);
-      btn.classList.toggle('modified', val !== cfg.def);
+    if (tag) {
+        url += `&tag=${encodeURIComponent(tag)}`;
     }
-  });
-
-  const curCfg = ADJ_CONFIG[activeAdj];
-  const curVal = p.edits.adj[activeAdj] ?? curCfg.def;
-
-  const rangeFB = $('#volRangeFallback');
-  if (rangeFB) {
-    rangeFB.min = curCfg.min;
-    rangeFB.max = curCfg.max;
-    rangeFB.value = curVal;
-  }
-}
-
-buildAdjustUI();
-
-$("#adjReset").onclick=()=>{
-  const p=curPage(); if(!p)return;
-  pushHistory(); p.edits.adj=DEFAULT_ADJ(); adjDirty=false;
-  syncSlidersFromPage(); redrawDisplay(); liveFx(); refreshThumbFor(p);
-  toast("Adjustments reset","info",1500);
-};
-$("#adjApply").onclick=()=>{adjDirty=false;refreshThumbFor(curPage());toast("Adjustments applied to page","ok",1800);closeEditor();};
-let compareOn=false;
-function compareStart(){
-  if(compareOn||!editorBase)return; compareOn=true;
-  editCanvas.getContext("2d").drawImage(editorBase,0,0);
-  editCanvas.style.filter="none"; editCanvas.style.opacity="1";
-  textsLayer.style.display="none";
-}
-function compareEnd(){
-  if(!compareOn)return; compareOn=false;
-  textsLayer.style.display=""; redrawDisplay();
-}
-const cmpBtn=$("#adjCompare");
-cmpBtn.addEventListener("pointerdown",compareStart);
-cmpBtn.addEventListener("pointerup",compareEnd);
-cmpBtn.addEventListener("pointerleave",compareEnd);
-
-/* ---- crop ---- */
-let cropBoxPx=null,cropRatio=null,cropDrag=null;
-function initCropBox(){
-  const p=curPage(); if(!p)return;
-  const W=pageBox.clientWidth,H=pageBox.clientHeight; if(!W||!H)return;
-  cropBoxPx=p.edits.crop
-    ?{x:p.edits.crop.x*W,y:p.edits.crop.y*H,w:p.edits.crop.w*W,h:p.edits.crop.h*H}
-    :{x:W*0.06,y:H*0.06,w:W*0.88,h:H*0.88};
-  positionCropDom();
-}
-function positionCropDom(){
-  if(!cropBoxPx)return;
-  cropBoxEl.style.left=cropBoxPx.x+"px"; cropBoxEl.style.top=cropBoxPx.y+"px";
-  cropBoxEl.style.width=cropBoxPx.w+"px"; cropBoxEl.style.height=cropBoxPx.h+"px";
-}
-function enforceRatio(mode,b,r,W,H){
-  const cx=b.x+b.w/2,cy=b.y+b.h/2,MIN=26;
-  if(mode==="e"||mode==="w"){
-    let nh=b.w/r; if(b.y+nh>H)nh=H-b.y; if(nh < MIN)nh=MIN;
-    b.y=clamp(cy-nh/2,0,Math.max(0,H-nh)); b.h=nh; return b;
-  }
-  if(mode==="n"||mode==="s"){
-    let nw=b.h*r; if(b.x+nw>W)nw=W-b.x; if(nw < MIN)nw=MIN;
-    b.x=clamp(cx-nw/2,0,Math.max(0,W-nw)); b.w=nw; return b;
-  }
-  const ax=mode.indexOf("w")>=0?b.x+b.w:b.x;
-  const ay=mode.indexOf("n")>=0?b.y+b.h:b.y;
-  let nw=b.w,nh=nw/r;
-  if(nh>H){nh=H;nw=nh*r;}
-  if(nw>W){nw=W;nh=nw/r;}
-  nw=Math.max(nw,MIN); nh=Math.max(nh,MIN);
-  b.w=nw; b.h=nh;
-  b.x=mode.indexOf("w")>=0?ax-nw:ax;
-  b.y=mode.indexOf("n")>=0?ay-nh:ay;
-  b.x=clamp(b.x,0,W-b.w); b.y=clamp(b.y,0,H-b.h);
-  return b;
-}
-cropLayer.addEventListener("pointerdown",e=>{
-  e.stopPropagation(); e.preventDefault();
-  cropLayer.setPointerCapture(e.pointerId);
-  const hEl=e.target.closest(".ch");
-  cropDrag={handle:hEl?hEl.dataset.h:null,start:{x:e.clientX,y:e.clientY},orig:Object.assign({},cropBoxPx)};
-});
-cropLayer.addEventListener("pointermove",e=>{
-  if(!cropDrag||!cropBoxPx)return;
-  const k=1/view.scale;
-  const dx=(e.clientX-cropDrag.start.x)*k,dy=(e.clientY-cropDrag.start.y)*k;
-  const W=pageBox.clientWidth,H=pageBox.clientHeight,MIN=26,o=cropDrag.orig,mode=cropDrag.handle;
-  let b;
-  if(!mode){
-    b={x:clamp(o.x+dx,0,W-o.w),y:clamp(o.y+dy,0,H-o.h),w:o.w,h:o.h};
-  } else {
-    let l=o.x,t=o.y,r=o.x+o.w,bt=o.y+o.h;
-    if(mode.indexOf("e")>=0)r=clamp(o.x+o.w+dx,l+MIN,W);
-    if(mode.indexOf("s")>=0)bt=clamp(o.y+o.h+dy,t+MIN,H);
-    if(mode.indexOf("w")>=0)l=clamp(o.x+dx,0,r-MIN);
-    if(mode.indexOf("n")>=0)t=clamp(o.y+dy,0,bt-MIN);
-    b={x:l,y:t,w:r-l,h:bt-t};
-    if(cropRatio)b=enforceRatio(mode,b,cropRatio,W,H);
-  }
-  cropBoxPx=b; positionCropDom();
-});
-cropLayer.addEventListener("pointerup",()=>{cropDrag=null;});
-cropLayer.addEventListener("pointercancel",()=>{cropDrag=null;});
-$$("#ratioChips .chip").forEach(ch=>ch.onclick=()=>{
-  $$("#ratioChips .chip").forEach(x=>x.classList.remove("on")); ch.classList.add("on");
-  const kind=ch.dataset.ratio;
-  $("#customRatio").hidden=kind!=="custom";
-  const p=curPage(); if(!p||!cropBoxPx)return;
-  if(kind==="free"){cropRatio=null;return;}
-  if(kind==="custom")return;
-  let r;
-  if(kind==="orig"){
-    r=p.baseW/p.baseH; if(p.rotation%180)r=1/r;
-    if(p.edits.crop)r*=p.edits.crop.w/p.edits.crop.h;
-  } else if(kind==="a4"){
-    r=cropBoxPx.w>=cropBoxPx.h?1.4142:1/1.4142;
-  } else r=1;
-  cropRatio=r;
-  cropBoxPx=enforceRatio("se",Object.assign({},cropBoxPx),r,pageBox.clientWidth,pageBox.clientHeight);
-  positionCropDom();
-});
-$("#crSet").onclick=()=>{
-  const w=clamp(+$("#crW").value||1,0.1,99),h=clamp(+$("#crH").value||1,0.1,99);
-  cropRatio=w/h;
-  if(cropBoxPx){cropBoxPx=enforceRatio("se",cropBoxPx,cropRatio,pageBox.clientWidth,pageBox.clientHeight);positionCropDom();}
-};
-$("#cropApply").onclick=async()=>{
-  const p=curPage(); if(!p||!cropBoxPx)return;
-  const W=pageBox.clientWidth,H=pageBox.clientHeight;
-  const n={x:clamp(cropBoxPx.x/W,0,1),y:clamp(cropBoxPx.y/H,0,1),w:clamp(cropBoxPx.w/W,0.01,1),h:clamp(cropBoxPx.h/H,0.01,1)};
-  let abs=null;
-  if(!(n.w > 0.985 && n.h > 0.985 && n.x < 0.01 && n.y < 0.01)){
-    const c=p.edits.crop;
-    abs=c?{x:c.x+n.x*c.w,y:c.y+n.y*c.h,w:n.w*c.w,h:n.h*c.h}:n;
-  }
-  pushHistory();
-  p.edits.crop=abs;
-  await repaintEditor();
-  refreshThumbFor(p); updateEditorHeader(); setTool("adjust");
-  toast(abs?"Crop applied":"Crop removed (frame covered whole page)","ok",2000);
-  closeEditor();
-};
-$("#cropReset").onclick=async()=>{
-  const p=curPage(); if(!p||!p.edits.crop)return;
-  pushHistory(); p.edits.crop=null;
-  await repaintEditor(); refreshThumbFor(p); updateEditorHeader(); setTool("adjust");
-  toast("Crop reset","info",1500);
-};
-
-/* ---- erase ---- */
-let isPickingColor=false,isDrawingErase=false,currentEraseStroke=null;
-const eraseLayer=$("#eraseLayer");
-$("#eraseSize").oninput=e=>{$("#vEraseSize").textContent=e.target.value+"px";};
-$("#erasePickColor").onclick=()=>{
-  isPickingColor=true;
-  eraseLayer.style.cursor="crosshair";
-  $("#erasePickColor").classList.add("on");
-  toast("Tap anywhere on the page to pick color","info",2500);
-};
-eraseLayer.addEventListener("pointerdown",e=>{
-  const p=curPage(); if(!p)return;
-  const rect=pageBox.getBoundingClientRect();
-  const rx=clamp((e.clientX-rect.left)/rect.width,0,1);
-  const ry=clamp((e.clientY-rect.top)/rect.height,0,1);
-
-  if(isPickingColor){
-    e.stopPropagation(); e.preventDefault();
-    const cx=Math.round(rx*editCanvas.width);
-    const cy=Math.round(ry*editCanvas.height);
-    try{
-      const pixel=editCanvas.getContext("2d").getImageData(cx,cy,1,1).data;
-      const hex="#"+[pixel[0],pixel[1],pixel[2]].map(x=>x.toString(16).padStart(2,"0")).join("");
-      $("#eraseColor").value=hex;
-      toast("Color picked: "+hex,"ok",1800);
-    }catch(err){toast("Picked color from page","ok",1500);}
-    isPickingColor=false;
-    eraseLayer.style.cursor="crosshair";
-    $("#erasePickColor").classList.remove("on");
-    return;
-  }
-
-  e.stopPropagation(); e.preventDefault();
-  eraseLayer.setPointerCapture(e.pointerId);
-  isDrawingErase=true;
-  if(!p.edits.erases)p.edits.erases=[];
-  const color=$("#eraseColor").value;
-  const sz=+$("#eraseSize").value;
-  const minDim=Math.min(pageBox.clientWidth,pageBox.clientHeight);
-  currentEraseStroke={color:color,size:sz/minDim,pts:[{x:rx,y:ry}]};
-  p.edits.erases.push(currentEraseStroke);
-  redrawDisplay();
-});
-eraseLayer.addEventListener("pointermove",e=>{
-  if(!isDrawingErase||!currentEraseStroke)return;
-  const rect=pageBox.getBoundingClientRect();
-  const rx=clamp((e.clientX-rect.left)/rect.width,0,1);
-  const ry=clamp((e.clientY-rect.top)/rect.height,0,1);
-  currentEraseStroke.pts.push({x:rx,y:ry});
-  redrawDisplay();
-});
-function endErase(e){
-  if(isDrawingErase){
-    isDrawingErase=false;
-    currentEraseStroke=null;
-    try{eraseLayer.releasePointerCapture(e.pointerId);}catch(err){}
-    pushHistory();
-    const p=curPage(); if(p)refreshThumbFor(p);
-  }
-}
-eraseLayer.addEventListener("pointerup",endErase);
-eraseLayer.addEventListener("pointercancel",endErase);
-
-$("#eraseUndo").onclick=()=>{
-  const p=curPage(); if(!p||!p.edits.erases||!p.edits.erases.length)return;
-  pushHistory(); p.edits.erases.pop();
-  redrawDisplay(); refreshThumbFor(p);
-  toast("Last erase stroke undone","info",1400);
-};
-$("#eraseClear").onclick=()=>{
-  const p=curPage(); if(!p||!p.edits.erases||!p.edits.erases.length)return;
-  pushHistory(); p.edits.erases=[];
-  redrawDisplay(); refreshThumbFor(p);
-  toast("All erases cleared","info",1400);
-};
-$("#eraseApply").onclick=()=>{
-  refreshThumbFor(curPage());
-  toast("Erase applied to page","ok",1800);
-  closeEditor();
-};
-
-/* ---- filters ---- */
-async function buildFilterGrid(){
-  const p=curPage(); if(!p)return;
-  const gridF=$("#filterGrid"); gridF.innerHTML="";
-  let url=null;
-  try{url=await ensureThumb(p,220);}catch(e){}
-  Object.entries(FILTERS).forEach(entry=>{
-    const key=entry[0],f=entry[1];
-    const b=document.createElement("button");
-    b.className="fcard"+(p.edits.filter===key?" on":""); b.dataset.f=key; b.type="button";
-    b.innerHTML=(url?'<img src="'+url+'" style="filter:'+f.css+'" alt="">':'<div class="ph"></div>')+'<span>'+f.name+'</span>';
-    b.onclick=()=>{
-      pushHistory();
-      p.edits.filter=key; liveFx();
-      $$(".fcard").forEach(x=>x.classList.toggle("on",x.dataset.f===key));
-      refreshThumbFor(p);
-    };
-    gridF.appendChild(b);
-  });
-}
-
-/* ---- text ---- */
-const FONTS=["Arial","Helvetica","Times New Roman","Georgia","Verdana","Courier New","Trebuchet MS","Roboto","Open Sans","Poppins","Montserrat"];
-$("#tFont").innerHTML=FONTS.map(f=>'<option value="'+f+'">'+f+'</option>').join("");
-const selText=()=>{const p=curPage();return p?p.edits.texts.find(t=>t.id===selTextId)||null:null;};
-$("#addTextBtn").onclick=()=>{
-  const p=curPage(); if(!p)return;
-  pushHistory();
-  const t={id:state.nextId++,text:"Double-tap to edit",x:0.24,y:0.42,w:0.52,size:0.055,
-    font:"Arial",color:"#111111",shadowColor:"#000000",bg:"",align:"center",bold:false,italic:false,underline:false,
-    opacity:1,rot:0,shadow:false};
-  p.edits.texts.push(t); selTextId=t.id;
-  syncTexts(); renderTextList(); refreshTextProps();
-  toast("Text added — drag to move, double-tap to type","ok",2600);
-};
-function syncTexts(){
-  const p=curPage(); textsLayer.innerHTML="";
-  if(!p)return;
-  const H=pageBox.clientHeight;
-  p.edits.texts.forEach(t=>{
-    const el=document.createElement("div");
-    el.className="txt"+(t.id===selTextId?" sel":""); el.dataset.tid=t.id;
-    el.style.left=(t.x*100)+"%"; el.style.top=(t.y*100)+"%"; el.style.width=(t.w*100)+"%";
-    el.style.fontSize=Math.max(6,t.size*H)+"px";
-    el.style.fontFamily='"'+t.font+'", sans-serif';
-    el.style.fontWeight=t.bold?"700":"400";
-    el.style.fontStyle=t.italic?"italic":"normal";
-    el.style.textDecoration=t.underline?"underline":"none";
-    el.style.color=t.color; el.style.background=t.bg||"transparent";
-    el.style.textAlign=t.align; el.style.opacity=clamp(t.opacity,0,1);
-    el.style.transform="rotate("+(t.rot||0)+"deg)";
-    el.style.textShadow=t.shadow?("0 .08em .25em "+(t.shadowColor||"#000000")):"none";
-    el.textContent=t.text;
-    if(t.id===selTextId){
-      ["tl","tr","bl","br"].forEach(pos=>{
-        const h=document.createElement("span"); h.className="txt-rs "+pos; el.appendChild(h);
-      });
-    }
-    textsLayer.appendChild(el);
-  });
-}
-function selectText(id){selTextId=id;syncTexts();renderTextList();refreshTextProps();}
-function deselectText(){if(selTextId!=null){selTextId=null;syncTexts();renderTextList();refreshTextProps();}}
-function renderTextList(){
-  const p=curPage(),list=$("#textList"); list.innerHTML="";
-  if(!p)return;
-  if(!p.edits.texts.length){list.innerHTML='<p class="p-hint" style="margin:0">No text on this page yet.</p>';return;}
-  p.edits.texts.forEach((t,i)=>{
-    const d=document.createElement("div");
-    d.className="text-item"+(t.id===selTextId?" on":"");
-    d.innerHTML='<svg style="width:14px;height:14px;flex:none"><use href="#i-type"/></svg><span></span>'+
-      '<button class="ib sm" title="Delete text"><svg><use href="#i-trash"/></svg></button>';
-    d.querySelector("span").textContent=(t.text||"").slice(0,40)||"(empty)";
-    d.onclick=()=>selectText(t.id);
-    d.querySelector("button").onclick=e=>{
-      e.stopPropagation(); pushHistory();
-      p.edits.texts=p.edits.texts.filter(x=>x.id!==t.id);
-      if(selTextId===t.id)selTextId=null;
-      syncTexts(); renderTextList(); refreshTextProps();
-    };
-    list.appendChild(d);
-  });
-}
-function refreshTextProps(){
-  const t=selText(); $("#textProps").hidden=!t;
-  if(!t)return; textPropDirty=false;
-  const input=$("#tInput"); if(input) input.value=t.text||"";
-  $("#tFont").value=t.font; $("#tSize").value=t.size;
-  $("#vTSize").textContent=Math.round(t.size*pageBox.clientHeight)+" px";
-  $("#tBold").classList.toggle("on",t.bold); $("#tItalic").classList.toggle("on",t.italic);
-  $("#tUnder").classList.toggle("on",t.underline); $("#tShadow").classList.toggle("on",t.shadow);
-  $("#tColor").value=t.color||"#111111";
-  if($("#tShadowColor")) $("#tShadowColor").value=t.shadowColor||"#000000";
-  $("#tBg").value=t.bg||"#ffffff";
-  if($("#tBgTrans")) $("#tBgTrans").checked=!t.bg;
-  $$("[data-bg]").forEach(chip=>chip.classList.toggle("on",chip.dataset.bg===(t.bg||"")));
-  $$("[data-talign]").forEach(b=>b.classList.toggle("on",b.dataset.talign===t.align));
-  $("#tOpacity").value=t.opacity; $("#vTOp").textContent=Math.round(t.opacity*100)+"%";
-  $("#tRot").value=t.rot||0; $("#vTRot").textContent=(t.rot||0)+"°";
-}
-function textChanged(fn){
-  const t=selText(); if(!t)return;
-  if(!textPropDirty){pushHistory();textPropDirty=true;}
-  fn(t); syncTexts();
-}
-$("#tInput").oninput=e=>textChanged(t=>{t.text=e.target.value; renderTextList();});
-$("#tFont").onchange=e=>textChanged(t=>{t.font=e.target.value;});
-$("#tSize").oninput=e=>textChanged(t=>{t.size=+e.target.value;$("#vTSize").textContent=Math.round(t.size*pageBox.clientHeight)+" px";});
-$("#tBold").onclick=()=>textChanged(t=>{t.bold=!t.bold;$("#tBold").classList.toggle("on",t.bold);});
-$("#tItalic").onclick=()=>textChanged(t=>{t.italic=!t.italic;$("#tItalic").classList.toggle("on",t.italic);});
-$("#tUnder").onclick=()=>textChanged(t=>{t.underline=!t.underline;$("#tUnder").classList.toggle("on",t.underline);});
-$("#tShadow").onclick=()=>textChanged(t=>{t.shadow=!t.shadow;$("#tShadow").classList.toggle("on",t.shadow);});
-$("#tColor").oninput=e=>textChanged(t=>{t.color=e.target.value;});
-if($("#tShadowColor")){
-  $("#tShadowColor").oninput=e=>textChanged(t=>{
-    t.shadowColor=e.target.value;
-    t.shadow=true;
-    $("#tShadow").classList.add("on");
-    syncTexts();
-  });
-}
-$("#tBg").oninput=e=>textChanged(t=>{
-  t.bg=e.target.value;
-  if($("#tBgTrans")) $("#tBgTrans").checked=false;
-  refreshTextProps();
-});
-if($("#tBgTrans")){
-  $("#tBgTrans").onchange=e=>textChanged(t=>{
-    if(e.target.checked) t.bg="";
-    else t.bg=$("#tBg").value||"#ffffff";
-    refreshTextProps();
-  });
-}
-$$("[data-bg]").forEach(chip=>chip.onclick=()=>textChanged(t=>{
-  t.bg=chip.dataset.bg;
-  if($("#tBgTrans")) $("#tBgTrans").checked=false;
-  refreshTextProps();
-}));
-$$("[data-talign]").forEach(b=>b.onclick=()=>textChanged(t=>{
-  t.align=b.dataset.talign;
-  $$("[data-talign]").forEach(x=>x.classList.toggle("on",x===b));
-}));
-$("#tOpacity").oninput=e=>textChanged(t=>{t.opacity=+e.target.value;$("#vTOp").textContent=Math.round(t.opacity*100)+"%";});
-$("#tRot").oninput=e=>textChanged(t=>{t.rot=+e.target.value;$("#vTRot").textContent=t.rot+"°";});
-$("#tDelete").onclick=()=>{
-  const p=curPage(),t=selText(); if(!p||!t)return;
-  pushHistory();
-  p.edits.texts=p.edits.texts.filter(x=>x.id!==t.id);
-  selTextId=null; syncTexts(); renderTextList(); refreshTextProps();
-};
-/* text drag / resize / edit */
-function startEditingText(el, t){
-  if(!el||!t)return;
-  el.contentEditable="true";
-  el.classList.add("editing");
-  el.focus();
-  try{
-    const sel=window.getSelection(), r=document.createRange();
-    r.selectNodeContents(el); sel.removeAllRanges(); sel.addRange(r);
-  }catch(err){}
-  pushHistory();
-  let done=false;
-  const finish=()=>{
-    if(done)return; done=true;
-    el.contentEditable="false"; el.classList.remove("editing");
-    t.text=(el.innerText||el.textContent||"").replace(/\u00a0/g," ").trim()||"Text";
-    syncTexts(); renderTextList(); refreshTextProps();
-  };
-  el.onblur=finish;
-  el.onkeydown=e=>{ if(e.key==="Escape") el.blur(); };
-}
-
-let txtDrag=null,lastTap={id:null,t:0};
-textsLayer.addEventListener("pointerdown",e=>{
-  const el=e.target.closest(".txt"); if(!el)return;
-  if(el.isContentEditable || el.classList.contains("editing")) return;
-  e.stopPropagation(); e.preventDefault();
-  const tid=+el.dataset.tid;
-  selectText(tid);
-  const p=curPage(),t=p ? p.edits.texts.find(x=>x.id===tid) : null; if(!t)return;
-  const now=Date.now();
-  if(lastTap.id===tid && now-lastTap.t < 350){
-    startEditingText(el, t);
-    return;
-  }
-  lastTap={id:tid,t:now};
-  if(e.target.classList.contains("txt-rs")){
-    const r=el.getBoundingClientRect();
-    const cx=r.left + r.width / 2;
-    const cy=r.top + r.height / 2;
-    const d0=Math.max(15, Math.hypot(e.clientX - cx, e.clientY - cy));
-    txtDrag={mode:"resize",t:t,el:el,cx:cx,cy:cy,size0:t.size,d0:d0,moved:false};
-  } else {
-    txtDrag={mode:"move",t:t,el:el,lx:e.clientX,ly:e.clientY,moved:false};
-  }
-  el.setPointerCapture(e.pointerId);
-});
-
-textsLayer.addEventListener("dblclick",e=>{
-  const el=e.target.closest(".txt"); if(!el)return;
-  const tid=+el.dataset.tid;
-  selectText(tid);
-  const p=curPage(),t=p ? p.edits.texts.find(x=>x.id===tid) : null;
-  if(t) startEditingText(el, t);
-});
-
-textsLayer.addEventListener("pointermove",e=>{
-  if(!txtDrag)return;
-  const p=curPage(); if(!p)return;
-  if(txtDrag.mode==="move"){
-    const dx=e.clientX-txtDrag.lx,dy=e.clientY-txtDrag.ly;
-    if(Math.abs(dx)+Math.abs(dy)>2&&!txtDrag.moved){pushHistory();txtDrag.moved=true;}
-    const kN=1/(pageBox.clientWidth*view.scale);
-    txtDrag.t.x=clamp(txtDrag.t.x+dx*kN,-0.5,1.5);
-    txtDrag.t.y=clamp(txtDrag.t.y+dy/(pageBox.clientHeight*view.scale),-0.5,1.5);
-    txtDrag.lx=e.clientX; txtDrag.ly=e.clientY;
-    txtDrag.el.style.left=(txtDrag.t.x*100)+"%"; txtDrag.el.style.top=(txtDrag.t.y*100)+"%";
-  } else if(txtDrag.mode==="resize") {
-    const d=Math.max(10, Math.hypot(e.clientX - txtDrag.cx, e.clientY - txtDrag.cy));
-    if(!txtDrag.moved){pushHistory();txtDrag.moved=true;}
-    const newSize=clamp(txtDrag.size0 * (d / txtDrag.d0), 0.008, 0.5);
-    txtDrag.t.size=newSize;
-    const H=pageBox.clientHeight;
-    txtDrag.el.style.fontSize=Math.max(6, newSize * H) + "px";
-    const vSize=$("#vTSize"); if(vSize) vSize.textContent=Math.round(newSize * H) + " px";
-    const tSize=$("#tSize"); if(tSize) tSize.value=newSize;
-  }
-});
-function endTxt(e){
-  if(txtDrag){
-    if(txtDrag.moved){
-      syncTexts();
-      refreshTextProps();
-    }
-    txtDrag=null;
-  }
-}
-textsLayer.addEventListener("pointerup",endTxt);
-textsLayer.addEventListener("pointercancel",endTxt);
-
-/* ---- arrange ---- */
-$("#arRotL").onclick=()=>{const p=curPage();if(!p)return;pushHistory();
-  p.rotation=(((p.rotation-90)%360)+360)%360;repaintEditor();refreshThumbFor(p);updateEditorHeader();};
-$("#arRotR").onclick=()=>{const p=curPage();if(!p)return;pushHistory();
-  p.rotation=(((p.rotation+90)%360)+360)%360;repaintEditor();refreshThumbFor(p);updateEditorHeader();};
-$("#arDup").onclick=()=>{const p=curPage();if(!p)return;const i=idxOf(p.id);
-  pushHistory();
-  const clone=JSON.parse(JSON.stringify(p));clone.id=state.nextId++;
-  clone.edits.texts.forEach(t=>t.id=state.nextId++);
-  state.pages.splice(i+1,0,clone);
-  renderGrid();updateStats();buildStrip();toast("Page duplicated","ok",1600);};
-$("#arReplace").onclick=()=>{pendingReplace=curPage().id;$("#replaceInput").click();};
-$("#arDelete").onclick=async()=>{
-  const p=curPage();if(!p)return;const i=idxOf(p.id);
-  const ok=await confirmDialog({title:"Delete Page "+pad2(i+1)+"?",msg:'"'+p.name+'" will be removed. Press Undo to restore.',okLabel:"Delete"});
-  if(!ok)return;
-  pushHistory();
-  state.pages.splice(i,1);
-  renderGrid();updateStats();buildStrip();
-  if(!state.pages.length){closeEditor();switchView();return;}
-  state.editingId=state.pages[Math.min(i,state.pages.length-1)].id;
-  loadEditorPage();
-};
-
-/* ---- strip ---- */
-function buildStrip(){
-  const s=$("#edStrip"); s.innerHTML="";
-  state.pages.forEach((p,i)=>{
-    const b=document.createElement("button");
-    b.className="strip-item"+(p.id===state.editingId?" on":""); b.dataset.id=p.id; b.type="button";
-    b.innerHTML='<div class="ph"></div><b>'+pad2(i+1)+'</b>';
-    b.onclick=()=>{
-      if(state.editingId===p.id)return;
-      state.editingId=p.id; selTextId=null; adjDirty=false;
-      loadEditorPage(); highlightStrip();
-    };
-    attachStripDragEvents(b);
-    s.appendChild(b);
-    ensureThumb(p,160).then(url=>{
-      if(!b.isConnected)return;
-      const ph=b.querySelector(".ph"); if(!ph)return;
-      const img=document.createElement("img"); img.src=url; img.alt="";
-      img.style.filter=cssFilterOf(p); img.style.opacity=opacityOf(p);
-      ph.replaceWith(img);
-    }).catch(()=>{});
-  });
-}
-function highlightStrip(){
-  $$("#edStrip .strip-item").forEach(b=>b.classList.toggle("on",+b.dataset.id===state.editingId));
-}
-function refreshStripItem(p){
-  const b=$("#edStrip").querySelector('.strip-item[data-id="'+p.id+'"]'); if(!b)return;
-  ensureThumb(p,160).then(url=>{
-    const img=b.querySelector("img");
-    if(img){img.src=url;img.style.filter=cssFilterOf(p);img.style.opacity=opacityOf(p);}
-  }).catch(()=>{});
-}
-
-/* resize/orientation */
-let rzT=null;
-addEventListener("resize",()=>{
-  if($("#editorView").hidden)return;
-  clearTimeout(rzT);
-  rzT=setTimeout(()=>{layoutPageBox();fitView();syncTexts();if(curTool==="crop")initCropBox();},200);
-});
-
-/* ============ preview ============ */
-let pvIdx=0,pvToken=0;
-async function showPvPage(i){
-  if(!state.pages.length)return;
-  pvIdx=(i+state.pages.length)%state.pages.length;
-  const p=state.pages[pvIdx];
-  $("#pvCount").textContent="PAGE "+(pvIdx+1)+" / "+state.pages.length;
-  $("#pvName").textContent=p.name;
-  const token=++pvToken;
-  const stageEl=$("#pvStage");
-  stageEl.innerHTML='<div class="thumb-load"></div>';
-  await frame();
-  try{
-    const base=await renderBase(p,{maxEdge:clamp(Math.min(innerWidth,innerHeight)*0.92,600,2000)});
-    const out=document.createElement("canvas"); out.width=base.width; out.height=base.height;
-    const ctx=out.getContext("2d");
-    ctx.fillStyle="#fff"; ctx.fillRect(0,0,out.width,out.height);
-    ctx.filter=cssFilterOf(p); ctx.globalAlpha=opacityOf(p);
-    ctx.drawImage(base,0,0); ctx.filter="none"; ctx.globalAlpha=1;
-    const sh=sharpOf(p); if(sh>0)applySharpen(out,sh);
-    drawErases(ctx,p,out.width,out.height);
-    drawTexts(ctx,p,out.width,out.height);
-    if(token!==pvToken)return;
-    stageEl.innerHTML="";
-    out.id="pvCanvas"; stageEl.appendChild(out);
-  }catch(e){ if(token===pvToken){stageEl.innerHTML="";toast("Preview failed: "+e.message,"error");} }
-}
-function openPreview(startIdx){
-  if(!state.pages.length)return;
-  $("#previewView").hidden=false;
-  showPvPage(startIdx==null?0:startIdx);
-}
-$("#pvClose").onclick=()=>$("#previewView").hidden=true;
-$("#pvPrev").onclick=()=>showPvPage(pvIdx-1);
-$("#pvNext").onclick=()=>showPvPage(pvIdx+1);
-let pvSwipeX=null;
-$("#pvStage").addEventListener("pointerdown",e=>{pvSwipeX=e.clientX;});
-$("#pvStage").addEventListener("pointerup",e=>{
-  if(pvSwipeX==null)return;
-  const d=e.clientX-pvSwipeX; pvSwipeX=null;
-  if(Math.abs(d)>60)showPvPage(pvIdx+(d < 0?1:-1));
-});
-$("#btnPreview").onclick=()=>openPreview(Math.max(0,idxOf(state.lastSelected)));
-
-/* ============ save / export ============ */
-const QUAL={small:{dpi:100,q:0.6,bpp:0.09},standard:{dpi:150,q:0.75,bpp:0.13},high:{dpi:220,q:0.86,bpp:0.18},max:{dpi:300,q:0.93,bpp:0.24}};
-let curQuality="standard";
-let curExpTargetPages=null;
-
-function estimateSize(qk, pagesList=null){
-  const pages = (pagesList && pagesList.length) ? pagesList : (curExpTargetPages || state.pages);
-  const Q=QUAL[qk]; let bytes=0;
-  pages.forEach(p=>{
-    const dim=pagePhysical(p);
-    const wpx=dim[0]*Q.dpi/72,hpx=dim[1]*Q.dpi/72;
-    bytes+=wpx*hpx*Q.bpp+700;
-  });
-  return bytes;
-}
-let curExpMode = "pdf";
-let curZipFmt = "jpg";
-
-function openSaveModal(mode, customPages=null) {
-  if (!state.pages.length) return;
-  curExpMode = mode || "pdf";
-  curExpTargetPages = customPages;
-
-  const pagesToUse = (curExpTargetPages && curExpTargetPages.length) ? curExpTargetPages : state.pages;
-  const count = pagesToUse.length;
-
-  const base = (pagesToUse[0].name || "document").replace(/\.[^.]+$/, "").replace(/[\\/:*?"<>|]/g, "_").slice(0, 60) || "My_Document";
-  $("#saveName").value = base + (curExpTargetPages ? "_selected" : "") + ".pdf";
-  if ($("#zipSaveName")) $("#zipSaveName").value = base + (curExpTargetPages ? "_selected_images.zip" : "_images.zip");
-
-  $$("#expModeSeg button").forEach(b => b.classList.toggle("on", b.dataset.exp === curExpMode));
-  if ($("#pdfExportOpts")) $("#pdfExportOpts").hidden = curExpMode !== "pdf";
-  if ($("#zipExportOpts")) $("#zipExportOpts").hidden = curExpMode !== "zip";
-
-  $$(".qopt").forEach(o => {
-    o.classList.toggle("sel", o.dataset.q === curQuality);
-    o.querySelector("input").checked = o.dataset.q === curQuality;
-  });
-  $("#estLine").textContent = "Estimated size (" + count + " page" + (count > 1 ? "s" : "") + "): ≈ " + fmtBytes(estimateSize(curQuality, pagesToUse));
-  $("#saveModal").hidden = false;
-}
-
-$$("#expModeSeg button").forEach(b => b.onclick = () => {
-  curExpMode = b.dataset.exp;
-  $$("#expModeSeg button").forEach(x => x.classList.toggle("on", x === b));
-  if ($("#pdfExportOpts")) $("#pdfExportOpts").hidden = curExpMode !== "pdf";
-  if ($("#zipExportOpts")) $("#zipExportOpts").hidden = curExpMode !== "zip";
-});
-
-$$("#zipFmtSeg button").forEach(b => b.onclick = () => {
-  curZipFmt = b.dataset.fmt;
-  $$("#zipFmtSeg button").forEach(x => x.classList.toggle("on", x === b));
-});
-
-$$(".qopt").forEach(o => o.onclick = () => {
-  curQuality = o.dataset.q;
-  $$(".qopt").forEach(x => { x.classList.toggle("sel", x === o); x.querySelector("input").checked = x === o; });
-  $("#estLine").textContent = "Estimated size: ≈ " + fmtBytes(estimateSize(curQuality));
-});
-
-if ($("#btnSave")) $("#btnSave").onclick = () => openSaveModal("pdf");
-
-if ($("#btnExportSelected")) $("#btnExportSelected").onclick = () => {
-  const sel = state.pages.filter(p => p.selected !== false);
-  if (!sel.length) { toast("Please select at least 1 page to export", "warn"); return; }
-  openSaveModal("pdf", sel);
-};
-if ($("#chkSelectAll")) $("#chkSelectAll").onchange = (e) => {
-  const isChecked = e.target.checked;
-  state.pages.forEach(p => p.selected = isChecked);
-  grid.querySelectorAll(".pg-select-chk").forEach(c => c.checked = isChecked);
-  grid.querySelectorAll(".pcard").forEach(c => c.classList.toggle("selected", isChecked));
-  updateSelectedStats();
-  toast(isChecked ? "All pages selected" : "All pages deselected", "info", 1400);
-};
-
-$("#saveConfirm").onclick = async () => {
-  const pagesToExport = (curExpTargetPages && curExpTargetPages.length) ? curExpTargetPages : state.pages;
-  if (curExpMode === "pdf") {
-    let name = $("#saveName").value.trim().replace(/[\\/:*?"<>|]/g, "-") || "My_Document.pdf";
-    if (!/\.pdf$/i.test(name)) name += ".pdf";
-    $("#saveModal").hidden = true;
-    await exportPdf(name, curQuality, pagesToExport);
-  } else {
-    let zipName = $("#zipSaveName").value.trim().replace(/[\\/:*?"<>|]/g, "-") || "My_Images.zip";
-    if (!/\.zip$/i.test(zipName)) zipName += ".zip";
-    const dpi = +$("#zipDpi").value || 150;
-    $("#saveModal").hidden = true;
-    await exportZip(zipName, curZipFmt, dpi, pagesToExport);
-  }
-};
-async function exportPdf(name,qKey,targetPages=null){
-  const pages = (targetPages && targetPages.length) ? targetPages : state.pages;
-  const Q=QUAL[qKey];
-  showProgress("Saving PDF…",true);
-  exportCancelled=false;
-  try{
-    try{await Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,1500))]);}catch(e){}
-    const doc=await PDFLib.PDFDocument.create();
-    doc.setTitle(name.replace(/\.pdf$/i,""));
-    let bytesSum=0,failed=0;
-    const total=pages.length;
-    for(let i=0; i < total; i++){
-      if(exportCancelled)throw new Error("cancelled");
-      const est=bytesSum?(bytesSum/i*total):estimateSize(qKey, pages);
-      setProgress(i/total,"Page "+(i+1)+" / "+total+" · ≈ "+fmtBytes(est));
-      await frame();
-      const p=pages[i];
-      try{
-        const dim=pagePhysical(p),wPt=dim[0],hPt=dim[1];
-        let targetW=wPt*Q.dpi/72;
-        const area=targetW*(hPt*Q.dpi/72);
-        if(area>10000000)targetW*=Math.sqrt(10000000/area);
-        const cv=await renderBase(p,{targetW:targetW});
-        const out=document.createElement("canvas"); out.width=cv.width; out.height=cv.height;
-        const ctx=out.getContext("2d");
-        ctx.fillStyle="#fff"; ctx.fillRect(0,0,out.width,out.height);
-        ctx.filter=cssFilterOf(p); ctx.globalAlpha=opacityOf(p);
-        ctx.drawImage(cv,0,0);
-        ctx.filter="none"; ctx.globalAlpha=1;
-        const sh=sharpOf(p);
-        if(sh>0&&out.width*out.height<=16000000)applySharpen(out,sh);
-        drawErases(ctx,p,out.width,out.height);
-        drawTexts(ctx,p,out.width,out.height);
-        const blob=await new Promise(r=>out.toBlob(r,"image/jpeg",Q.q));
-        if(!blob)throw new Error("encode failed");
-        bytesSum+=blob.size;
-        const img=await doc.embedJpg(await blob.arrayBuffer());
-        const pg=doc.addPage([wPt,hPt]);
-        pg.drawImage(img,{x:0,y:0,width:wPt,height:hPt});
-        out.width=out.height=0; cv.width=cv.height=0;
-      }catch(err){
-        if(err.message==="cancelled")throw err;
-        failed++; console.error(err);
-      }
-    }
-    if(failed)toast(failed+" page(s) had errors and were skipped","error",5000);
-    setProgress(0.97,"Finalizing PDF…"); await frame();
-    const outBytes=await doc.save();
-    setProgress(1,"Done");
-    const blob=new Blob([outBytes],{type:"application/pdf"});
-    const a=document.createElement("a");
-    a.href=URL.createObjectURL(blob); a.download=name;
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(()=>URL.revokeObjectURL(a.href),9000);
-    toast(name+" saved — "+fmtBytes(blob.size)+" · "+total+" pages","ok",6000);
-  }catch(err){
-    if(err.message==="cancelled")toast("Export cancelled","warn");
-    else toast("Export failed: "+(err.message||"unknown error"),"error",6000);
-  }
-  hideProgress();
-}
-
-async function exportZip(zipName, fmt, dpi, targetPages=null) {
-  const pages = (targetPages && targetPages.length) ? targetPages : state.pages;
-  if (!window.JSZip) {
-    toast("JSZip library loading. Please check internet connection.", "error");
-    return;
-  }
-  showProgress("Exporting Images Archive (ZIP)…", true);
-  exportCancelled = false;
-  try {
-    const zip = new JSZip();
-    const total = pages.length;
-    const padLen = total > 99 ? 3 : 2;
-
-    let mimeType = "image/jpeg";
-    let ext = ".jpg";
-    let quality = 0.88;
-
-    if (fmt === "png") {
-      mimeType = "image/png";
-      ext = ".png";
-      quality = 1.0;
-    } else if (fmt === "gif") {
-      mimeType = "image/gif";
-      ext = ".gif";
-      quality = 0.9;
+    if (query) {
+        url += `&name=${encodeURIComponent(query)}`;
     }
 
-    for (let i = 0; i < total; i++) {
-      if (exportCancelled) throw new Error("cancelled");
-      setProgress(i / total, `Encoding Page ${i + 1} / ${total} (${fmt.toUpperCase()})`);
-      await frame();
+    try {
+        if (tag.toLowerCase() === 'bhakti') {
+            const p1 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=bhakti`).then(r => r.json()).catch(() => []);
+            const p2 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=devotional`).then(r => r.json()).catch(() => []);
+            const p3 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=hindu`).then(r => r.json()).catch(() => []);
+            const p4 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=spiritual`).then(r => r.json()).catch(() => []);
+            const p5 = fetch(`${API_BASE}/stations/search?limit=5&order=clickcount&reverse=true&hidebroken=true&name=bhaktiworld%20media%20Bhagavad%20Gita`).then(r => r.json()).catch(() => []);
+            const p6 = fetch(`${API_BASE}/stations/search?limit=5&order=clickcount&reverse=true&hidebroken=true&name=Bhaktisudha`).then(r => r.json()).catch(() => []);
+            const p7 = fetch(`${API_BASE}/stations/search?limit=5&order=clickcount&reverse=true&hidebroken=true&name=classic%20radio%20bhakti%20sangeet`).then(r => r.json()).catch(() => []);
+            const p8 = fetch(`${API_BASE}/stations/search?limit=5&order=clickcount&reverse=true&hidebroken=true&name=Bhagavad%20Gita%20Radio`).then(r => r.json()).catch(() => []);
+            
+            const [d1, d2, d3, d4, d5, d6, d7, d8] = await Promise.all([p1, p2, p3, p4, p5, p6, p7, p8]);
+            const combined = [...d5, ...d6, ...d7, ...d8, ...d1, ...d2, ...d3, ...d4];
+            
+            // Remove duplicates based on stationuuid
+            currentStations = combined.filter((v,i,a) => a.findIndex(t => (t.stationuuid === v.stationuuid)) === i);
+        } else if (tag.toLowerCase() === 'bangla') {
+            const p1 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=bangla`).then(r => r.json()).catch(() => []);
+            const p2 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=bengali`).then(r => r.json()).catch(() => []);
+            const p3 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&language=bengali`).then(r => r.json()).catch(() => []);
+            const p5 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&state=West%20Bengal`).then(r => r.json()).catch(() => []);
+            const p6 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=kolkata`).then(r => r.json()).catch(() => []);
+            const p7 = fetch(`${API_BASE}/stations/search?limit=5&order=clickcount&reverse=true&hidebroken=true&name=Hot%20Now%20Bangla`).then(r => r.json()).catch(() => []);
+            const p8 = fetch(`${API_BASE}/stations/search?limit=5&order=clickcount&reverse=true&hidebroken=true&name=AIR%20FM%20Gold%20Kolkata`).then(r => r.json()).catch(() => []);
+            
+            const [d1, d2, d3, d5, d6, d7, d8] = await Promise.all([p1, p2, p3, p5, p6, p7, p8]);
+            // Place Indian stations first
+            const combined = [...d7, ...d8, ...d1, ...d2, ...d3, ...d5, ...d6];
+            
+            // Remove duplicates
+            currentStations = combined.filter((v,i,a) => a.findIndex(t => (t.stationuuid === v.stationuuid)) === i);
+            
+            // Remove unwanted stations from Bangla category
+            const excludedBangla = ['my club remix', 'vividh bharti mumbai', 'radio bollyfm', 'fm rainbow delhi 32 kbps', 'radio mirchi lucknow', 'bollywood gaane purane'];
+            currentStations = currentStations.filter(s => {
+                const name = s.name ? s.name.toLowerCase().trim() : '';
+                return !excludedBangla.some(ex => name === ex || name.includes(ex));
+            });
+        } else if (tag.toLowerCase() === 'punjabi') {
+            const p1 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=punjabi`).then(r => r.json()).catch(() => []);
+            const p2 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&language=punjabi`).then(r => r.json()).catch(() => []);
+            const p3 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&state=Punjab`).then(r => r.json()).catch(() => []);
+            const p4 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=bhangra`).then(r => r.json()).catch(() => []);
+            
+            const [d1, d2, d3, d4] = await Promise.all([p1, p2, p3, p4]);
+            const combined = [...d1, ...d2, ...d3, ...d4];
+            currentStations = combined.filter((v,i,a) => a.findIndex(t => (t.stationuuid === v.stationuuid)) === i);
+        } else if (tag.toLowerCase() === 'bhojpuri') {
+            const p1 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=bhojpuri`).then(r => r.json()).catch(() => []);
+            const p2 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&language=bhojpuri`).then(r => r.json()).catch(() => []);
+            const p3 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=bihar`).then(r => r.json()).catch(() => []);
+            const p4 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=patna`).then(r => r.json()).catch(() => []);
+            const p5 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&state=Bihar`).then(r => r.json()).catch(() => []);
+            const p6 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&name=bihar`).then(r => r.json()).catch(() => []);
+            
+            const [d1, d2, d3, d4, d5, d6] = await Promise.all([p1, p2, p3, p4, p5, p6]);
+            const combined = [...d5, ...d6, ...d4, ...d3, ...d1, ...d2];
+            currentStations = combined.filter((v,i,a) => a.findIndex(t => (t.stationuuid === v.stationuuid)) === i);
+        } else if (tag && fetchMappings[tag.toLowerCase()]) {
+            const mappings = fetchMappings[tag.toLowerCase()];
+            const promises = mappings.map(params => {
+                let pUrl = `${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true`;
+                if (params.tag) pUrl += `&tag=${encodeURIComponent(params.tag)}`;
+                if (params.country) pUrl += `&country=${encodeURIComponent(params.country)}`;
+                if (params.language) pUrl += `&language=${encodeURIComponent(params.language)}`;
+                if (params.state) pUrl += `&state=${encodeURIComponent(params.state)}`;
+                if (params.name) pUrl += `&name=${encodeURIComponent(params.name)}`;
+                return fetch(pUrl).then(r => r.json()).catch(() => []);
+            });
+            
+            const results = await Promise.all(promises);
+            const combined = results.flat();
+            
+            // Remove duplicates
+            let filtered = combined.filter((v,i,a) => a.findIndex(t => (t.stationuuid === v.stationuuid)) === i);
+            
+            // Apply category-specific exclusions and strict deduplication
+            if (tag.toLowerCase() === 'dj remix') {
+                filtered = filtered.filter(s => {
+                    const name = s.name ? s.name.toLowerCase() : '';
+                    return !name.includes('anbu fm kannada') && !name.includes('anbu fm malayalam');
+                });
+                
+                // Further deduplicate by name to remove community duplicates
+                filtered = filtered.filter((v,i,a) => a.findIndex(t => (t.name && v.name && t.name.trim().toLowerCase() === v.name.trim().toLowerCase())) === i);
+            } else if (tag.toLowerCase() === 'news') {
+                filtered = filtered.filter(s => {
+                    const name = s.name ? s.name.toLowerCase().trim() : '';
+                    return name !== 'wion' && !name.includes('wion am stereo 1430');
+                });
+                filtered.unshift(...CUSTOM_NEWS_STATIONS);
+            } else if (tag.toLowerCase() === 'singer') {
+                // Inject custom stations for artists that do not exist natively on the radio-browser API
+                filtered.unshift(...CUSTOM_SINGER_STATIONS);
+            } else if (tag.toLowerCase() === 'classic') {
+                const excludedClassic = [
+                    'london telugu radio', 'aural melodics', 'radio mattoli', 'jn fm tamil', 
+                    'اذاعة القرآن الكر', 'kathiravan fm', 'air coimbatore', 'air pune fm', 
+                    'fm kottarakkara', 'fm rainbow krishna vani vijayawada', 'chann pardesi radio', 
+                    'air warangal', 'air raagam', 'air kochi', 'vanavilfm - radio maestro', 
+                    'air fm gold chennai', 'retro ma', 'radio retro bollywood', 'air fm gold kolkata', 
+                    'tamil panpalai gold', 'fm-gold-chennai', 'goldy garba', 'fmgoldtamil', 
+                    'jn fm tamil classic', 'goldy bhal', 'golden voice radio'
+                ];
+                filtered = filtered.filter(s => {
+                    const name = s.name ? s.name.toLowerCase().trim() : '';
+                    return !excludedClassic.some(ex => name === ex || name.includes(ex));
+                });
+            }
+            
+            currentStations = filtered;
+        } else if (!tag && !query && country === 'India') {
+            const response = await fetch(url);
+            let defaultStations = await response.json();
+            
+            const promises = [];
+            Object.values(fetchMappings).forEach(mappings => {
+                mappings.forEach(params => {
+                    let pUrl = `${API_BASE}/stations/search?limit=15&order=clickcount&reverse=true&hidebroken=true`;
+                    if (params.tag) pUrl += `&tag=${encodeURIComponent(params.tag)}`;
+                    if (params.country) pUrl += `&country=${encodeURIComponent(params.country)}`;
+                    if (params.language) pUrl += `&language=${encodeURIComponent(params.language)}`;
+                    if (params.state) pUrl += `&state=${encodeURIComponent(params.state)}`;
+                    if (params.name) pUrl += `&name=${encodeURIComponent(params.name)}`;
+                    promises.push(fetch(pUrl).then(r => r.json()).catch(() => []));
+                });
+            });
+            const results = await Promise.all(promises);
+            let allCatStations = results.flat();
+            
+            // Add custom injected stations
+            allCatStations = [...allCatStations, ...CUSTOM_NEWS_STATIONS, ...CUSTOM_SINGER_STATIONS];
+            
+            currentStations = [...defaultStations, ...allCatStations];
+        } else {
+            const response = await fetch(url);
+            currentStations = await response.json();
+        }
+        // Prepend Vividh Bharti Mumbai and Bollywood Gaane Purane for India 'All' category
+        if (country === 'India' && !tag && !query) {
+            const stationsToPrepend = ['vividh bharti mumbai', 'fm rainbow delhi 32 kbps', 'radio mirchi lucknow', 'bollywood gaane purane', 'akashvani fm rainbow lucknow'];
+            
+            for (let i = stationsToPrepend.length - 1; i >= 0; i--) {
+                const stationName = stationsToPrepend[i];
+                let index = currentStations.findIndex(s => s.name && s.name.trim().toLowerCase() === stationName);
+                
+                if (index > -1) {
+                    const station = currentStations.splice(index, 1)[0];
+                    currentStations.unshift(station);
+                } else {
+                    try {
+                        const resp = await fetch(`${API_BASE}/stations/search?name=${encodeURIComponent(stationName)}&limit=1`);
+                        const stations = await resp.json();
+                        if (stations.length > 0) {
+                            currentStations.unshift(stations[0]);
+                        }
+                    } catch(e) { console.error(`Failed to fetch ${stationName}`, e); }
+                }
+            }
+        }
+        
+        const excludedStations = [
+            "air kolhapur", "air jalandhar", "air indore", "air nagpur", 
+            "air telgu", "air hydrabad a", "air jalendhar", "air alwar", 
+            "air tuticorin", "air madikeri", "air mevad kandva", 
+            "air satara", "air sasaram", "my radio dj", "jesus alive radio",
+            "jesus radio malayalam", "hand of jesus",
+            "radio mariam", "nour mariam", "mariam", "dipak",
+            "london telugu radio", "aural melodics", "radio mattoli", "jn fm tamil", 
+            "اذاعة القرآن الكر", "kathiravan fm", "air coimbatore", "air pune fm", 
+            "fm kottarakkara", "fm rainbow krishna vani vijayawada", "chann pardesi radio", 
+            "air warangal", "air raagam", "air pune fm (high bit rate)", "air kochi", 
+            "vanavilfm - radio maestro", "air fm gold chennai", "retro ma", 
+            "radio retro bollywood", "air fm gold kolkata", "tamil panpalai gold", 
+            "fm-gold-chennai", "goldy garba", "fmgoldtamil", "jn fm tamil classic", 
+            "goldy bhal", "golden voice radio", "mirchi top 20", "mirchi top", "radio mirchi top"
+        ];
+        currentStations = currentStations.filter(station => {
+            const name = station.name ? station.name.toLowerCase().trim() : '';
+            return !excludedStations.some(ex => name.includes(ex));
+        });
 
-      const p = pages[i];
-      const dim = pagePhysical(p);
-      const targetW = dim[0] * (dpi / 72);
-      const cv = await renderBase(p, { targetW: targetW });
+        // Strict category segregation
+        if (country === 'India') {
+            currentStations = currentStations.filter(station => station.country === 'India' || station.countrycode === 'IN' || station.countrycode === 'IN ');
+        } else if (!country) {
+            currentStations = currentStations.filter(station => station.country !== 'India' && station.countrycode !== 'IN' && station.countrycode !== 'IN ');
+        }
 
-      const out = document.createElement("canvas");
-      out.width = cv.width;
-      out.height = cv.height;
-      const ctx = out.getContext("2d");
-      ctx.fillStyle = "#fff";
-      ctx.fillRect(0, 0, out.width, out.height);
-      ctx.filter = cssFilterOf(p);
-      ctx.globalAlpha = opacityOf(p);
-      ctx.drawImage(cv, 0, 0);
-      ctx.filter = "none";
-      ctx.globalAlpha = 1;
+        // Ensure strictly only active/working stations are allowed
+        currentStations = currentStations.filter(station => station.lastcheckok === 1);
 
-      const sh = sharpOf(p);
-      if (sh > 0 && out.width * out.height <= 16000000) applySharpen(out, sh);
-      drawErases(ctx, p, out.width, out.height);
-      drawTexts(ctx, p, out.width, out.height);
+        // Deduplicate stations globally (by UUID and by exact Name) to prevent repeats
+        currentStations = currentStations.filter((v,i,a) => 
+            a.findIndex(t => 
+                (t.stationuuid === v.stationuuid) || 
+                (t.name && v.name && t.name.trim().toLowerCase() === v.name.trim().toLowerCase())
+            ) === i
+        );
 
-      let blob = await new Promise(r => out.toBlob(r, mimeType, quality));
-      if (!blob) {
-        blob = await new Promise(r => out.toBlob(r, "image/png", 1.0));
-      }
+        // Save fresh fetched data to cache
+        try {
+            localStorage.setItem(cacheKey, JSON.stringify(currentStations));
+        } catch(e) { console.error('Cache save error', e); }
 
-      const fileName = `Page_${String(i + 1).padStart(padLen, "0")}${ext}`;
-      zip.file(fileName, blob);
+        renderStations();
+        resultsCount.textContent = `${currentStations.length} stations found`;
+        
+        if (currentStations.length > 0 && !loadedFromCache) {
+            if (autoPlay) {
+                playStation(0, 'search');
+            } else if (!audioPlayer.getAttribute('src')) {
+                // Just set up the UI for the first station without loading the stream yet
+                currentStationIndex = 0;
+                updatePlayerUI(currentStations[0]);
+                playerStatus.textContent = 'Ready (Paused)';
+                // Remove playing class just in case
+                if (nowPlayingCard) nowPlayingCard.classList.remove('playing');
+                audioPlayer.removeAttribute('src'); 
+            }
+        }
+        
+        // Reset retry count on success
+        retryCount = 0;
+    } catch (error) {
+        console.error('Failed to fetch stations on server:', API_BASE, error);
+        
+        retryCount++;
+        if (retryCount < API_ENDPOINTS.length) {
+            currentApiIndex = (currentApiIndex + 1) % API_ENDPOINTS.length;
+            API_BASE = API_ENDPOINTS[currentApiIndex];
+            console.log('Retrying with new server:', API_BASE);
+            await fetchStations(query, country, tag, autoPlay);
+            return; // Exit current function context, let the retry handle it
+        } else {
+            stationsGrid.innerHTML = '<p class="error">Failed to load stations after trying all servers. Please check your internet connection.</p>';
+            retryCount = 0; // Reset for next manual attempt
+        }
+    } finally {
+        if (retryCount === 0) {
+            mainLoader.style.display = 'none';
+        }
+    }
+}
 
-      out.width = out.height = 0;
-      cv.width = cv.height = 0;
+// Render Functions
+function renderStations() {
+    if (currentStations.length === 0) {
+        stationsGrid.innerHTML = '<div class="empty-state"><p>No stations found for this search.</p></div>';
+        return;
     }
 
-    setProgress(0.94, "Compressing ZIP archive…");
-    await frame();
+    stationsGrid.innerHTML = currentStations.map((station, index) => `
+        <div class="station-item" onclick="playStation(${index}, 'search', this)">
+            <img src="${station.favicon || DEFAULT_LOGO}" 
+                 class="list-img" 
+                 loading="lazy"
+                 onerror="this.onerror=null; this.src='${DEFAULT_LOGO}';">
+            <div class="item-info">
+                <h4>${station.name}</h4>
+                <p>${station.country} • ${station.tags ? station.tags.split(',').slice(0, 2).join(', ') : 'Radio'}</p>
+            </div>
+            <div class="item-actions">
+                <button class="icon-btn" onclick="event.stopPropagation(); addToPlaylistById('${station.stationuuid}')">
+                    <i data-lucide="plus-circle"></i>
+                </button>
+            </div>
+        </div>
+    `).join('');
+    lucide.createIcons();
+}
 
-    const zipBlob = await zip.generateAsync({ type: "blob", compression: "DEFLATE", compressionOptions: { level: 6 } }, pr => {
-      setProgress(0.94 + (pr.percent * 0.06 / 100), `Compressing ZIP… ${Math.round(pr.percent)}%`);
+function renderPlaylist() {
+    const playlistHTML = currentPlaylist.length === 0 
+        ? `<div class="empty-state"><i data-lucide="list-music"></i><p>No stations saved yet</p></div>`
+        : currentPlaylist.map((station, index) => `
+            <div class="station-item" onclick="playStation(${index}, 'playlist', this)">
+                <img src="${station.favicon || DEFAULT_LOGO}" 
+                     class="list-img" 
+                     loading="lazy"
+                     onerror="this.onerror=null; this.src='${DEFAULT_LOGO}';">
+                <div class="item-info">
+                    <h4>${station.name}</h4>
+                    <p>${station.country || 'Custom Station'}</p>
+                </div>
+                <div class="item-actions">
+                    <button class="icon-btn" onclick="event.stopPropagation(); removeFromPlaylist(${index})">
+                        <i data-lucide="trash-2"></i>
+                    </button>
+                </div>
+            </div>
+        `).join('');
+
+    if (quickPlaylistList) quickPlaylistList.innerHTML = playlistHTML;
+    if (fullPlaylistList) fullPlaylistList.innerHTML = playlistHTML;
+    
+    lucide.createIcons();
+}
+
+function switchView(target) {
+    // Update Tabs
+    mainTabs.forEach(tab => {
+        if (tab.dataset.tab === target) {
+            tab.classList.add('active');
+        } else {
+            tab.classList.remove('active');
+        }
     });
 
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(zipBlob);
-    a.download = zipName;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(a.href), 9000);
-
-    toast(`${zipName} exported — ${fmtBytes(zipBlob.size)} · ${total} ${fmt.toUpperCase()} images`, "ok", 6000);
-  } catch (err) {
-    if (err.message === "cancelled") toast("Export cancelled", "warn");
-    else toast("Export failed: " + (err.message || "unknown error"), "error", 6000);
-  }
-  hideProgress();
+    // Update Views
+    Object.keys(views).forEach(key => {
+        if (key === target) {
+            views[key].style.display = 'block';
+        } else {
+            views[key].style.display = 'none';
+        }
+    });
 }
 
-/* ============ global wiring ============ */
-$("#btnEdit").onclick=()=>{
-  const id=state.lastSelected!=null&&idxOf(state.lastSelected)>=0?state.lastSelected:state.pages[0].id;
-  openEditor(id);
-};
-document.addEventListener("keydown",e=>{
-  if((e.ctrlKey||e.metaKey)&&!e.shiftKey&&e.key.toLowerCase()==="z"){e.preventDefault();undo();}
-  else if((e.ctrlKey||e.metaKey)&&(e.key.toLowerCase()==="y"||(e.shiftKey&&e.key.toLowerCase()==="z"))){e.preventDefault();redo();}
-  else if(e.key==="Escape"){
-    if(!$("#confirmBd").hidden)return;
-    if(!$("#saveModal").hidden)$("#saveModal").hidden=true;
-    else if(!$("#addPageModal").hidden)$("#addPageModal").hidden=true;
-    else if(!$("#previewView").hidden)$("#previewView").hidden=true;
-    else if(!$("#editorView").hidden)closeEditor();
-  }
-  else if(!$("#previewView").hidden){
-    if(e.key==="ArrowRight")showPvPage(pvIdx+1);
-    if(e.key==="ArrowLeft")showPvPage(pvIdx-1);
-  }
-});
-addEventListener("beforeunload",e=>{
-  if(state.pages.length){e.preventDefault();e.returnValue="";}
-});
-updateStats(); updateHistoryBtns();
+
+// Playback Logic
+function playStation(index, source = 'search', element = null) {
+    userExplicitlyPaused = false; // Playing a new station manually overrides explicit pause
+    currentSource = source;
+    let station;
+    if (source === 'search') {
+        station = currentStations[index];
+        currentStationIndex = index;
+    } else {
+        station = currentPlaylist[index];
+    }
+
+    if (!station) return;
+
+    // Update Player UI
+    updatePlayerUI(station);
+    
+    // Update Queue Info Text
+    if (queueTickerText) {
+        let list = source === 'search' ? currentStations : currentPlaylist;
+        if (list.length > 0) {
+            const pIdx = (index - 1 + list.length) % list.length;
+            const nIdx = (index + 1) % list.length;
+            const prevStationName = list[pIdx].name || 'Unknown';
+            const nextStationName = list[nIdx].name || 'Unknown';
+            const prevStationHTML = `<i data-lucide="skip-back" style="width:14px; height:14px; display:inline-block; vertical-align:middle; margin-right:4px;"></i><span style="vertical-align:middle;">Prev: ${prevStationName}</span>`;
+            const nextStationHTML = `<i data-lucide="skip-forward" style="width:14px; height:14px; display:inline-block; vertical-align:middle; margin-right:4px;"></i><span style="vertical-align:middle;">Next: ${nextStationName}</span>`;
+            
+            queueTickerText.innerHTML = nextStationHTML;
+            queueTickerText.className = 'queue-next';
+            showingNextInQueue = true;
+            lucide.createIcons();
+            
+            clearInterval(queueTickerInterval);
+            queueTickerInterval = setInterval(() => {
+                queueTickerText.style.opacity = '0';
+                setTimeout(() => {
+                    if (showingNextInQueue) {
+                        queueTickerText.innerHTML = prevStationHTML;
+                        queueTickerText.className = 'queue-prev';
+                    } else {
+                        queueTickerText.innerHTML = nextStationHTML;
+                        queueTickerText.className = 'queue-next';
+                    }
+                    lucide.createIcons();
+                    queueTickerText.style.opacity = '1';
+                    showingNextInQueue = !showingNextInQueue;
+                }, 300);
+            }, 4000);
+        }
+    }
+
+    // Load and Play
+    audioPlayer.src = station.url_resolved || station.url;
+    audioPlayer.load(); // Force immediate load sequence
+    
+    let autoPlayBlocked = false;
+    
+    audioPlayer.play().then(() => {
+        // Instant UI response for "quick play" feel
+        if (nowPlayingCard) nowPlayingCard.classList.add('playing');
+    }).catch(e => {
+        console.warn('Auto-play failed, user interaction required.', e);
+        playerStatus.textContent = 'Click Play to start';
+        if (e.name === 'NotAllowedError') {
+            autoPlayBlocked = true;
+        }
+    });
+
+    // Also update button immediately before promise resolves for instant feedback
+    if (nowPlayingCard) nowPlayingCard.classList.add('playing');
+
+    // Auto-skip logic if stream stalls or shows pause (unless user blocked auto-play or paused intentionally)
+    clearTimeout(playCheckTimeout);
+    playCheckTimeout = setTimeout(() => {
+        if ((audioPlayer.paused || audioPlayer.readyState < 3) && !autoPlayBlocked && !isSmartScanning && !userExplicitlyPaused) {
+            console.log('Stream stalled, deleting broken station and skipping...');
+            playerStatus.textContent = 'Broken Stream - Deleting & Skipping...';
+            
+            // Delete the station completely
+            const list = currentSource === 'search' ? currentStations : currentPlaylist;
+            if (list && list.length > 0 && currentStationIndex >= 0 && currentStationIndex < list.length) {
+                list.splice(currentStationIndex, 1);
+                
+                // If we deleted the last item, wrap around
+                if (currentStationIndex >= list.length) {
+                    currentStationIndex = 0;
+                }
+                
+                if (currentSource === 'search') renderStations();
+                else {
+                    renderPlaylist();
+                    localStorage.setItem('fm_playlist', JSON.stringify(currentPlaylist));
+                }
+            }
+            
+            setTimeout(() => {
+                if (list && list.length > 0) {
+                    playStation(currentStationIndex, currentSource);
+                }
+            }, 1000);
+        }
+    }, 4500);
+
+    // Background Audio Support (Media Session)
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: station.name,
+            artist: station.country || 'FM Radio',
+            album: station.tags || 'Internet Radio',
+            artwork: [
+                { src: station.favicon || DEFAULT_LOGO, sizes: '200x200', type: 'image/png' }
+            ]
+        });
+
+        navigator.mediaSession.setActionHandler('play', () => audioPlayer.play());
+        navigator.mediaSession.setActionHandler('pause', () => audioPlayer.pause());
+        navigator.mediaSession.setActionHandler('previoustrack', () => playPrevious());
+        navigator.mediaSession.setActionHandler('nexttrack', () => playNext());
+        
+        navigator.mediaSession.playbackState = 'playing';
+    }
+
+    // Add active class
+    const items = document.querySelectorAll('.station-item');
+    items.forEach(item => item.classList.remove('active'));
+    
+    if (element) {
+        element.classList.add('active');
+    } else {
+        if (items.length > index) {
+            items[index].classList.add('active');
+        }
+    }
+}
+
+function updatePlayerUI(station) {
+    const name = station.name || 'Unknown Station';
+    const country = station.country || 'Global';
+    const tags = station.tags ? station.tags.split(',').slice(0, 2).join(', ') : 'Radio';
+    const img = station.favicon || DEFAULT_LOGO;
+
+    const defaultLogo = DEFAULT_LOGO;
+    const defaultMini = DEFAULT_LOGO;
+
+    const nameLen = name.length;
+    let isSpecialPrefix = false;
+    let prefixScale = 0.35;
+
+    if (nameLen >= 3) {
+        const center = (nameLen - 1) / 2;
+        let formattedName = '';
+        let wrapIndex = -1;
+        
+        let lowerName = name.toLowerCase();
+        if (lowerName.startsWith('2b! radio ')) {
+            wrapIndex = '2b! radio '.length - 1;
+            isSpecialPrefix = true;
+            prefixScale = 0.30;
+        } else if (lowerName.startsWith('bhakti world media ')) {
+            wrapIndex = 'bhakti world media '.length - 1;
+            isSpecialPrefix = true;
+            prefixScale = 0.45;
+        } else if (lowerName.startsWith('bhakti world ')) {
+            wrapIndex = 'bhakti world '.length - 1;
+            isSpecialPrefix = true;
+            prefixScale = 0.45;
+        } else if (lowerName.startsWith('hit of ')) {
+            wrapIndex = 'hit of '.length - 1;
+            isSpecialPrefix = true;
+        } else if (lowerName.startsWith('hits of ')) {
+            wrapIndex = 'hits of '.length - 1;
+            isSpecialPrefix = true;
+        } else if (lowerName.startsWith('bollywood ')) {
+            wrapIndex = 'bollywood '.length - 1;
+            isSpecialPrefix = true;
+        } else if (nameLen > 18) {
+            wrapIndex = name.lastIndexOf(' ');
+        }
+        
+        for (let i = 0; i < nameLen; i++) {
+            if (i === wrapIndex) {
+                formattedName += `<br>`;
+                continue;
+            }
+            const distance = Math.abs(i - center);
+            let scale = 1 + (distance / center) * 0.25; // Up to 25% increase at edges
+            
+            // Only decrease the font size for the special prefix words
+            if (isSpecialPrefix && i < wrapIndex) {
+                scale = scale * prefixScale;
+            }
+            
+            let char = name[i] === ' ' ? '&nbsp;' : name[i];
+            formattedName += `<span style="font-size: ${scale}em; vertical-align: baseline; display: inline-block;">${char}</span>`;
+        }
+        currentStationName.innerHTML = formattedName;
+    } else {
+        currentStationName.textContent = name;
+    }
+    
+    // Reset inline styles
+    currentStationName.style.fontSize = '';
+    currentStationName.style.textAlign = '';
+    
+    if (name.length >= 25 && name.lastIndexOf(' ') === -1) {
+        // Scroll right to left for very long names without spaces
+        currentStationName.classList.add('marquee-name');
+    } else {
+        currentStationName.classList.remove('marquee-name');
+        
+        if (isSpecialPrefix) {
+            currentStationName.style.textAlign = 'center';
+        }
+        
+        if (name.length > 32) {
+            // Decrease font size 25% for names over 32 characters
+            currentStationName.style.fontSize = 'clamp(0.84rem, 4.5vw, 1.4rem)';
+        } else if (name.length >= 16) {
+            // Decrease font size 15% for names 16-32 characters
+            currentStationName.style.fontSize = 'clamp(0.95rem, 5.1vw, 1.59rem)';
+        }
+    }
+    
+    currentStationMeta.textContent = `${country} • ${tags}`;
+    
+    // Set up main image with timeout and error fallback
+    let mainImgLoaded = false;
+    currentStationImg.onload = () => { mainImgLoaded = true; };
+    currentStationImg.onerror = () => { currentStationImg.src = defaultLogo; };
+    currentStationImg.src = img;
+    setTimeout(() => {
+        if (!mainImgLoaded && currentStationImg.src === img) {
+            currentStationImg.src = defaultLogo;
+        }
+    }, 2500); // 2.5 seconds timeout
+    
+    playerStatus.textContent = 'Loading...';
+}
+
+function togglePlay() {
+    if (audioPlayer.paused) {
+        userExplicitlyPaused = false;
+        if (!audioPlayer.getAttribute('src') && currentStations.length > 0) {
+            playStation(currentStationIndex >= 0 ? currentStationIndex : 0, 'search');
+        } else if (!audioPlayer.getAttribute('src') && currentPlaylist.length > 0) {
+            playStation(currentStationIndex >= 0 ? currentStationIndex : 0, 'playlist');
+        } else {
+            // Force a fresh connection to the live edge when resuming, avoiding stale buffer delays
+            audioPlayer.load();
+            audioPlayer.play().catch(e => console.warn('Play failed', e));
+            if (nowPlayingCard) nowPlayingCard.classList.add('playing');
+        }
+    } else {
+        userExplicitlyPaused = true;
+        clearTimeout(playCheckTimeout); // Stop any pending auto-skips
+        audioPlayer.pause();
+        audioPlayer.removeAttribute('src'); // Stop downloading stream data
+        audioPlayer.load(); // Flush buffer
+    }
+    // Double check icon (already handled by event listeners, but for responsiveness)
+    setTimeout(() => {
+        const iconName = audioPlayer.paused ? 'play' : 'pause';
+        playPauseBtn.innerHTML = `<i data-lucide="${iconName}" id="play-icon"></i>`;
+        lucide.createIcons();
+    }, 50);
+}
+
+function playNext() {
+    let list = currentSource === 'search' ? currentStations : currentPlaylist;
+    if (list.length === 0) return;
+    currentStationIndex = (currentStationIndex + 1) % list.length;
+    playStation(currentStationIndex, currentSource);
+}
+
+function playPrevious() {
+    let list = currentSource === 'search' ? currentStations : currentPlaylist;
+    if (list.length === 0) return;
+    currentStationIndex = (currentStationIndex - 1 + list.length) % list.length;
+    playStation(currentStationIndex, currentSource);
+}
+
+// Volume Controls
+function updateVolume(value) {
+    let volume = value / 100;
+    if (volumeSlider) volumeSlider.value = value;
+    
+    // Apply Boosts based on active features
+    if (isVolBoostEnabled) {
+        volume = 1.0;
+    } else {
+        if (isHDEQEnabled) volume = Math.min(1.0, volume * 1.25);
+        if (isDJBoostEnabled) volume = Math.min(1.0, volume * 1.5);
+    }
+    
+    audioPlayer.volume = volume;
+    
+    let volIconName = 'volume-2';
+    if (volume === 0) {
+        volIconName = 'volume-x';
+    } else if (volume < 0.5) {
+        volIconName = 'volume-1';
+    }
+    
+    const muteBtnElement = document.getElementById('mute-btn');
+    if (muteBtnElement) {
+        muteBtnElement.innerHTML = `<i data-lucide="${volIconName}" id="volume-icon"></i>`;
+        lucide.createIcons();
+    }
+    
+    if (volume > 0) {
+        lastVolume = value;
+        isMuted = false;
+    }
+}
+
+function toggleMute() {
+    if (isMuted) {
+        updateVolume(lastVolume);
+    } else {
+        lastVolume = volumeSlider ? volumeSlider.value : 30;
+        updateVolume(0);
+        isMuted = true;
+    }
+}
+
+// Playlist Logic
+function addToPlaylist(station) {
+    if (currentPlaylist.some(s => s.stationuuid === station.stationuuid)) {
+        alert('Station already in playlist!');
+        return;
+    }
+    currentPlaylist.push(station);
+    savePlaylist();
+    renderPlaylist();
+}
+
+function addToPlaylistById(uuid) {
+    const station = currentStations.find(s => s.stationuuid === uuid);
+    if (station) {
+        addToPlaylist(station);
+    }
+}
+
+function removeFromPlaylist(index) {
+    currentPlaylist.splice(index, 1);
+    
+    if (currentSource === 'playlist') {
+        if (currentStationIndex === index) {
+            currentStationIndex = -1; // Removed currently playing station
+        } else if (currentStationIndex > index) {
+            currentStationIndex--; // Shift index back
+        }
+    }
+    
+    savePlaylist();
+    renderPlaylist();
+}
+
+function savePlaylist() {
+    localStorage.setItem('fm_playlist', JSON.stringify(currentPlaylist));
+}
+
+function updateActiveCat(label) {
+    catButtons.forEach(btn => {
+        if (btn.textContent === label) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+}
+
+// Theme Functions
+function toggleTheme() {
+    const isLight = document.body.getAttribute('data-theme') === 'light';
+    const newTheme = isLight ? 'dark' : 'light';
+    setTheme(newTheme);
+}
+
+function setTheme(theme) {
+    document.body.setAttribute('data-theme', theme);
+    localStorage.setItem('fm_theme', theme);
+    
+    if (theme === 'light') {
+        themeIcon.setAttribute('data-lucide', 'sun');
+    } else {
+        themeIcon.setAttribute('data-lucide', 'moon');
+    }
+    lucide.createIcons();
+}
+
+function loadTheme() {
+    const savedTheme = localStorage.getItem('fm_theme') || 'dark';
+    setTheme(savedTheme);
+}
+
+// HD/EQ Logic
+function toggleHDEQ() {
+    isHDEQEnabled = !isHDEQEnabled;
+    if (isHDEQEnabled) {
+        eqHdBtn.style.backgroundColor = 'var(--primary-color)';
+        eqHdBtn.style.color = '#fff';
+        playerStatus.textContent = 'HD/EQ Active';
+    } else {
+        eqHdBtn.style.backgroundColor = 'transparent';
+        eqHdBtn.style.color = 'inherit';
+        playerStatus.textContent = 'HD/EQ Disabled';
+    }
+    
+    updateVolume(volumeSlider ? volumeSlider.value : lastVolume || 30);
+    
+    setTimeout(() => {
+        if (audioPlayer.paused) playerStatus.textContent = 'Paused';
+        else playerStatus.textContent = 'Playing';
+    }, 2000);
+}
+
+// DJ Boost Logic
+function toggleDJBoost() {
+    isDJBoostEnabled = !isDJBoostEnabled;
+    if (isDJBoostEnabled) {
+        djBoostBtn.style.backgroundColor = 'var(--accent-color)';
+        djBoostBtn.style.color = '#fff';
+        playerStatus.textContent = 'DJ/Beats Boost ON';
+    } else {
+        djBoostBtn.style.backgroundColor = 'transparent';
+        djBoostBtn.style.color = 'inherit';
+        playerStatus.textContent = 'DJ/Beats Boost OFF';
+    }
+    
+    updateVolume(volumeSlider ? volumeSlider.value : lastVolume || 30);
+    
+    setTimeout(() => {
+        if (audioPlayer.paused) playerStatus.textContent = 'Paused';
+        else playerStatus.textContent = 'Playing';
+    }, 2000);
+}
+
+// Vol Boost Logic
+function toggleVolBoost(e) {
+    isVolBoostEnabled = e.target.checked;
+    if (isVolBoostEnabled) {
+        playerStatus.textContent = 'Volume Max Boost ON';
+    } else {
+        playerStatus.textContent = 'Volume Boost OFF';
+    }
+    
+    updateVolume(volumeSlider ? volumeSlider.value : lastVolume || 30);
+    
+    setTimeout(() => {
+        if (audioPlayer.paused) playerStatus.textContent = 'Paused';
+        else playerStatus.textContent = 'Playing';
+    }, 2000);
+}
+
+// Smart Auto Scan Logic
+function toggleSmartAutoScan() {
+    if (!navigator.onLine) {
+        alert('Cannot start Auto Scan. No internet connection available.');
+        return;
+    }
+    
+    isSmartScanning = !isSmartScanning;
+    
+    if (isSmartScanning) {
+        smartAutoScanBtn.innerHTML = '<i data-lucide="stop-circle"></i><span>Stop Scan</span>';
+        smartAutoScanBtn.style.backgroundColor = 'var(--accent-color)';
+        smartAutoScanBtn.style.color = '#fff';
+        lucide.createIcons();
+        
+        if (currentStations.length === 0) {
+            alert('No stations in the current list to scan!');
+            toggleSmartAutoScan();
+            return;
+        }
+        
+        if (currentStationIndex < 0) currentStationIndex = 0;
+        
+        playerStatus.textContent = 'Auto Scan Started...';
+        playSmartScanStation();
+    } else {
+        smartAutoScanBtn.innerHTML = '<i data-lucide="zap"></i><span>Auto Scan</span>';
+        smartAutoScanBtn.style.backgroundColor = '';
+        smartAutoScanBtn.style.color = 'var(--primary-color)';
+        lucide.createIcons();
+        
+        clearTimeout(smartScanTimeout);
+        clearTimeout(playCheckTimeout);
+        playerStatus.textContent = 'Auto Scan Stopped';
+    }
+}
+
+function playSmartScanStation() {
+    if (!isSmartScanning) return;
+    
+    playStation(currentStationIndex, 'search');
+    
+    clearTimeout(playCheckTimeout);
+    clearTimeout(smartScanTimeout);
+    
+    // Check if station plays within 4.5 seconds
+    playCheckTimeout = setTimeout(() => {
+        if (!isSmartScanning) return;
+        
+        if (audioPlayer.paused || audioPlayer.readyState < 3) {
+            // Failed or taking too long - delete station
+            playerStatus.textContent = 'Deleting unresponsive station...';
+            
+            if (currentStations.length > 0) {
+                currentStations.splice(currentStationIndex, 1);
+                if (currentStationIndex >= currentStations.length) {
+                    currentStationIndex = 0;
+                }
+                renderStations();
+            }
+            
+            setTimeout(() => {
+                if (currentStations.length > 0) playSmartScanStation();
+                else toggleSmartAutoScan(); // Stop if empty
+            }, 1000);
+        }
+    }, 4500);
+}
+
+// Start App
+init();
+
+// --- Wake Lock Logic ---
+async function requestWakeLock() {
+    try {
+        if ('wakeLock' in navigator) {
+            wakeLock = await navigator.wakeLock.request('screen');
+            wakeLock.addEventListener('release', () => {
+                console.log('Wake Lock was released');
+            });
+            console.log('Wake Lock is active');
+        }
+    } catch (err) {
+        console.error(`Wake Lock error: ${err.name}, ${err.message}`);
+    }
+}
+
+function releaseWakeLock() {
+    if (wakeLock !== null) {
+        wakeLock.release().catch(console.error);
+        wakeLock = null;
+        console.log('Wake Lock released manually');
+    }
+}
+
+// --- Sleep Mode & Screen Auto-Off Functions ---
+function enableSleepMode(enable) {
+    isSleepMode = enable;
+    if (isSleepMode) {
+        document.body.classList.add('sleep-mode-active');
+        if (sleepOverlay) sleepOverlay.classList.add('active');
+        releaseWakeLock(); // Release screen lock so screen light automatically turns off via system screen timeout
+        if (keepAliveAudio) keepAliveAudio.pause();
+        
+        if (!audioPlayer.paused) {
+            userExplicitlyPaused = true;
+            audioPlayer.pause();
+        }
+        playerStatus.textContent = '🌙 Sleep Mode (Screen Auto-Off)';
+        if (sleepBtn) {
+            sleepBtn.style.backgroundColor = 'var(--secondary-color)';
+            sleepBtn.style.color = '#fff';
+        }
+    } else {
+        document.body.classList.remove('sleep-mode-active');
+        if (sleepOverlay) sleepOverlay.classList.remove('active');
+        if (sleepBtn) {
+            sleepBtn.style.backgroundColor = 'transparent';
+            sleepBtn.style.color = 'inherit';
+        }
+        if (!audioPlayer.paused) {
+            requestWakeLock();
+            if (keepAliveAudio) keepAliveAudio.play().catch(console.error);
+        }
+    }
+}
+
+function toggleSleepMode() {
+    enableSleepMode(!isSleepMode);
+}
+
+// --- Dynamic Visualizer Logic ---
+const eqBarsList = document.querySelectorAll('.eq-bar');
+let barValues = new Array(12).fill(10);
+let barTargets = new Array(12).fill(10);
+
+function updateVisualizer() {
+    // Determine if audio is actively playing
+    const isPlaying = !audioPlayer.paused && audioPlayer.readyState >= 3;
+    const vol = audioPlayer.muted ? 0 : audioPlayer.volume;
+    const volScale = (vol * 0.8) + 0.2; // Keep some movement even at low volume
+
+    if (isPlaying) {
+        // Randomly generate new height targets for a realistic look
+        if (Math.random() > 0.4) {
+            for (let i = 0; i < 12; i++) {
+                // Creates a bell-like curve (mids bounce higher than edges)
+                const eqCurve = 1 - Math.abs(i - 5.5) / 7; 
+                const rawBounce = Math.random() * 85; // 0 to 85% extra height
+                
+                // Add some temporal randomness to simulate actual frequencies
+                barTargets[i] = 15 + (rawBounce * eqCurve * volScale);
+            }
+        }
+    } else {
+        // Flatline to base height if paused/stopped
+        for (let i = 0; i < 12; i++) {
+            barTargets[i] = 10;
+        }
+    }
+
+    // Smooth transition physics
+    for (let i = 0; i < 12; i++) {
+        // Easing factor (0.3) for smooth, fluid motion
+        barValues[i] += (barTargets[i] - barValues[i]) * 0.3; 
+        
+        if (eqBarsList[i]) {
+            eqBarsList[i].style.height = `${barValues[i]}%`;
+        }
+    }
+
+    requestAnimationFrame(updateVisualizer);
+}
+
+// Start visualizer loop
+requestAnimationFrame(updateVisualizer);
