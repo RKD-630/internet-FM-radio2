@@ -1260,67 +1260,77 @@ body.is-fullscreen .station-details {
     -webkit-user-select: none;
 }
 
-body.is-fullscreen .player-controls {
-    width: 100%;
-    max-width: 100%;
+/* Fullscreen mode: single-line horizontal alignment with icon-only buttons */
+body.is-fullscreen .volume-controls {
+    position: fixed !important;
+    bottom: 82px !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    width: calc(100% - 2 * clamp(1rem, 4vw, 2.5rem)) !important;
+    max-width: 1440px !important;
+    z-index: 1001 !important;
+    margin: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    border-top-left-radius: 16px !important;
+    border-top-right-radius: 16px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.4) !important;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 1.25rem !important;
+    padding: 0.65rem 1.25rem !important;
+    transition: var(--transition-smooth) !important;
 }
 
-@media (max-width: 768px) {
-    body.is-fullscreen .app-container {
-        padding: 0.5rem;
-        padding-bottom: 140px;
-    }
-    body.is-fullscreen .player-controls {
-        width: 100%;
-    }
-    
-    body.is-fullscreen .category-nav {
-        margin-bottom: 0 !important;
-    }
-    
-    body.is-fullscreen .now-playing-card {
-        padding-top: 5rem;
-        padding-bottom: 5rem;
-        gap: 2rem;
-        margin-bottom: 0 !important;
-        min-height: calc(100vh - 240px);
-    }
-    
-    body.is-fullscreen .volume-controls {
-        position: fixed !important;
-        bottom: 110px !important;
-        left: 50% !important;
-        right: auto !important;
-        transform: translateX(-50%) !important;
-        width: max-content !important;
-        max-width: calc(100vw - 2rem) !important;
-        margin: 0 !important;
-        z-index: 1000 !important;
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: wrap !important;
-        align-items: center !important;
-        justify-content: center !important;
-        gap: 0.65rem !important;
-        background: var(--glass-bg) !important;
-        border: 1px solid var(--glass-border) !important;
-        backdrop-filter: blur(12px) !important;
-        -webkit-backdrop-filter: blur(12px) !important;
-        padding: 0.6rem 1rem !important;
-        border-radius: 20px !important;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
-    }
-    
-    body.is-fullscreen #eq-hd-btn,
-    body.is-fullscreen #dj-boost-btn,
-    body.is-fullscreen .vol-boost-check,
-    body.is-fullscreen #fs-refresh-btn {
-        position: static !important;
-        bottom: auto !important;
-        left: auto !important;
-        right: auto !important;
-        transform: none !important;
-    }
+body.is-fullscreen .volume-controls button span,
+body.is-fullscreen .volume-controls .vol-boost-check label,
+body.is-fullscreen .volume-controls .vol-boost-check span {
+    display: none !important;
+}
+
+body.is-fullscreen .volume-controls .vol-boost-check input[type="checkbox"] {
+    display: none !important;
+}
+
+body.is-fullscreen .volume-controls button,
+body.is-fullscreen .volume-controls .vol-boost-check {
+    padding: 0.6rem 0.9rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 46px !important;
+    height: 44px !important;
+    border-radius: 12px !important;
+    cursor: pointer !important;
+}
+
+body.is-fullscreen .volume-controls .vol-boost-check:has(input:checked) {
+    background: rgba(99, 102, 241, 0.25) !important;
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.4) !important;
+    color: var(--primary-color) !important;
+}
+
+body.is-fullscreen .player-controls {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: calc(100% - 2 * clamp(1rem, 4vw, 2.5rem)) !important;
+    max-width: 1440px !important;
+    z-index: 1000 !important;
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    transition: var(--transition-smooth) !important;
 }
 
 /* Mobile Landscape Fullscreen Fixes */

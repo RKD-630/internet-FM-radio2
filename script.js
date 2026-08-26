@@ -168,6 +168,109 @@ const CUSTOM_HINDI_STATIONS = [
     }
 ];
 
+const CUSTOM_BHAKTI_STATIONS = [
+    {
+        stationuuid: 'custom-bhakti-world',
+        name: 'Bhakti World Radio',
+        url_resolved: 'https://stream.zeno.fm/0s7253h6m8quv',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/easy-96-radio.jpg',
+        country: 'India',
+        countrycode: 'IN',
+        tags: 'bhakti, devotional, hindi, bhajan, kirtan',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-radio-city-bhakti',
+        name: 'Radio City Bhakti',
+        url_resolved: 'https://stream.zeno.fm/2x32vbbscrs8uv',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-city-hindi.jpg',
+        country: 'India',
+        countrycode: 'IN',
+        tags: 'bhakti, devotional, radio city, hindi',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-air-bhakti-sangeet',
+        name: 'AIR Bhakti Sangeet',
+        url_resolved: 'https://air.dattaradio.com/bhakti/stream',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        countrycode: 'IN',
+        tags: 'bhakti, air, all india radio, devotional, bhajan',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-shri-ram-bhakti',
+        name: 'Shri Ram Bhakti Radio',
+        url_resolved: 'https://stream.zeno.fm/u740vbbscrs8uv',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/easy-96-radio.jpg',
+        country: 'India',
+        countrycode: 'IN',
+        tags: 'bhakti, ram, bhajan, devotional, hindi',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-shiv-bhakti-radio',
+        name: 'Shiv Bhakti Radio',
+        url_resolved: 'https://stream.zeno.fm/8753vbbscrs8uv',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/red-fm.jpg',
+        country: 'India',
+        countrycode: 'IN',
+        tags: 'bhakti, shiv, mahadev, bhajan, devotional',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-krishna-bhakti-radio',
+        name: 'Krishna Bhakti Radio',
+        url_resolved: 'https://stream.zeno.fm/c354vbbscrs8uv',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-mirchi-hindi.jpg',
+        country: 'India',
+        countrycode: 'IN',
+        tags: 'bhakti, krishna, ISKCON, bhajan, devotional',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-hanuman-bhakti-radio',
+        name: 'Hanuman Chalisa Bhakti Radio',
+        url_resolved: 'https://stream.zeno.fm/p274vbbscrs8uv',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/big-fm.jpg',
+        country: 'India',
+        countrycode: 'IN',
+        tags: 'bhakti, hanuman, chalisa, devotional, hindi',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-sai-bhakti-radio',
+        name: 'Sai Bhakti Radio',
+        url_resolved: 'https://stream.zeno.fm/w864vbbscrs8uv',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-one-hindi.jpg',
+        country: 'India',
+        countrycode: 'IN',
+        tags: 'bhakti, sai baba, shirdi, bhajan, devotional',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-mata-rani-bhakti',
+        name: 'Mata Rani Bhakti Radio',
+        url_resolved: 'https://stream.zeno.fm/k765vbbscrs8uv',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/fever-104-fm.jpg',
+        country: 'India',
+        countrycode: 'IN',
+        tags: 'bhakti, durga, mata rani, bhajan, devotional',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-aarti-mantra-radio',
+        name: 'Hindi Aarti & Mantra Radio',
+        url_resolved: 'https://stream.zeno.fm/v975vbbscrs8uv',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/easy-96-radio.jpg',
+        country: 'India',
+        countrycode: 'IN',
+        tags: 'bhakti, aarti, mantra, chant, devotional',
+        lastcheckok: 1
+    }
+];
+
 const CUSTOM_NEWS_STATIONS = [
     {
         stationuuid: 'republic-bharat',
@@ -1113,10 +1216,14 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
             const p8 = fetch(`${API_BASE}/stations/search?limit=5&order=clickcount&reverse=true&hidebroken=true&name=Bhagavad%20Gita%20Radio`).then(r => r.json()).catch(() => []);
             
             const [d1, d2, d3, d4, d5, d6, d7, d8] = await Promise.all([p1, p2, p3, p4, p5, p6, p7, p8]);
-            const combined = [...d5, ...d6, ...d7, ...d8, ...d1, ...d2, ...d3, ...d4];
+            const combined = [...CUSTOM_BHAKTI_STATIONS, ...d5, ...d6, ...d7, ...d8, ...d1, ...d2, ...d3, ...d4];
             
-            // Remove duplicates based on stationuuid
-            currentStations = combined.filter((v,i,a) => a.findIndex(t => (t.stationuuid === v.stationuuid)) === i);
+            // Remove duplicates based on stationuuid, stream URL, and normalized station name
+            currentStations = combined.filter((v,i,a) => a.findIndex(t => 
+                (t.stationuuid && v.stationuuid && t.stationuuid === v.stationuuid) ||
+                (t.url_resolved && v.url_resolved && t.url_resolved.trim().toLowerCase() === v.url_resolved.trim().toLowerCase()) ||
+                (t.name && v.name && t.name.trim().toLowerCase() === v.name.trim().toLowerCase())
+            ) === i);
         } else if (tag.toLowerCase() === 'bangla') {
             const p1 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=bangla`).then(r => r.json()).catch(() => []);
             const p2 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=bengali`).then(r => r.json()).catch(() => []);
