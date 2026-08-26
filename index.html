@@ -30,8 +30,8 @@
             </div>
 
             <div style="display: flex; gap: 0.5rem;">
-                <button id="sleep-mode-btn" class="icon-btn theme-btn" title="Toggle Sleep Mode & Screen Auto-Off">
-                    <i data-lucide="moon-star" id="sleep-icon"></i>
+                <button id="open-add-station-btn" class="icon-btn theme-btn" title="Add / Scan New Radio Station">
+                    <i data-lucide="radio-receiver"></i>
                 </button>
                 <button id="fullscreen-btn" class="icon-btn theme-btn" title="Toggle Fullscreen">
                     <i data-lucide="maximize" id="fullscreen-icon"></i>
@@ -161,11 +161,14 @@
                         <input type="checkbox" id="vol-boost-check" style="width: 16px; height: 16px; accent-color: var(--primary-color);">
                         <label for="vol-boost-check" style="cursor: pointer;">Vol Boost</label>
                     </div>
-                    <button id="fs-refresh-btn" class="icon-btn theme-btn" title="Reload Stations" style="transform: scale(0.94);">
-                        <i data-lucide="refresh-cw"></i>
-                    </button>
                     <button id="dj-boost-btn" class="control-btn" title="Toggle DJ / Beats Boost" style="border: 1px solid var(--accent-color); border-radius: 8px; padding: 4px 12px; font-size: 0.85rem; font-weight: bold; background: transparent; color: inherit;">
                         DJ Boost
+                    </button>
+                    <button id="surround-3d-btn" class="control-btn" title="Toggle 3D Spatial Surround Sound" style="border: 1px solid #06b6d4; border-radius: 8px; padding: 4px 12px; font-size: 0.85rem; font-weight: bold; background: transparent; color: inherit;">
+                        3D Surround
+                    </button>
+                    <button id="fs-refresh-btn" class="icon-btn theme-btn" title="Reload Stations" style="transform: scale(0.94);">
+                        <i data-lucide="refresh-cw"></i>
                     </button>
                 </div>
             </section>
@@ -314,6 +317,76 @@
         <button id="wake-up-btn" class="wake-up-btn">
             <i data-lucide="power"></i> Wake Up &amp; Resume
         </button>
+    </div>
+    <!-- Add Station / Scanner Modal -->
+    <div id="add-station-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-card glass">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <i data-lucide="radio-receiver" class="modal-icon"></i>
+                    <h2>Add / Scan New Radio Station</h2>
+                </div>
+                <button type="button" id="close-add-station-btn" class="icon-btn close-modal-btn" title="Close">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            
+            <form id="add-station-form" class="add-station-form">
+                <div class="form-group">
+                    <label for="new-station-name">Station Name *</label>
+                    <input type="text" id="new-station-name" placeholder="e.g. Cyber Beats Radio" required autocomplete="off">
+                </div>
+                
+                <div class="form-group">
+                    <label for="new-station-url">Stream URL (.mp3, .m3u8, etc.) *</label>
+                    <input type="url" id="new-station-url" placeholder="https://stream.example.com/live.mp3" required autocomplete="off">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="new-station-category">Target Category *</label>
+                        <select id="new-station-category" class="glass-select" required>
+                            <option value="hindi">Hindi</option>
+                            <option value="bhakti">Bhakti</option>
+                            <option value="news">News</option>
+                            <option value="singer">Singer</option>
+                            <option value="ghazal">Ghazal</option>
+                            <option value="bangla">Bangla</option>
+                            <option value="music">Music</option>
+                            <option value="dj remix">DJ - Remix</option>
+                            <option value="bollywood">Bollywood</option>
+                            <option value="punjabi">Punjabi</option>
+                            <option value="bhojpuri">Bhojpuri</option>
+                            <option value="regional">Regional</option>
+                            <option value="pop">Pop</option>
+                            <option value="rock">Rock</option>
+                            <option value="jazz">Jazz</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="new-station-country">Country / Region</label>
+                        <input type="text" id="new-station-country" placeholder="e.g. India" value="India" autocomplete="off">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="new-station-logo">Station Logo URL (Optional)</label>
+                    <input type="url" id="new-station-logo" placeholder="https://example.com/logo.png" autocomplete="off">
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" id="scan-stream-btn" class="action-btn scan-btn">
+                        <i data-lucide="zap"></i>
+                        <span>Scan Stream</span>
+                    </button>
+                    <button type="submit" class="primary-btn submit-btn">
+                        <i data-lucide="plus-circle"></i>
+                        <span>Save to Category</span>
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </body>
 </html>

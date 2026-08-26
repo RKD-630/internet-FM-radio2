@@ -1134,12 +1134,22 @@ input[type="range"] {
 
 input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 12px;
-    height: 12px;
-    background: var(--primary-color);
+    width: 14px;
+    height: 14px;
+    background: #ff6600;
     border-radius: 50%;
     cursor: pointer;
-    box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+    box-shadow: 0 0 12px rgba(255, 102, 0, 0.85);
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    background: #ff6600;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(255, 102, 0, 0.85);
+    border: none;
 }
 
 /* Animations */
@@ -1361,12 +1371,12 @@ body.is-fullscreen .player-controls {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%) scale(0.8);
-    width: 160px;
-    height: 160px;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 2px solid #ff0000;
+    width: 170px;
+    height: 170px;
+    background: rgba(255, 102, 0, 0.25);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 5px solid #ff6600;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -1375,7 +1385,7 @@ body.is-fullscreen .player-controls {
     pointer-events: none;
     transition: opacity 0.2s ease, transform 0.2s ease;
     z-index: 100;
-    box-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, inset 0 0 15px rgba(255, 0, 0, 0.5);
+    box-shadow: 0 0 30px #ff6600, 0 0 60px rgba(255, 102, 0, 0.8), inset 0 0 30px rgba(255, 102, 0, 0.6);
 }
 
 .volume-drag-overlay.active {
@@ -1386,23 +1396,24 @@ body.is-fullscreen .player-controls {
 #volume-drag-text {
     font-size: 3.85rem;
     font-weight: 800;
-    color: #ffff00;
-    text-shadow: 0 0 5px #ffff00, 0 0 15px #ffff00, 0 0 25px rgba(255, 255, 0, 0.8);
+    color: #21CF02 !important;
+    text-shadow: 0 0 10px #21CF02, 0 0 25px rgba(33, 207, 2, 0.9), 0 0 40px rgba(33, 207, 2, 0.7);
 }
 
 .now-playing-card {
     position: relative; /* required for absolute positioning of overlay */
 }
 
-/* --- Sleep Mode & Screen Auto-Off Styles --- */
-body.sleep-mode-active {
-    transition: filter 0.8s ease, opacity 0.8s ease;
+/* Hero Section shows as a normal section (100% visible at all times) */
+.hero-section, .now-playing-card {
+    opacity: 1 !important;
+    filter: brightness(1) !important;
 }
 
-body.sleep-mode-active .app-container {
-    filter: brightness(0.4) contrast(0.9);
-    opacity: 0.7;
-    transition: filter 0.8s ease, opacity 0.8s ease;
+/* Ensure full application stays bright when paused */
+.app-container {
+    filter: none !important;
+    opacity: 1 !important;
 }
 
 body.sleep-mode-active .status-badge {
@@ -1497,4 +1508,150 @@ body.sleep-mode-active .status-badge {
 .wake-up-btn:hover {
     transform: scale(1.05);
     box-shadow: 0 15px 35px rgba(168, 85, 247, 0.6);
+}
+
+/* ==========================================================================
+   ADD / SCAN STATION MODAL
+   ========================================================================== */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(8, 11, 18, 0.82);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    z-index: 2500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    animation: modalFadeIn 0.25s ease-out;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.modal-card {
+    width: 100%;
+    max-width: 520px;
+    padding: 1.75rem 2rem;
+    border-radius: 1.5rem;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 35px rgba(0, 243, 255, 0.18);
+    background: linear-gradient(135deg, rgba(18, 24, 38, 0.95) 0%, rgba(12, 16, 26, 0.92) 100%);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-title-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--text-primary);
+}
+
+.modal-title-group h2 {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.modal-icon {
+    color: var(--cyan-accent, #06b6d4);
+}
+
+.close-modal-btn {
+    color: var(--text-secondary);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+}
+
+.close-modal-btn:hover {
+    color: #ff4d4d;
+}
+
+.add-station-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.form-group label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.form-group input,
+.glass-select {
+    width: 100%;
+    padding: 0.65rem 0.9rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    outline: none;
+    transition: var(--transition-fast, 0.2s);
+}
+
+.form-group input:focus,
+.glass-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 12px rgba(6, 182, 212, 0.3);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.glass-select option {
+    background: #0f172a;
+    color: #ffffff;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.modal-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.8rem;
+    margin-top: 0.75rem;
+}
+
+.scan-btn {
+    background: rgba(6, 182, 212, 0.15);
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    padding: 0.65rem 1.1rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.scan-btn:hover {
+    background: rgba(6, 182, 212, 0.3);
+    color: #ffffff;
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
 }
