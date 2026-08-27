@@ -1289,30 +1289,44 @@ body.is-fullscreen .now-playing-card {
     min-height: 0 !important;
     width: 100% !important;
     display: flex !important;
-    flex-direction: row !important;
+    flex-direction: column !important;
     align-items: center !important;
-    justify-content: space-between !important;
-    padding: 1.75rem 2.5rem !important;
+    justify-content: center !important;
+    text-align: center !important;
+    padding: 1.5rem 2rem !important;
+    gap: 0.75rem !important;
     border-radius: 24px !important;
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5) !important;
 }
 
 body.is-fullscreen .station-visual {
-    width: 220px !important;
-    height: 220px !important;
+    width: 143px !important;
+    height: 143px !important;
+    min-width: 143px !important;
+    min-height: 143px !important;
     flex-shrink: 0 !important;
+    overflow: visible !important;
+    margin: 0 auto 0.5rem auto !important;
+}
+
+body.is-fullscreen .toon-wrapper {
+    top: -65px !important;
+}
+
+body.is-fullscreen .dancing-toon {
+    height: 65px !important;
 }
 
 body.is-fullscreen .station-visual img {
     width: 100% !important;
     height: 100% !important;
     object-fit: contain !important;
-    border-radius: 24px !important;
+    border-radius: 20px !important;
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4) !important;
 }
 
 body.is-fullscreen .station-details {
-    flex: 1 !important;
+    width: 100% !important;
     min-width: 0 !important;
     display: flex !important;
     flex-direction: column !important;
@@ -1321,17 +1335,20 @@ body.is-fullscreen .station-details {
     text-align: center !important;
     user-select: none;
     -webkit-user-select: none;
+    margin-top: 0.25rem !important;
 }
 
 body.is-fullscreen #current-station-name {
-    font-size: clamp(1.8rem, 4.5vw, 3.2rem) !important;
+    font-size: clamp(1.6rem, 4vw, 2.8rem) !important;
     line-height: 1.15 !important;
-    margin: 12px 0 !important;
+    margin: 8px 0 !important;
+    text-align: center !important;
 }
 
 body.is-fullscreen #current-station-meta {
-    font-size: 1.15rem !important;
-    margin-bottom: 1rem !important;
+    font-size: 1.1rem !important;
+    margin-bottom: 0.5rem !important;
+    text-align: center !important;
 }
 
 body.is-fullscreen .banner-right,
