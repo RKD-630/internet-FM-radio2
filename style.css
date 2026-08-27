@@ -1309,14 +1309,6 @@ body.is-fullscreen .station-visual {
     margin: 0 auto 0.5rem auto !important;
 }
 
-body.is-fullscreen .toon-wrapper {
-    top: -65px !important;
-}
-
-body.is-fullscreen .dancing-toon {
-    height: 65px !important;
-}
-
 body.is-fullscreen .station-visual img {
     width: 100% !important;
     height: 100% !important;
