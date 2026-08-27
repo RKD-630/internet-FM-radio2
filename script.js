@@ -29,7 +29,7 @@ const CUSTOM_HINDI_STATIONS = [
     {
         stationuuid: 'custom-radio-mirchi-hindi',
         name: 'Radio Mirchi 98.3 Hindi',
-        url_resolved: 'https://stream.zeno.fm/f3wvbbscrs8uv',
+        url_resolved: 'https://eu8.fastcast4u.com/proxy/clyedupq/stream',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-mirchi-hindi.jpg',
         country: 'India',
         countrycode: 'IN',
@@ -37,19 +37,19 @@ const CUSTOM_HINDI_STATIONS = [
         lastcheckok: 1
     },
     {
-        stationuuid: 'custom-mirchi-love',
-        name: 'Mirchi Love Hindi',
-        url_resolved: 'https://stream.zeno.fm/3r01bca0b0hvv',
+        stationuuid: 'custom-hindi-gold-radio',
+        name: 'Hindi Gold Radio',
+        url_resolved: 'https://azuracast.vibesounds.in:8010/radio.mp3',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/mirchi-love-hindi.jpg',
         country: 'India',
         countrycode: 'IN',
-        tags: 'hindi, romantic, love, bollywood',
+        tags: 'hindi, retro, classics, bollywood',
         lastcheckok: 1
     },
     {
         stationuuid: 'custom-red-fm-hindi',
         name: 'Red FM 93.5',
-        url_resolved: 'https://stream.zeno.fm/0885zpy3x0hvv',
+        url_resolved: 'https://funasia.streamguys1.com/live9',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/red-fm.jpg',
         country: 'India',
         countrycode: 'IN',
@@ -57,29 +57,19 @@ const CUSTOM_HINDI_STATIONS = [
         lastcheckok: 1
     },
     {
-        stationuuid: 'custom-radio-city-hindi',
-        name: 'Radio City Hindi',
-        url_resolved: 'https://stream.zeno.fm/54ecvca0b0hvv',
+        stationuuid: 'custom-mirchi-top-20',
+        name: 'Mirchi Top 20 Bollywood',
+        url_resolved: 'https://drive.uber.radio/uber/bollywoodnow/icecast.audio',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-city-hindi.jpg',
         country: 'India',
         countrycode: 'IN',
-        tags: 'hindi, city, bollywood, hits',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-big-fm-hindi',
-        name: '92.7 BIG FM',
-        url_resolved: 'https://stream.zeno.fm/k2k4vbbscrs8uv',
-        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/big-fm.jpg',
-        country: 'India',
-        countrycode: 'IN',
-        tags: 'hindi, big fm, retro, classic',
+        tags: 'hindi, top 20, bollywood, hits',
         lastcheckok: 1
     },
     {
         stationuuid: 'custom-vividh-bharati',
         name: 'Vividh Bharati AIR',
-        url_resolved: 'https://air.dattaradio.com/vividhbharati/stream',
+        url_resolved: 'https://air.pc.cdn.bitgravity.com/air/live/pbaudio001/playlist.m3u8',
         favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
         country: 'India',
         countrycode: 'IN',
@@ -87,186 +77,76 @@ const CUSTOM_HINDI_STATIONS = [
         lastcheckok: 1
     },
     {
-        stationuuid: 'custom-air-gold-fm',
-        name: 'AIR FM Gold Hindi',
-        url_resolved: 'https://air.dattaradio.com/airgold/stream',
-        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
-        country: 'India',
-        countrycode: 'IN',
-        tags: 'hindi, air gold, classics, bollywood',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-radio-one-hindi',
-        name: '94.3 Radio One Hindi',
-        url_resolved: 'https://stream.zeno.fm/w0k0cda0b0hvv',
+        stationuuid: 'custom-fnf-fm-hindi',
+        name: 'FnF FM Hindi',
+        url_resolved: 'http://192.99.8.192:5032/;stream',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-one-hindi.jpg',
         country: 'India',
         countrycode: 'IN',
-        tags: 'hindi, radio one, retro, international',
+        tags: 'hindi, fnf fm, bollywood, hits',
         lastcheckok: 1
     },
     {
-        stationuuid: 'custom-fever-104-fm',
-        name: 'Fever 104 FM',
-        url_resolved: 'https://stream.zeno.fm/g3w1cca0b0hvv',
-        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/fever-104-fm.jpg',
-        country: 'India',
-        countrycode: 'IN',
-        tags: 'hindi, fever 104, bollywood, pop',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-radio-city-ishq',
-        name: 'Radio City Ishq Hindi',
-        url_resolved: 'https://stream.zeno.fm/u132vbbscrs8uv',
-        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-city-hindi.jpg',
-        country: 'India',
-        countrycode: 'IN',
-        tags: 'hindi, romantic, ishq, bollywood',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-retro-bollywood-classics',
-        name: 'Retro Bollywood Classics',
-        url_resolved: 'https://stream.zeno.fm/65b1bca0b0hvv',
+        stationuuid: 'custom-radio-bollyfm',
+        name: 'Radio BollyFM',
+        url_resolved: 'http://stream.radiobollyfm.in:8201/hd?t=1526570335',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/big-fm.jpg',
         country: 'India',
         countrycode: 'IN',
-        tags: 'hindi, retro, classic, oldies, 80s, 90s',
+        tags: 'hindi, bollyfm, retro, classic',
         lastcheckok: 1
     },
     {
-        stationuuid: 'custom-hungama-hindi-hits',
-        name: 'Hungama Hindi Superhits',
-        url_resolved: 'https://stream.zeno.fm/m953vbbscrs8uv',
-        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-mirchi-hindi.jpg',
+        stationuuid: 'custom-radio-udaan',
+        name: 'Radio Udaan Hindi',
+        url_resolved: 'https://stream.radioudaan.com/listen/radio_udaan/radio.mp3',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/fever-104-fm.jpg',
         country: 'India',
         countrycode: 'IN',
-        tags: 'hindi, hungama, hits, top 40, bollywood',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-bollywood-gaane',
-        name: 'Bollywood Gaane Radio',
-        url_resolved: 'https://stream.zeno.fm/t3z5vbbscrs8uv',
-        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/easy-96-radio.jpg',
-        country: 'India',
-        countrycode: 'IN',
-        tags: 'hindi, bollywood, gaane, hits',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-radio-deewana-hindi',
-        name: 'Radio Deewana Hindi',
-        url_resolved: 'https://stream.zeno.fm/n3y4vbbscrs8uv',
-        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/red-fm.jpg',
-        country: 'India',
-        countrycode: 'IN',
-        tags: 'hindi, deewana, bollywood, remix',
+        tags: 'hindi, udaan, talk, music',
         lastcheckok: 1
     }
 ];
 
 const CUSTOM_BHAKTI_STATIONS = [
     {
-        stationuuid: 'custom-bhakti-world',
-        name: 'Bhakti World Radio',
-        url_resolved: 'https://stream.zeno.fm/0s7253h6m8quv',
+        stationuuid: 'custom-bhakti-world-hanuman',
+        name: 'Bhakti World - Hanuman',
+        url_resolved: 'https://2bhanuman.out.airtime.pro:8000/2bhanuman_a',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/easy-96-radio.jpg',
         country: 'India',
         countrycode: 'IN',
-        tags: 'bhakti, devotional, hindi, bhajan, kirtan',
+        tags: 'bhakti, hanuman, bhakti world, devotional, bhajan, chalisa',
         lastcheckok: 1
     },
     {
-        stationuuid: 'custom-radio-city-bhakti',
-        name: 'Radio City Bhakti',
-        url_resolved: 'https://stream.zeno.fm/2x32vbbscrs8uv',
+        stationuuid: 'custom-radio-sai-bhajan',
+        name: 'Radio Sai Global Harmony Bhajan',
+        url_resolved: 'http://stream.radiosai.net:8000/',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-city-hindi.jpg',
         country: 'India',
         countrycode: 'IN',
-        tags: 'bhakti, devotional, radio city, hindi',
+        tags: 'bhakti, sai, bhajan, devotional, hindi',
         lastcheckok: 1
     },
     {
-        stationuuid: 'custom-air-bhakti-sangeet',
-        name: 'AIR Bhakti Sangeet',
-        url_resolved: 'https://air.dattaradio.com/bhakti/stream',
-        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
-        country: 'India',
-        countrycode: 'IN',
-        tags: 'bhakti, air, all india radio, devotional, bhajan',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-shri-ram-bhakti',
-        name: 'Shri Ram Bhakti Radio',
-        url_resolved: 'https://stream.zeno.fm/u740vbbscrs8uv',
-        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/easy-96-radio.jpg',
-        country: 'India',
-        countrycode: 'IN',
-        tags: 'bhakti, ram, bhajan, devotional, hindi',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-shiv-bhakti-radio',
-        name: 'Shiv Bhakti Radio',
-        url_resolved: 'https://stream.zeno.fm/8753vbbscrs8uv',
+        stationuuid: 'custom-bhajans-radio',
+        name: 'Bhajans Devotional Radio',
+        url_resolved: 'https://s5.citrus3.com:8148/stream',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/red-fm.jpg',
         country: 'India',
         countrycode: 'IN',
-        tags: 'bhakti, shiv, mahadev, bhajan, devotional',
+        tags: 'bhakti, bhajan, devotional, hindi, kirtan',
         lastcheckok: 1
     },
     {
-        stationuuid: 'custom-krishna-bhakti-radio',
-        name: 'Krishna Bhakti Radio',
-        url_resolved: 'https://stream.zeno.fm/c354vbbscrs8uv',
-        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-mirchi-hindi.jpg',
-        country: 'India',
-        countrycode: 'IN',
-        tags: 'bhakti, krishna, ISKCON, bhajan, devotional',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-hanuman-bhakti-radio',
-        name: 'Hanuman Chalisa Bhakti Radio',
-        url_resolved: 'https://stream.zeno.fm/p274vbbscrs8uv',
-        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/big-fm.jpg',
-        country: 'India',
-        countrycode: 'IN',
-        tags: 'bhakti, hanuman, chalisa, devotional, hindi',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-sai-bhakti-radio',
-        name: 'Sai Bhakti Radio',
-        url_resolved: 'https://stream.zeno.fm/w864vbbscrs8uv',
-        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-one-hindi.jpg',
-        country: 'India',
-        countrycode: 'IN',
-        tags: 'bhakti, sai baba, shirdi, bhajan, devotional',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-mata-rani-bhakti',
-        name: 'Mata Rani Bhakti Radio',
-        url_resolved: 'https://stream.zeno.fm/k765vbbscrs8uv',
-        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/fever-104-fm.jpg',
-        country: 'India',
-        countrycode: 'IN',
-        tags: 'bhakti, durga, mata rani, bhajan, devotional',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-aarti-mantra-radio',
-        name: 'Hindi Aarti & Mantra Radio',
-        url_resolved: 'https://stream.zeno.fm/v975vbbscrs8uv',
+        stationuuid: 'custom-easy-96-bhakti',
+        name: 'Easy 96 Bhakti Radio',
+        url_resolved: 'https://ice8.securenetsystems.net/EASY96',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/easy-96-radio.jpg',
         country: 'India',
         countrycode: 'IN',
-        tags: 'bhakti, aarti, mantra, chant, devotional',
+        tags: 'bhakti, devotional, hindi, bhajan',
         lastcheckok: 1
     }
 ];
@@ -364,6 +244,10 @@ let animationFrameId = null;
 
 // DOM Elements
 const audioPlayer = document.getElementById('audio-player');
+if (audioPlayer) {
+    audioPlayer.preload = 'auto';
+    audioPlayer.crossOrigin = 'anonymous';
+}
 const keepAliveAudio = document.getElementById('keep-alive-audio');
 const stationsGrid = document.getElementById('stations-grid');
 const playlistList = document.getElementById('playlist-list');
@@ -960,9 +844,6 @@ function setupEventListeners() {
                 
                 audioGainNode = audioContext.createGain();
                 
-                // Allow cross-origin audio processing
-                audioPlayer.crossOrigin = "anonymous";
-                
                 audioSource = audioContext.createMediaElementSource(audioPlayer);
                 audioSource.connect(audioGainNode);
                 audioGainNode.connect(audioAnalyser);
@@ -978,9 +859,26 @@ function setupEventListeners() {
         }
     };
 
+    let bufferingWatchdogTimer = null;
+
+    function startBufferingWatchdog() {
+        clearTimeout(bufferingWatchdogTimer);
+        if (userExplicitlyPaused || autoPlayBlocked) return;
+        
+        bufferingWatchdogTimer = setTimeout(() => {
+            if (!userExplicitlyPaused && (audioPlayer.paused || audioPlayer.readyState < 3)) {
+                console.log('Buffering stalled after 3.5s - Auto playing next station');
+                playerStatus.textContent = 'Buffering Stalled - Auto Playing Next...';
+                playerStatus.style.color = 'var(--accent-color)';
+                playNext();
+            }
+        }, 3500); // 3.5 seconds
+    }
+
     audioPlayer.onplaying = () => {
         consecutiveErrors = 0; // Reset error count on successful play
         clearTimeout(playCheckTimeout); // Clear any buffering timeouts
+        clearTimeout(bufferingWatchdogTimer);
         document.body.classList.add('is-playing');
         if (nowPlayingCard) nowPlayingCard.classList.add('playing');
         playerStatus.textContent = 'Playing';
@@ -996,6 +894,23 @@ function setupEventListeners() {
     };
 
     audioPlayer.onpause = () => {
+        // Prevent unintended automatic pausing (e.g. browser throttling or network hiccups)
+        if (!userExplicitlyPaused) {
+            console.log('Unintended pause event detected. Attempting instant auto-resume...');
+            audioPlayer.play().then(() => {
+                document.body.classList.add('is-playing');
+                if (nowPlayingCard) nowPlayingCard.classList.add('playing');
+                playerStatus.textContent = 'Playing';
+                playerStatus.style.color = '#22c55e';
+            }).catch(err => {
+                console.warn('Auto-resume failed. Auto playing next working station...', err);
+                playerStatus.textContent = 'Auto Playing Next...';
+                playerStatus.style.color = 'var(--accent-color)';
+                playNext();
+            });
+            return;
+        }
+
         document.body.classList.remove('is-playing');
         if (nowPlayingCard) nowPlayingCard.classList.remove('playing');
         playPauseBtn.innerHTML = '<i data-lucide="play" id="play-icon"></i>';
@@ -1011,66 +926,62 @@ function setupEventListeners() {
         // Stop scanning/background checks when paused
         clearTimeout(smartScanTimeout);
         clearTimeout(playCheckTimeout);
-
-        // Auto play next radio station when status shows pause or station fails to play
-        if (!userExplicitlyPaused) {
-            playerStatus.textContent = 'Paused - Auto Playing Next...';
-            playerStatus.style.color = 'var(--accent-color)';
-            playCheckTimeout = setTimeout(() => {
-                if (audioPlayer.paused && !userExplicitlyPaused) {
-                    playNext();
-                }
-            }, 1000);
-        } else {
-            playerStatus.textContent = 'Paused';
-        }
+        clearTimeout(bufferingWatchdogTimer);
+        playerStatus.textContent = 'Paused';
     };
 
     audioPlayer.onwaiting = () => {
-        playerStatus.textContent = 'Buffering...';
+        if (!userExplicitlyPaused) {
+            playerStatus.textContent = 'Buffering...';
+            startBufferingWatchdog();
+        }
     };
 
     audioPlayer.onstalled = () => {
         if (!userExplicitlyPaused) {
-            playerStatus.textContent = 'Stream Stalled - Auto Playing Next...';
-            playerStatus.style.color = 'var(--accent-color)';
-            clearTimeout(playCheckTimeout);
-            playCheckTimeout = setTimeout(() => {
-                if (audioPlayer.paused || audioPlayer.readyState < 3) {
-                    playNext();
-                }
-            }, 1200);
+            playerStatus.textContent = 'Re-connecting Stream...';
+            playerStatus.style.color = '#eab308';
+            startBufferingWatchdog();
+            audioPlayer.play().catch(() => {
+                playNext();
+            });
         }
     };
 
     audioPlayer.onerror = (e) => {
         console.error('Audio playback error:', e);
-        document.body.classList.remove('is-playing');
-        if (nowPlayingCard) nowPlayingCard.classList.remove('playing');
-        playerStatus.textContent = 'Stream Error - Auto Playing Next...';
-        playerStatus.style.color = 'var(--accent-color)';
-        
-        clearTimeout(playCheckTimeout);
-        playCheckTimeout = setTimeout(() => {
+        if (!userExplicitlyPaused) {
+            clearTimeout(bufferingWatchdogTimer);
+            document.body.classList.remove('is-playing');
+            if (nowPlayingCard) nowPlayingCard.classList.remove('playing');
+            playerStatus.textContent = 'Stream Error - Auto Playing Next...';
+            playerStatus.style.color = 'var(--accent-color)';
             playNext();
-        }, 1000);
+        }
     };
     
     audioPlayer.onended = () => {
         console.log('Stream ended. Reconnecting...');
-        // Live streams shouldn't end. If they do, attempt to reconnect rather than skip.
         audioPlayer.load();
-        audioPlayer.play().catch(e => console.error('Reconnect failed', e));
+        audioPlayer.play().catch(e => {
+            console.error('Reconnect failed, playing next:', e);
+            playNext();
+        });
     };
 
     audioPlayer.onloadstart = () => {
-        playerStatus.textContent = 'Buffering...';
+        if (!userExplicitlyPaused) {
+            playerStatus.textContent = 'Buffering...';
+            startBufferingWatchdog();
+        }
     };
 
-    // Prevent background pausing
+    // Prevent background auto-pausing when tab visibility changes
     document.addEventListener('visibilitychange', () => {
+        if (!userExplicitlyPaused && audioPlayer.paused) {
+            audioPlayer.play().catch(e => console.log('Background resume attempt:', e));
+        }
         if (document.hidden && !audioPlayer.paused) {
-            // Re-assert playback state to OS
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.playbackState = 'playing';
             }
@@ -1341,7 +1252,7 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
             let allCatStations = results.flat();
             
             // Add custom injected stations
-            allCatStations = [...CUSTOM_HINDI_STATIONS, ...allCatStations, ...CUSTOM_NEWS_STATIONS, ...CUSTOM_SINGER_STATIONS];
+            allCatStations = [...CUSTOM_HINDI_STATIONS, ...CUSTOM_BHAKTI_STATIONS, ...allCatStations, ...CUSTOM_NEWS_STATIONS, ...CUSTOM_SINGER_STATIONS];
             
             currentStations = [...defaultStations, ...allCatStations];
         } else {
@@ -1596,25 +1507,45 @@ function playStation(index, source = 'search', element = null) {
         }
     }
 
-    // Load and Play
-    audioPlayer.src = station.url_resolved || station.url;
-    audioPlayer.load(); // Force immediate load sequence
+    // Instant visual response for fast play feel
+    document.body.classList.add('is-playing');
+    if (nowPlayingCard) nowPlayingCard.classList.add('playing');
+    if (playPauseBtn) {
+        playPauseBtn.innerHTML = '<i data-lucide="pause" id="play-icon"></i>';
+        lucide.createIcons();
+    }
+    if (playerStatus) {
+        playerStatus.textContent = 'Tuning In...';
+        playerStatus.style.color = '#eab308';
+    }
+
+    // Fast Load and Play Execution
+    const streamUrl = station.url_resolved || station.url;
+    audioPlayer.pause();
+    if (audioPlayer.src !== streamUrl) {
+        audioPlayer.src = streamUrl;
+    }
+    audioPlayer.load(); // Force immediate network handshake
     
     let autoPlayBlocked = false;
     
-    audioPlayer.play().then(() => {
-        // Instant UI response for "quick play" feel
-        if (nowPlayingCard) nowPlayingCard.classList.add('playing');
-    }).catch(e => {
-        console.warn('Auto-play failed, user interaction required.', e);
-        playerStatus.textContent = 'Click Play to start';
-        if (e.name === 'NotAllowedError') {
-            autoPlayBlocked = true;
-        }
-    });
-
-    // Also update button immediately before promise resolves for instant feedback
-    if (nowPlayingCard) nowPlayingCard.classList.add('playing');
+    const playPromise = audioPlayer.play();
+    if (playPromise !== undefined) {
+        playPromise.then(() => {
+            document.body.classList.add('is-playing');
+            if (nowPlayingCard) nowPlayingCard.classList.add('playing');
+            if (playerStatus) {
+                playerStatus.textContent = 'Playing';
+                playerStatus.style.color = '#22c55e';
+            }
+        }).catch(e => {
+            console.warn('Auto-play blocked or stream load error:', e);
+            playerStatus.textContent = 'Click Play to start';
+            if (e.name === 'NotAllowedError') {
+                autoPlayBlocked = true;
+            }
+        });
+    }
 
     // Auto-skip logic if stream stalls or shows pause (unless user blocked auto-play or paused intentionally)
     clearTimeout(playCheckTimeout);
@@ -1703,14 +1634,30 @@ function updatePlayerUI(station) {
             wrapIndex = '2b! radio '.length - 1;
             isSpecialPrefix = true;
             prefixScale = 0.30;
+        } else if (lowerName.startsWith('bhakti sagar ')) {
+            wrapIndex = 'bhakti sagar '.length - 1;
+            isSpecialPrefix = true;
+            prefixScale = 0.65; // 35% decrease
+        } else if (lowerName.startsWith('bhakti sagar')) {
+            wrapIndex = 'bhakti sagar'.length;
+            isSpecialPrefix = true;
+            prefixScale = 0.65; // 35% decrease
         } else if (lowerName.startsWith('bhakti world media ')) {
             wrapIndex = 'bhakti world media '.length - 1;
             isSpecialPrefix = true;
-            prefixScale = 0.45;
+            prefixScale = 0.65; // 35% decrease
         } else if (lowerName.startsWith('bhakti world ')) {
             wrapIndex = 'bhakti world '.length - 1;
             isSpecialPrefix = true;
-            prefixScale = 0.45;
+            prefixScale = 0.65; // 35% decrease
+        } else if (lowerName.startsWith('bhakti ')) {
+            wrapIndex = 'bhakti '.length - 1;
+            isSpecialPrefix = true;
+            prefixScale = 0.65; // 35% decrease
+        } else if (lowerName.startsWith('bhakti')) {
+            wrapIndex = 'bhakti'.length;
+            isSpecialPrefix = true;
+            prefixScale = 0.65; // 35% decrease
         } else if (lowerName.startsWith('hit of ')) {
             wrapIndex = 'hit of '.length - 1;
             isSpecialPrefix = true;
@@ -1759,7 +1706,11 @@ function updatePlayerUI(station) {
             currentStationName.style.textAlign = 'center';
         }
         
-        if (name.length > 32) {
+        const lowerStr = name.toLowerCase();
+        if (lowerStr.startsWith('bhakti sagar') || lowerStr.startsWith('bhakti')) {
+            // Decrease overall font size by 35%
+            currentStationName.style.fontSize = 'clamp(0.72rem, 3.9vw, 1.22rem)';
+        } else if (name.length > 32) {
             // Decrease font size 25% for names over 32 characters
             currentStationName.style.fontSize = 'clamp(0.84rem, 4.5vw, 1.4rem)';
         } else if (name.length >= 16) {

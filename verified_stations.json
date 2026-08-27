@@ -1,0 +1,322 @@
+[
+  {
+    "stationuuid": "cdd3b5a0-47f6-46d5-8209-b78e8b10ff6e",
+    "name": "Radio Mirchi Hindi",
+    "url_resolved": "https://eu8.fastcast4u.com/proxy/clyedupq/stream",
+    "favicon": "https://onlineradiohub.com/wp-content/uploads/2023/05/radio-mirchi-hindi-fm.jpg",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "hindi, radio, music",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "7dd71b85-139b-4362-81b1-4206133a517c",
+    "name": "Hindi Gold Radio",
+    "url_resolved": "https://azuracast.vibesounds.in:8010/radio.mp3",
+    "favicon": "https://onlineradiohub.com/wp-content/uploads/2023/07/hindi-gold-radio.jpg",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "hindi, radio, music",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "6b36ba4f-6d29-4272-b3c0-9aeeb64e61ec",
+    "name": "Mirchi Top 20",
+    "url_resolved": "https://drive.uber.radio/uber/bollywoodnow/icecast.audio",
+    "favicon": "http://mirchi.in/favicon-196x196.png",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "bollywood,hindi,mirchi,pop",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "15812c43-c571-4770-9065-b64b4d5338d1",
+    "name": "Red Fm",
+    "url_resolved": "https://funasia.streamguys1.com/live9",
+    "favicon": "null",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "music",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "68d00a44-200c-4c82-b17f-18d777f3b2ee",
+    "name": "Vividh Bharati",
+    "url_resolved": "https://air.pc.cdn.bitgravity.com/air/live/pbaudio001/playlist.m3u8",
+    "favicon": "https://onlineradiohub.com/wp-content/uploads/2023/02/vividh-bharati.jpg",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "hindi, radio, music",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "273c4a22-5a4a-11e8-b0ce-52543be04c81",
+    "name": "Fnf.Fm Hindi",
+    "url_resolved": "http://192.99.8.192:5032/;stream",
+    "favicon": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "bollywood",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "5b7687b7-7bef-40ac-b854-81a89c011610",
+    "name": "Diverse FM",
+    "url_resolved": "https://carol.epichosts.co.uk:8570/;",
+    "favicon": "https://onlineradiohub.com/wp-content/uploads/2023/05/diverse-fm-hindi.jpg",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "hindi, radio, music",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "2067334b-59e7-11e8-b0ce-52543be04c81",
+    "name": "Radio BollyFm",
+    "url_resolved": "http://stream.radiobollyfm.in:8201/hd?t=1526570335",
+    "favicon": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "hindi, radio, music",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "de7b0868-91ab-4b25-a8dc-9d5f82314212",
+    "name": "Radio Udaan",
+    "url_resolved": "https://stream.radioudaan.com/listen/radio_udaan/radio.mp3",
+    "favicon": "https://radioudaan.com/sites/default/files/Radioudaan%20small%202_0.png",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "bollywood,culture,hindi,information,infotainment,music,talk",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "35753750-c632-4790-a42b-f591b254dd3f",
+    "name": "Aaj Tak News Radio Live",
+    "url_resolved": "https://feeds.intoday.in/aajtak/api/master.m3u8",
+    "favicon": "https://onlineradiohub.com/wp-content/uploads/2023/06/aaj-tak-radio.jpg",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "hindi, radio, music",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "5d933524-93e9-46b6-9a15-3c53d1ca161d",
+    "name": "ISHQ FM 104.8",
+    "url_resolved": "https://drive.uber.radio/uber/bollywoodlove/icecast.audio",
+    "favicon": "https://onlineradiohub.com/wp-content/uploads/2023/05/ishq-fm-hindi.jpg",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "hindi, radio, music",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "ac70ee9e-c501-4502-bc55-f63be5c6147d",
+    "name": "Bombay Beats Radio",
+    "url_resolved": "https://strmreg.1.fm/bombaybeats_mobile_mp3",
+    "favicon": "https://onlineradiohub.com/wp-content/uploads/2023/05/1fm-bombay-beats-radio.jpg",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "hindi, radio, music",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "d3e8d3a0-d54e-4ae4-b8dc-45d57ad99074",
+    "name": "Radio 24",
+    "url_resolved": "https://s7.everestcast.com:1155/stream",
+    "favicon": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "bollywood,bollywood music,hindi bollywood",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "838fbd45-c0be-4c1b-b3f0-1229144cc8ff",
+    "name": "Mirchi Love Hindi",
+    "url_resolved": "https://drive.uber.radio/uber/lrbollywood/icecast.audio",
+    "favicon": "https://onlineradiohub.com/wp-content/uploads/2023/05/mirchilove-hindi-radio.jpg",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "hindi, radio, music",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "db96d521-d1cf-4ce0-8044-e67566361400",
+    "name": "Radio Hotstar",
+    "url_resolved": "https://leo.streamerr.co/8004/stream",
+    "favicon": "https://radiohotstar.com/logo.png",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "90s,love",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "459908f6-58d2-438a-ac40-dbac3af8e0b6",
+    "name": "Radio Gaana",
+    "url_resolved": "https://sp14.instainternet.com/8044/stream",
+    "favicon": "https://radiohotstar.com/logo2.png",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "90s,retro,romantic",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "653ec48e-d763-4e0f-965f-6b9c6bf41562",
+    "name": "Bollywood 2000's",
+    "url_resolved": "https://2.mystreaming.net/uber/bollywood2000s/icecast.audio",
+    "favicon": "null",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "bollywood",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "57742af1-79d4-4bc7-ae81-b58146638ae7",
+    "name": "shreyaghosal",
+    "url_resolved": "https://drive.uber.radio/uber/bollywoodshreyaghosal/icecast.audio",
+    "favicon": "https://radiosindia.com/images/shreyaghosal.jpg",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "hindi, radio, music",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "a2002b37-4ebf-4a60-96d0-ce03d7e45a83",
+    "name": "Bollywood_Dance",
+    "url_resolved": "http://drive.uber.radio/uber/bollywooddance/icecast.audio",
+    "favicon": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "dance,music",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "b657d1ab-bca6-11e8-aaf2-52543be04c81",
+    "name": "2B! Radio Sangam Krishna",
+    "url_resolved": "http://millenniumhits.out.airtime.pro:8000/millenniumhits_a",
+    "favicon": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "mantra,spiritual",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "871dca29-a443-4670-9804-f2c3113ddd15",
+    "name": "Mixify Bollywood",
+    "url_resolved": "https://server.mixify.in/listen/listen/radio.mp3",
+    "favicon": "https://onlineradiohub.com/wp-content/uploads/2023/11/mixify-radio.jpg",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "hindi, radio, music",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "300556e2-faf8-4b2e-b24d-7525185430c1",
+    "name": "AIR Delhi FM Gold",
+    "url_resolved": "https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio005/hlspbaudio005_Auto.m3u8",
+    "favicon": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "drama,music,news,songs,talk",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "0db90d9a-4ecc-450c-b8fa-695405b24587",
+    "name": "Bollywood 2010's",
+    "url_resolved": "https://drive.uber.radio/uber/bollywood2010s/icecast.audio",
+    "favicon": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "bollywood,hindi",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "8e30841f-01e0-4e5a-90a7-fd629f26beb5",
+    "name": "Pew Hits Desi",
+    "url_resolved": "https://pewhits.duckdns.org/stream/pewhitsdesi",
+    "favicon": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "bollywood",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "f493846c-22b0-44fb-a932-ee4e990043ea",
+    "name": "Fever 104 FM",
+    "url_resolved": "https://radio.canstream.co.uk:8115/live.mp3",
+    "favicon": "https://onlineradiohub.com/wp-content/uploads/2023/08/fever-fm-107_3.jpg",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "hindi, radio, music",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "48b137c2-7d41-4fd5-948c-8e11e96c86c1",
+    "name": "Radio Mirchi USA",
+    "url_resolved": "https://streams.radio.co/s8d06d0298/listen",
+    "favicon": "https://onlineradiohub.com/wp-content/uploads/2023/06/radio-mirchi-usa-radio.jpg",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "hindi, radio, music",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "d596b27c-c0bd-4d2b-8bff-420eaede4ee7",
+    "name": "Bhakti World - Krishna",
+    "url_resolved": "http://millenniumhits.out.airtime.pro:8000/millenniumhits_a",
+    "favicon": "null",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "bhakti sangeet",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "ad039e32-7ead-4ce8-ad33-07025f4a5082",
+    "name": "Bhakti World Media - Shiva",
+    "url_resolved": "http://hot.out.airtime.pro:8000/hot_a",
+    "favicon": "null",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "bhakti sangeet",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "902ea231-d537-4dc8-8708-6819418086d0",
+    "name": "Vivid Bharti",
+    "url_resolved": "https://air.pc.cdn.bitgravity.com/air/live/pbaudio001/playlist.m3u8",
+    "favicon": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "classical",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "0e5dfcc8-99e2-4fed-a232-7f4bf23ba3c3",
+    "name": "Mirchi Love",
+    "url_resolved": "https://drive.uber.radio/uber/bollywoodlove/icecast.audio",
+    "favicon": "http://mirchi.in/favicon-196x196.png",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "india,love,mirchi,pop,romantic",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "2a2c76f6-f926-4d81-bc3b-d93bf0a22b63",
+    "name": "Radio City chennai",
+    "url_resolved": "http://radios.crabdance.com:8002/5",
+    "favicon": "https://www.radiocity.in/rc-new/images/RC-logonew.png",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "hindi, radio, music",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "a4ffabec-a162-4320-8cf2-049b8055b17a",
+    "name": "AIR Fm Gold Delhi",
+    "url_resolved": "https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio005/hlspbaudio00564kbps.m3u8",
+    "favicon": "https://liveradios.in/wp-content/uploads/output-onlinepngtools-1-150x150.png",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "hindi, radio, music",
+    "lastcheckok": 1
+  }
+]
