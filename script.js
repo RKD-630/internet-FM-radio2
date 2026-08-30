@@ -17,24 +17,6 @@ const DEFAULT_LOGO = 'rkd_logo.png';
 
 const CUSTOM_SINGER_STATIONS = [
     {
-        stationuuid: 'custom-kishore-kumar-radio',
-        name: 'Kishore Kumar Radio',
-        url_resolved: 'https://stream.zeno.fm/0ghtfp8ztm0uv',
-        favicon: 'https://radiosindia.com/images/kishorekumarradio.jpg',
-        country: 'India',
-        tags: 'singer, kishore kumar, hindi, classics, bollywood',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-lata-mangeshkar-radio',
-        name: 'Lata Mangeshkar Radio',
-        url_resolved: 'https://stream.zeno.fm/87xam8pf7tzuv',
-        favicon: 'https://radiosindia.com/images/latamangeshkarradio.jpg',
-        country: 'India',
-        tags: 'singer, lata mangeshkar, hindi, melodies, classics',
-        lastcheckok: 1
-    },
-    {
         stationuuid: 'custom-mohammed-rafi-radio',
         name: 'Mohammed Rafi Hits',
         url_resolved: 'https://drive.uber.radio/uber/bollywoodmohammedrafi/icecast.audio',
@@ -62,15 +44,6 @@ const CUSTOM_SINGER_STATIONS = [
         lastcheckok: 1
     },
     {
-        stationuuid: 'custom-mukesh-hits',
-        name: 'Mukesh Golden Hits',
-        url_resolved: 'https://stream.zeno.fm/g95zm67prfhvv',
-        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/mukesh.jpg',
-        country: 'India',
-        tags: 'singer, mukesh, hindi, classics, oldies',
-        lastcheckok: 1
-    },
-    {
         stationuuid: 'custom-alka-yagnik-radio',
         name: 'Alka Yagnik Radio',
         url_resolved: 'https://drive.uber.radio/uber/bollywoodalkayagnik/icecast.audio',
@@ -80,30 +53,12 @@ const CUSTOM_SINGER_STATIONS = [
         lastcheckok: 1
     },
     {
-        stationuuid: 'custom-rd-burman-radio',
-        name: 'RD Burman Magic',
-        url_resolved: 'https://stream.zeno.fm/epylmeu4zf7vv',
-        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/rd-burman.jpg',
-        country: 'India',
-        tags: 'singer, rd burman, pancham, classics',
-        lastcheckok: 1
-    },
-    {
         stationuuid: 'custom-sonu-nigam-radio',
         name: 'Sonu Nigam Special',
         url_resolved: 'https://streaming.exclusive.radio/uber/bollywoodsonunigam/icecast.audio',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/sonu-nigam.jpg',
         country: 'India',
         tags: 'singer, sonu nigam, hindi, romantic',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-jagjit-singh-radio',
-        name: 'Jagjit Singh Ghazals',
-        url_resolved: 'https://stream.zeno.fm/syu0rdutvxhvv',
-        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/jagjit-singh.jpg',
-        country: 'India',
-        tags: 'singer, ghazal, jagjit singh, hindi',
         lastcheckok: 1
     },
     {
@@ -167,15 +122,6 @@ const CUSTOM_PUNJABI_STATIONS = [
         lastcheckok: 1
     },
     {
-        stationuuid: 'custom-punjabi-ghazal-sufi',
-        name: 'Punjabi Ghazal & Sufi FM',
-        url_resolved: 'https://stream.zeno.fm/0ghtfp8ztm0uv',
-        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/sufi-ghazal.jpg',
-        country: 'India',
-        tags: 'punjabi, ghazal, sufi, poetry, classic',
-        lastcheckok: 1
-    },
-    {
         stationuuid: 'custom-radio-panjabi-ghazal',
         name: 'Radio Panjabi Ghazal & Folk',
         url_resolved: 'https://s20.reliastream.com/stream/8134',
@@ -200,15 +146,6 @@ const CUSTOM_PUNJABI_STATIONS = [
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/sher-e-punjab.jpg',
         country: 'Canada',
         tags: 'punjabi, sher e punjab, news, talk',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-radio-chann-pardesi',
-        name: 'Radio Chann Pardesi',
-        url_resolved: 'http://mehramedia.com:8021/;',
-        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/chann-pardesi.jpg',
-        country: 'India',
-        tags: 'punjabi, chann, pardesi, folk, desi',
         lastcheckok: 1
     },
     {
@@ -250,42 +187,6 @@ const CUSTOM_PUNJABI_STATIONS = [
 ];
 
 const CUSTOM_BHAKTI_STATIONS = [
-    {
-        stationuuid: 'custom-bhakti-world-media-bhagavad-gita',
-        name: 'Bhakti World Media Bhagavad Gita',
-        url_resolved: 'https://stream.zeno.fm/ijklcild1wrtv',
-        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bhakthisudha-hindi.jpg',
-        country: 'India',
-        tags: 'bhakti, bhagavad gita, gita, devotional, hindi',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-bhajans-devotional-radio',
-        name: 'Bhajans Devotional Radio',
-        url_resolved: 'https://stream.zeno.fm/syu0rdutvxhvv',
-        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/07/bhajan-radio-guyana.jpg',
-        country: 'India',
-        tags: 'bhakti, bhajans, devotional, hindi, sangeet',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-classic-radio-bhakti-sangeet',
-        name: 'Classic Radio Bhakti Sangeet',
-        url_resolved: 'https://stream.zeno.fm/epylmeu4zf7vv',
-        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bhakthisudha-hindi.jpg',
-        country: 'India',
-        tags: 'bhakti, classic, bhakti sangeet, devotional, hindi',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-bhagavad-gita-radio',
-        name: 'Bhagavad Gita Radio',
-        url_resolved: 'https://stream.zeno.fm/pg7cf4xyw8quv',
-        favicon: 'https://radio.garden/public/icons/ios/ios-appicon-152-152.png',
-        country: 'India',
-        tags: 'bhakti, bhagavad gita, gita, spiritual, sanskrit',
-        lastcheckok: 1
-    },
     {
         stationuuid: 'custom-shaiva-lahari',
         name: 'Shaiva Lahari',
@@ -329,24 +230,6 @@ const CUSTOM_BHAKTI_STATIONS = [
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/07/bhajan-radio-guyana.jpg',
         country: 'India',
         tags: 'bhakti, bhajans, guyana, devotional',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-radio-krishna',
-        name: 'Radio Krishna',
-        url_resolved: 'https://stream.zeno.fm/k4hwu4qa4qzuv',
-        favicon: 'https://radio.garden/public/icons/ios/ios-appicon-152-152.png',
-        country: 'India',
-        tags: 'bhakti, krishna, devotional, hindu',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-bhakti-sagar-durga-maa',
-        name: 'bhakti Sagar durga maa',
-        url_resolved: 'https://stream.zeno.fm/syu0rdutvxhvv',
-        favicon: 'https://firebasestorage.googleapis.com/v0/b/radiogalaxy-580f4.appspot.com/o/images%2FIMG_20241003_181756353.jpg?alt=media&token=175d1625-9225-4539-99d0-56481348eb18',
-        country: 'India',
-        tags: 'bhakti, durga, maa, devotional, hindi',
         lastcheckok: 1
     },
     {
@@ -620,48 +503,12 @@ const CUSTOM_EURO_NEWS_STATIONS = [
         lastcheckok: 1
     },
     {
-        stationuuid: 'custom-rfi-monde-radio',
-        name: 'RFI Monde Radio France Intl',
-        url_resolved: 'https://icecast.radiofrance.fr/rfimonde-midfi.mp3',
-        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/RFI_logo.svg/512px-RFI_logo.svg.png',
-        country: 'France',
-        tags: 'news, euro news, rfi, france, world news',
-        lastcheckok: 1
-    },
-    {
         stationuuid: 'custom-rai-radio1-italy',
         name: 'Rai Radio 1 News Italy',
         url_resolved: 'https://icestreaming.rai.it/1.mp3',
         favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Rai_Radio_1_logo.svg/512px-Rai_Radio_1_logo.svg.png',
         country: 'Italy',
         tags: 'news, euro news, italy, rai, italian',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-rne-radio-nacional-spain',
-        name: 'RNE Radio Nacional España',
-        url_resolved: 'https://rtvestream.rtve.es/rne/rne_r1_main.mp3',
-        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/RNE_logo.svg/512px-RNE_logo.svg.png',
-        country: 'Spain',
-        tags: 'news, euro news, spain, spanish, rne',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-europe1-france',
-        name: 'Europe 1 News France',
-        url_resolved: 'https://europe1.lmn.cloud/europe1.mp3',
-        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Europe_1_logo_2018.svg/512px-Europe_1_logo_2018.svg.png',
-        country: 'France',
-        tags: 'news, euro news, france, french, talk',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-deutschlandfunk-news',
-        name: 'Deutschlandfunk News Germany',
-        url_resolved: 'https://dlf-stream.deutschlandradio.de/dlf/01/128/mp3/stream.mp3',
-        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Deutschlandfunk_logo.svg/512px-Deutschlandfunk_logo.svg.png',
-        country: 'Germany',
-        tags: 'news, euro news, germany, german, dlf',
         lastcheckok: 1
     },
     {
@@ -722,24 +569,6 @@ const CUSTOM_BBC_UK_NEWS_STATIONS = [
         lastcheckok: 1
     },
     {
-        stationuuid: 'custom-times-radio-uk',
-        name: 'Times Radio UK',
-        url_resolved: 'https://stream.times.radio/live',
-        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Times_Radio_logo.svg/512px-Times_Radio_logo.svg.png',
-        country: 'UK',
-        tags: 'bbc news, uk news, british, times radio, politics, news',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-talkradio-uk',
-        name: 'talkRADIO UK',
-        url_resolved: 'https://stream.talk.radio/live',
-        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/TalkRadio_logo_2022.svg/512px-TalkRadio_logo_2022.svg.png',
-        country: 'UK',
-        tags: 'bbc news, uk news, british, talkradio, debate, news',
-        lastcheckok: 1
-    },
-    {
         stationuuid: 'custom-bbc-radio-scotland-news',
         name: 'BBC Radio Scotland News',
         url_resolved: 'https://stream.live.vc.bbcmedia.co.uk/bbc_radio_scotland_fm',
@@ -769,42 +598,6 @@ const CUSTOM_BBC_UK_NEWS_STATIONS = [
 ];
 
 const CUSTOM_US_NEWS_STATIONS = [
-    {
-        stationuuid: 'custom-npr-wnyc-939',
-        name: 'NPR WNYC 93.9 FM New York',
-        url_resolved: 'https://fm939.wnyc.org/wnyc-fm939',
-        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/NPR_logo.svg/512px-NPR_logo.svg.png',
-        country: 'USA',
-        tags: 'us news, usa news, npr, wnyc, news, talk, public radio',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-bloomberg-radio-1130',
-        name: 'Bloomberg Radio 1130 AM News',
-        url_resolved: 'https://stream.bloomberg.com/radio',
-        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Bloomberg_News_logo.svg/512px-Bloomberg_News_logo.svg.png',
-        country: 'USA',
-        tags: 'us news, usa news, bloomberg, business, news, finance',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-fox-news-radio-247',
-        name: 'FOX News Radio 24/7',
-        url_resolved: 'https://icecast.fnr.stream.fnr.com/foxnewsradio',
-        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Fox_News_Channel_logo.svg/512px-Fox_News_Channel_logo.svg.png',
-        country: 'USA',
-        tags: 'us news, usa news, fox news, fox, news, talk',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-cbs-news-radio-net',
-        name: 'CBS News Radio Network',
-        url_resolved: 'https://cbsnews.streamguys1.com/cbsnews-radio',
-        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/CBS_News_logo.svg/512px-CBS_News_logo.svg.png',
-        country: 'USA',
-        tags: 'us news, usa news, cbs news, cbs, news, national',
-        lastcheckok: 1
-    }
 ];
 
 const CUSTOM_WORLD_NEWS_STATIONS = [
@@ -848,33 +641,6 @@ const CUSTOM_GLOBAL_POP_STATIONS = [
         lastcheckok: 1
     },
     {
-        stationuuid: 'custom-z100-new-york-pop',
-        name: 'Z100 New York Top 40 Pop',
-        url_resolved: 'https://stream.revma.ihrhls.com/zc1481',
-        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Z100_logo.svg/512px-Z100_logo.svg.png',
-        country: 'USA',
-        tags: 'pop, top40, z100, new york, usa',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-kiis-1027-los-angeles',
-        name: 'KIIS 102.7 FM Los Angeles',
-        url_resolved: 'https://stream.revma.ihrhls.com/zc185',
-        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/KIIS-FM_logo.svg/512px-KIIS-FM_logo.svg.png',
-        country: 'USA',
-        tags: 'pop, top40, kiis fm, los angeles, usa',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-nrj-france-1003-fm',
-        name: 'NRJ France 100.3 FM Pop',
-        url_resolved: 'https://cdn.nrjaudio.fm/audio/fnac/fr/40001/mp3_128.mp3',
-        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/NRJ_logo.svg/512px-NRJ_logo.svg.png',
-        country: 'France',
-        tags: 'pop, hit music, nrj, france, europe',
-        lastcheckok: 1
-    },
-    {
         stationuuid: 'custom-1046-rtl-berlin-pop',
         name: '104.6 RTL Berlin Pop Hits',
         url_resolved: 'https://stream.104.6rtl.com/rtl-live/mp3-128',
@@ -884,39 +650,12 @@ const CUSTOM_GLOBAL_POP_STATIONS = [
         lastcheckok: 1
     },
     {
-        stationuuid: 'custom-kiss-fm-uk-pop',
-        name: 'KISS FM UK Pop & Hits',
-        url_resolved: 'https://stream-al.planetradio.co.uk/kissnational.mp3',
-        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Kiss_%20UK_logo.svg/512px-Kiss_%20UK_logo.svg.png',
-        country: 'UK',
-        tags: 'pop, dance pop, top40, kiss fm, uk',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-tokyo-pop-fm-1003',
-        name: 'Tokyo Pop FM 100.3',
-        url_resolved: 'https://stream.zeno.fm/54ecvsyyr8quv',
-        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/NHK_World-Japan_logo.svg/512px-NHK_World-Japan_logo.svg.png',
-        country: 'Japan',
-        tags: 'pop, j-pop, tokyo, japan, pop hits',
-        lastcheckok: 1
-    },
-    {
         stationuuid: 'custom-nova-969-sydney-pop',
         name: 'Nova 96.9 FM Sydney Pop',
         url_resolved: 'https://live-radio01.mediahubaustralia.com/2SYD/mp3/',
         favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Nova_Entertainment_logo.svg/512px-Nova_Entertainment_logo.svg.png',
         country: 'Australia',
         tags: 'pop, top40, nova, sydney, australia',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-los40-spain-pop',
-        name: 'LOS40 Spain Global Pop',
-        url_resolved: 'https://25263.live.streamtheworld.com/LOS40_SC',
-        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/LOS40_logo_2016.svg/512px-LOS40_logo_2016.svg.png',
-        country: 'Spain',
-        tags: 'pop, latin pop, los40, spain, top40',
         lastcheckok: 1
     }
 ];
@@ -1049,6 +788,24 @@ const CUSTOM_NEWS_STATIONS = [
         lastcheckok: 1
     },
     {
+        stationuuid: 'custom-air-fm-gold-mumbai',
+        name: 'AIR FM Gold Mumbai',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio007/hlspbaudio007_Auto.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'air, fm gold, mumbai, hindi, entertainment',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-air-mumbai-asmita',
+        name: 'AIR Mumbai Asmita',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio010/hlspbaudio010_Auto.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'air, akashvani, asmita, mumbai, marathi',
+        lastcheckok: 1
+    },
+    {
         stationuuid: 'custom-akashvani-chennai',
         name: 'Akashvani Chennai',
         url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio005/hlspbaudio005_Auto.m3u8?station=chennai',
@@ -1136,6 +893,24 @@ const CUSTOM_NEWS_STATIONS = [
         favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
         country: 'India',
         tags: 'air, rainbow fm, delhi, hindi, entertainment',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-akashvani-delhi',
+        name: 'Akashvani Delhi',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio005/hlspbaudio005_Auto.m3u8?station=delhi',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'air, akashvani, delhi, hindi, active',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-air-rainbow-lucknow',
+        name: 'AIR FM Rainbow Lucknow',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio005/hlspbaudio005_Auto.m3u8?station=rainbow_lucknow',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'air, rainbow fm, lucknow, lucnow, hindi',
         lastcheckok: 1
     },
     {
@@ -1262,39 +1037,12 @@ const CUSTOM_BANGLA_STATIONS = [
 
 const CUSTOM_DJ_REMIX_STATIONS = [
     {
-        stationuuid: 'custom-anbu-fm-hindi',
-        name: 'Anbu FM Hindi',
-        url_resolved: 'https://stream.zeno.fm/u7yaqq493v8uv',
-        favicon: 'https://radiosindia.com/images/anbufmhindi.jpg',
-        country: 'India',
-        tags: 'dj remix, remix, anbu fm, hindi, party',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-radio-deewana',
-        name: 'Radio Deewana',
-        url_resolved: 'https://stream.zeno.fm/x1q3r3qdxy8uv',
-        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/deewana.jpg',
-        country: 'India',
-        tags: 'dj remix, remix, bollywood, deewana, party',
-        lastcheckok: 1
-    },
-    {
         stationuuid: 'custom-bollywood-beyond',
         name: 'Bollywood Beyond',
         url_resolved: 'https://s6.yesstreaming.net/proxy/john1237?mp=/live',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bollywood-beyond.jpg',
         country: 'India',
         tags: 'dj remix, remix, bollywood beyond, dance, party',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-goldy-blast',
-        name: 'Goldy Blast',
-        url_resolved: 'https://stream.zeno.fm/d0rwvvwa6p8uv',
-        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/goldy-blast.jpg',
-        country: 'India',
-        tags: 'dj remix, remix, goldy blast, hits, energy',
         lastcheckok: 1
     },
     {
@@ -1313,15 +1061,6 @@ const CUSTOM_DJ_REMIX_STATIONS = [
         favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/1.FM_Logo.svg/512px-1.FM_Logo.svg.png',
         country: 'India',
         tags: 'dj remix, remix, bombaybeats, 1.fm, dance, hits',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-bolly923fm',
-        name: 'Bolly 92.3 FM',
-        url_resolved: 'https://stream.zeno.fm/k4hwu4qa4qzuv',
-        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bolly923fm.jpg',
-        country: 'India',
-        tags: 'dj remix, remix, bolly923fm, bollywood, hits',
         lastcheckok: 1
     }
 ];
@@ -2354,8 +2093,14 @@ function updatePlayerUI(station) {
     if (currentStationName) currentStationName.textContent = name;
     if (currentStationMeta) currentStationMeta.textContent = `${country} • ${tags}`;
     if (currentStationImg) {
+        if (window.logoTimeout) clearTimeout(window.logoTimeout);
         currentStationImg.src = img;
         currentStationImg.onerror = () => { currentStationImg.src = DEFAULT_LOGO; };
+        window.logoTimeout = setTimeout(() => {
+            if (!currentStationImg.complete || currentStationImg.naturalWidth === 0) {
+                currentStationImg.src = DEFAULT_LOGO;
+            }
+        }, 3500);
     }
 
     const isFav = currentPlaylist.some(s => s.stationuuid === station.stationuuid);
