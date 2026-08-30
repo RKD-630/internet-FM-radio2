@@ -1,4 +1,8 @@
-// Configuration
+// ==========================================================================
+// RKD FM | CYBER RADIO DECK ENGINE
+// ==========================================================================
+
+// API Configurations
 const API_ENDPOINTS = [
     'https://de1.api.radio-browser.info/json',
     'https://at1.api.radio-browser.info/json',
@@ -7,43 +11,417 @@ const API_ENDPOINTS = [
 ];
 let currentApiIndex = 0;
 let API_BASE = API_ENDPOINTS[currentApiIndex];
-let retryCount = 0;
-let userExplicitlyPaused = false; // Tracks if the user intentionally stopped playback
 
 const DEFAULT_LIMIT = 200;
-const DEFAULT_LOGO = 'logo.png';
+const DEFAULT_LOGO = 'rkd_logo.png';
 
-const CUSTOM_SINGER_STATIONS = [];
+const CUSTOM_SINGER_STATIONS = [
+    {
+        stationuuid: 'custom-kishore-kumar-radio',
+        name: 'Kishore Kumar Radio',
+        url_resolved: 'https://stream.zeno.fm/0ghtfp8ztm0uv',
+        favicon: 'https://radiosindia.com/images/kishorekumarradio.jpg',
+        country: 'India',
+        tags: 'singer, kishore kumar, hindi, classics, bollywood',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-lata-mangeshkar-radio',
+        name: 'Lata Mangeshkar Radio',
+        url_resolved: 'https://stream.zeno.fm/87xam8pf7tzuv',
+        favicon: 'https://radiosindia.com/images/latamangeshkarradio.jpg',
+        country: 'India',
+        tags: 'singer, lata mangeshkar, hindi, melodies, classics',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-mohammed-rafi-radio',
+        name: 'Mohammed Rafi Hits',
+        url_resolved: 'https://drive.uber.radio/uber/bollywoodmohammedrafi/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/mohammed-rafi.jpg',
+        country: 'India',
+        tags: 'singer, mohammed rafi, hindi, classics, oldies',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-arijit-singh-radio',
+        name: 'Arijit Singh Hits',
+        url_resolved: 'https://drive.uber.radio/uber/bollywoodlove/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/arijit-singh.jpg',
+        country: 'India',
+        tags: 'singer, arijit singh, hindi, romantic, bollywood',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-asha-bhosle-radio',
+        name: 'Asha Bhosle Hits',
+        url_resolved: 'https://drive.uber.radio/uber/bollywoodashabhosle/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/asha-bhosle.jpg',
+        country: 'India',
+        tags: 'singer, asha bhosle, hindi, classics, retro',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-mukesh-hits',
+        name: 'Mukesh Golden Hits',
+        url_resolved: 'https://stream.zeno.fm/g95zm67prfhvv',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/mukesh.jpg',
+        country: 'India',
+        tags: 'singer, mukesh, hindi, classics, oldies',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-alka-yagnik-radio',
+        name: 'Alka Yagnik Radio',
+        url_resolved: 'https://drive.uber.radio/uber/bollywoodalkayagnik/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/alka-yagnik.jpg',
+        country: 'India',
+        tags: 'singer, alka yagnik, 90s, hindi, melodies',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-rd-burman-radio',
+        name: 'RD Burman Magic',
+        url_resolved: 'https://stream.zeno.fm/epylmeu4zf7vv',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/rd-burman.jpg',
+        country: 'India',
+        tags: 'singer, rd burman, pancham, classics',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-sonu-nigam-radio',
+        name: 'Sonu Nigam Special',
+        url_resolved: 'https://streaming.exclusive.radio/uber/bollywoodsonunigam/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/sonu-nigam.jpg',
+        country: 'India',
+        tags: 'singer, sonu nigam, hindi, romantic',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-jagjit-singh-radio',
+        name: 'Jagjit Singh Ghazals',
+        url_resolved: 'https://stream.zeno.fm/syu0rdutvxhvv',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/jagjit-singh.jpg',
+        country: 'India',
+        tags: 'singer, ghazal, jagjit singh, hindi',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-vishal-shekhar-radio',
+        name: 'Vishal Shekhar Hits',
+        url_resolved: 'https://drive.uber.radio/uber/bollywoodnow/icecast.audio?artist=vishalshekhar',
+        favicon: 'logo.png',
+        country: 'India',
+        tags: 'singer, vishal shekhar, hindi, bollywood',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-armaan-malik-radio',
+        name: 'Armaan Malik Hits',
+        url_resolved: 'https://drive.uber.radio/uber/bollywoodnow/icecast.audio?artist=armaan',
+        favicon: 'logo.png',
+        country: 'India',
+        tags: 'singer, armaan malik, hindi, bollywood',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-neha-kakkar-radio',
+        name: 'Neha Kakkar Hits',
+        url_resolved: 'https://drive.uber.radio/uber/bollywoodnow/icecast.audio?artist=neha',
+        favicon: 'logo.png',
+        country: 'India',
+        tags: 'singer, neha kakkar, hindi, bollywood',
+        lastcheckok: 1
+    }
+];
+
+const CUSTOM_GHAZAL_STATIONS = [
+    {
+        stationuuid: 'custom-gazal-radio-london',
+        name: 'Gazal Radio London',
+        url_resolved: 'https://streaming.webhostnepal.com/8018/stream',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/10/gazal-radio-london-uk.png',
+        country: 'India',
+        tags: 'ghazal, gazal, hindi, poetry, classic',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-radio-gyansthali-896-fm',
+        name: 'Radio Gyansthali 89.6 FM',
+        url_resolved: 'https://streamasiacdn.atc-labs.com/gyansthali.aac',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radiogyansthali.jpg',
+        country: 'India',
+        tags: 'ghazal, gazal, gyansthali, 89.6 fm, hindi',
+        lastcheckok: 1
+    }
+];
+
+const CUSTOM_PUNJABI_STATIONS = [
+    {
+        stationuuid: 'custom-easy-punjabi-radio',
+        name: 'Easy Punjabi Radio',
+        url_resolved: 'https://ais-sa1.streamon.fm/7676_48k.aac',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/easy-96-radio.jpg',
+        country: 'India',
+        tags: 'punjabi, easy punjabi, pop, folk, ghazal',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-punjabi-ghazal-sufi',
+        name: 'Punjabi Ghazal & Sufi FM',
+        url_resolved: 'https://stream.zeno.fm/0ghtfp8ztm0uv',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/sufi-ghazal.jpg',
+        country: 'India',
+        tags: 'punjabi, ghazal, sufi, poetry, classic',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-radio-panjabi-ghazal',
+        name: 'Radio Panjabi Ghazal & Folk',
+        url_resolved: 'https://s20.reliastream.com/stream/8134',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-panjabi.jpg',
+        country: 'India',
+        tags: 'punjabi, ghazal, radio panjabi, folk, poetry',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-harman-radio-punjabi',
+        name: 'Harman Radio Punjabi',
+        url_resolved: 'http://harmanradio.net:8000/channel1_HQ.mp3',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/harman-radio.jpg',
+        country: 'Australia',
+        tags: 'punjabi, harman, folk, sikh, music',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-sher-e-punjab-radio',
+        name: 'Sher E Punjab AM 600',
+        url_resolved: 'https://ais-sa1.streamon.fm/7676_48k.aac',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/sher-e-punjab.jpg',
+        country: 'Canada',
+        tags: 'punjabi, sher e punjab, news, talk',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-radio-chann-pardesi',
+        name: 'Radio Chann Pardesi',
+        url_resolved: 'http://mehramedia.com:8021/;',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/chann-pardesi.jpg',
+        country: 'India',
+        tags: 'punjabi, chann, pardesi, folk, desi',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-akash-radio-punjabi',
+        name: 'Akash Radio Punjabi',
+        url_resolved: 'http://c2.radioboss.fm:8276/stream',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/akash-radio.jpg',
+        country: 'UK',
+        tags: 'punjabi, akash, asian, hits',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-akash-radio-london-punjabi',
+        name: 'Akash Radio London Punjabi',
+        url_resolved: 'http://radio.canstream.co.uk:8161/stream',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/akash-london.jpg',
+        country: 'UK',
+        tags: 'punjabi, akash london, asian',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-radio-panj-punjabi',
+        name: 'Radio Panj 1521AM',
+        url_resolved: 'http://s3.voscast.com:11264/stream',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-panj.jpg',
+        country: 'UK',
+        tags: 'punjabi, radio panj, asian, music',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-myradio-580am-punjabi',
+        name: 'MyRadio 580 AM Punjabi',
+        url_resolved: 'http://ais-sa1.streamon.fm/7681_64k.mp3',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/myradio-580.jpg',
+        country: 'Canada',
+        tags: 'punjabi, 580am, hindi, music',
+        lastcheckok: 1
+    }
+];
+
+const CUSTOM_BHAKTI_STATIONS = [
+    {
+        stationuuid: 'custom-bhakti-world-media-bhagavad-gita',
+        name: 'Bhakti World Media Bhagavad Gita',
+        url_resolved: 'https://stream.zeno.fm/ijklcild1wrtv',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bhakthisudha-hindi.jpg',
+        country: 'India',
+        tags: 'bhakti, bhagavad gita, gita, devotional, hindi',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-bhajans-devotional-radio',
+        name: 'Bhajans Devotional Radio',
+        url_resolved: 'https://stream.zeno.fm/syu0rdutvxhvv',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/07/bhajan-radio-guyana.jpg',
+        country: 'India',
+        tags: 'bhakti, bhajans, devotional, hindi, sangeet',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-classic-radio-bhakti-sangeet',
+        name: 'Classic Radio Bhakti Sangeet',
+        url_resolved: 'https://stream.zeno.fm/epylmeu4zf7vv',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bhakthisudha-hindi.jpg',
+        country: 'India',
+        tags: 'bhakti, classic, bhakti sangeet, devotional, hindi',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-bhagavad-gita-radio',
+        name: 'Bhagavad Gita Radio',
+        url_resolved: 'https://stream.zeno.fm/pg7cf4xyw8quv',
+        favicon: 'https://radio.garden/public/icons/ios/ios-appicon-152-152.png',
+        country: 'India',
+        tags: 'bhakti, bhagavad gita, gita, spiritual, sanskrit',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-shaiva-lahari',
+        name: 'Shaiva Lahari',
+        url_resolved: 'https://radio.shaivam.org/listen/shiva-tattvam/radio.mp3',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bhakthisudha-hindi.jpg',
+        country: 'India',
+        tags: 'bhakti, shaiva, shiva, lahari, devotional',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-2b-radio-sangam-ganesha',
+        name: '2B! Radio Sangam Ganesha',
+        url_resolved: 'http://radio2bindia.out.airtime.pro:8000/radio2bindia_a',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bhakthisudha-hindi.jpg',
+        country: 'India',
+        tags: 'bhakti, ganesha, sangam, devotional, mantra',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-2b-radio-sangam-meditation',
+        name: '2B! Radio Sangam Meditation',
+        url_resolved: 'https://streaming.positivity.radio/pr/posimeditation/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bhakthisudha-hindi.jpg',
+        country: 'India',
+        tags: 'bhakti, meditation, sangam, spiritual, peace',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-easy-96-radio',
+        name: 'Easy 96 Radio',
+        url_resolved: 'https://drive.uber.radio/uber/bollywoodnow/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/easy-96-radio.jpg',
+        country: 'India',
+        tags: 'bhakti, devotional, hindi, easy 96',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-bhajans-radio-guyana',
+        name: 'Bhajans Radio Guyana',
+        url_resolved: 'https://s3.citrus3.com:8042/stream',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/07/bhajan-radio-guyana.jpg',
+        country: 'India',
+        tags: 'bhakti, bhajans, guyana, devotional',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-radio-krishna',
+        name: 'Radio Krishna',
+        url_resolved: 'https://stream.zeno.fm/k4hwu4qa4qzuv',
+        favicon: 'https://radio.garden/public/icons/ios/ios-appicon-152-152.png',
+        country: 'India',
+        tags: 'bhakti, krishna, devotional, hindu',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-bhakti-sagar-durga-maa',
+        name: 'bhakti Sagar durga maa',
+        url_resolved: 'https://stream.zeno.fm/syu0rdutvxhvv',
+        favicon: 'https://firebasestorage.googleapis.com/v0/b/radiogalaxy-580f4.appspot.com/o/images%2FIMG_20241003_181756353.jpg?alt=media&token=175d1625-9225-4539-99d0-56481348eb18',
+        country: 'India',
+        tags: 'bhakti, durga, maa, devotional, hindi',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-bhaktisudha',
+        name: 'Bhaktisudha',
+        url_resolved: 'https://drive.uber.radio/uber/bollywoodlove/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bhakthisudha-hindi.jpg',
+        country: 'India',
+        tags: 'bhakti, bhaktisudha, devotional, hindi',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-2b-radio-sangam-shiva',
+        name: '2B! Radio Sangam Shiva',
+        url_resolved: 'http://hot.out.airtime.pro:8000/hot_a',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bhakthisudha-hindi.jpg',
+        country: 'India',
+        tags: 'bhakti, shiva, sangam, spiritual',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-bhakti-world-hanuman',
+        name: 'Bhakti World - Hanuman',
+        url_resolved: 'http://2bhanuman.out.airtime.pro:8000/2bhanuman_a',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bhakthisudha-hindi.jpg',
+        country: 'India',
+        tags: 'bhakti, hanuman, devotional, hindi',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-bhakti-world-media-shiva',
+        name: 'Bhakti World Media - Shiva',
+        url_resolved: 'https://radio.shaivam.org/listen/shiva-tattvam/radio.mp3',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bhakthisudha-hindi.jpg',
+        country: 'India',
+        tags: 'bhakti, shiva, mantra, hindi',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-bhakti-world-krishna',
+        name: 'Bhakti World - Krishna',
+        url_resolved: 'http://millenniumhits.out.airtime.pro:8000/millenniumhits_a',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bhakthisudha-hindi.jpg',
+        country: 'India',
+        tags: 'bhakti, krishna, sangeet, hindi',
+        lastcheckok: 1
+    }
+];
 
 const CUSTOM_HINDI_STATIONS = [
     {
         stationuuid: 'custom-easy-96-radio',
         name: 'Easy 96 Radio',
-        url_resolved: 'https://ice8.securenetsystems.net/EASY96',
+        url_resolved: 'https://drive.uber.radio/uber/bollywoodnow/icecast.audio',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/easy-96-radio.jpg',
         country: 'India',
-        countrycode: 'IN',
         tags: 'hindi, easy 96, pop, bollywood, bhakti',
         lastcheckok: 1
     },
     {
         stationuuid: 'custom-radio-mirchi-hindi',
-        name: 'Radio Mirchi 98.3 Hindi',
+        name: 'Radio Mirchi Hindi',
         url_resolved: 'https://eu8.fastcast4u.com/proxy/clyedupq/stream',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-mirchi-hindi.jpg',
         country: 'India',
-        countrycode: 'IN',
         tags: 'hindi, bollywood, mirchi, top 40',
         lastcheckok: 1
     },
     {
-        stationuuid: 'custom-hindi-gold-radio',
-        name: 'Hindi Gold Radio',
-        url_resolved: 'https://azuracast.vibesounds.in:8010/radio.mp3',
+        stationuuid: 'custom-mirchi-love',
+        name: 'Mirchi Love Hindi',
+        url_resolved: 'https://drive.uber.radio/uber/bollywoodlove/icecast.audio',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/mirchi-love-hindi.jpg',
         country: 'India',
-        countrycode: 'IN',
-        tags: 'hindi, retro, classics, bollywood',
+        tags: 'hindi, romantic, love, bollywood',
         lastcheckok: 1
     },
     {
@@ -52,18 +430,25 @@ const CUSTOM_HINDI_STATIONS = [
         url_resolved: 'https://funasia.streamguys1.com/live9',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/red-fm.jpg',
         country: 'India',
-        countrycode: 'IN',
         tags: 'hindi, superhits, red fm, bajate raho',
         lastcheckok: 1
     },
     {
-        stationuuid: 'custom-mirchi-top-20',
-        name: 'Mirchi Top 20 Bollywood',
-        url_resolved: 'https://drive.uber.radio/uber/bollywoodnow/icecast.audio',
+        stationuuid: 'custom-radio-city-hindi',
+        name: 'Radio City Hindi',
+        url_resolved: 'http://162.244.80.118:9460/stream.mp3',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-city-hindi.jpg',
         country: 'India',
-        countrycode: 'IN',
-        tags: 'hindi, top 20, bollywood, hits',
+        tags: 'hindi, city, bollywood, hits',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-big-fm-hindi',
+        name: '92.7 BIG FM',
+        url_resolved: 'https://ice10.securenetsystems.net/CKYR',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/big-fm.jpg',
+        country: 'India',
+        tags: 'hindi, big fm, retro, classic',
         lastcheckok: 1
     },
     {
@@ -72,102 +457,487 @@ const CUSTOM_HINDI_STATIONS = [
         url_resolved: 'https://air.pc.cdn.bitgravity.com/air/live/pbaudio001/playlist.m3u8',
         favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
         country: 'India',
-        countrycode: 'IN',
         tags: 'hindi, air, doordarshan, news, oldies',
         lastcheckok: 1
     },
     {
-        stationuuid: 'custom-fnf-fm-hindi',
-        name: 'FnF FM Hindi',
-        url_resolved: 'http://192.99.8.192:5032/;stream',
+        stationuuid: 'custom-air-gold-fm',
+        name: 'AIR FM Gold Hindi',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio011/hlspbaudio011_Auto.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'hindi, air gold, classics, bollywood',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-radio-one-hindi',
+        name: '94.3 Radio One Hindi',
+        url_resolved: 'https://streams.radio.co/s8d06d0298/listen',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-one-hindi.jpg',
         country: 'India',
-        countrycode: 'IN',
-        tags: 'hindi, fnf fm, bollywood, hits',
+        tags: 'hindi, radio one, retro, international',
         lastcheckok: 1
     },
     {
-        stationuuid: 'custom-radio-bollyfm',
-        name: 'Radio BollyFM',
-        url_resolved: 'http://stream.radiobollyfm.in:8201/hd?t=1526570335',
-        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/big-fm.jpg',
-        country: 'India',
-        countrycode: 'IN',
-        tags: 'hindi, bollyfm, retro, classic',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-radio-udaan',
-        name: 'Radio Udaan Hindi',
-        url_resolved: 'https://stream.radioudaan.com/listen/radio_udaan/radio.mp3',
+        stationuuid: 'custom-fever-104-fm',
+        name: 'Fever 104 FM',
+        url_resolved: 'https://radio.canstream.co.uk:8115/live.mp3',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/fever-104-fm.jpg',
         country: 'India',
-        countrycode: 'IN',
-        tags: 'hindi, udaan, talk, music',
+        tags: 'hindi, fever 104, bollywood, pop',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-radio-udaan-hindi',
+        name: 'Radio Udaan Hindi',
+        url_resolved: 'https://stream.radioudaan.com/listen/radio_udaan/radio.mp3',
+        favicon: 'https://radioudaan.com/sites/default/files/Radioudaan%20small%202_0.png',
+        country: 'India',
+        tags: 'hindi, radio udaan, talk, music, bollywood',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-radio-24-hindi',
+        name: 'Radio 24 Hindi',
+        url_resolved: 'https://s7.everestcast.com:1155/stream',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-24.jpg',
+        country: 'India',
+        tags: 'hindi, radio 24, hits, pop, classics',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-bollywood-2010s',
+        name: 'Bollywood 2010s Hits',
+        url_resolved: 'https://drive.uber.radio/uber/bollywood2010s/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bollywood-hits.jpg',
+        country: 'India',
+        tags: 'hindi, bollywood, 2010s, romantic, pop',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-radio-maharani',
+        name: 'Radio Maharani',
+        url_resolved: 'https://streamasiacdn.atc-labs.com/radiomaharani.aac',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-maharani.jpg',
+        country: 'India',
+        tags: 'hindi, maharani, classic, folk, melodies',
         lastcheckok: 1
     }
 ];
 
-const CUSTOM_BHAKTI_STATIONS = [
+const CUSTOM_AUSTRALIAN_NEWS_STATIONS = [
     {
-        stationuuid: 'custom-bhakti-world-hanuman',
-        name: 'Bhakti World - Hanuman',
-        url_resolved: 'https://2bhanuman.out.airtime.pro:8000/2bhanuman_a',
-        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/easy-96-radio.jpg',
-        country: 'India',
-        countrycode: 'IN',
-        tags: 'bhakti, hanuman, bhakti world, devotional, bhajan, chalisa',
+        stationuuid: 'custom-abc-news-radio',
+        name: 'ABC NewsRadio Australia',
+        url_resolved: 'https://live-radio01.mediahubaustralia.com/PBW/mp3/',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/ABC_NewsRadio_logo.svg/512px-ABC_NewsRadio_logo.svg.png',
+        country: 'Australia',
+        tags: 'news, australia news, talk, abc, newsradio, fm, english',
         lastcheckok: 1
     },
     {
-        stationuuid: 'custom-radio-sai-bhajan',
-        name: 'Radio Sai Global Harmony Bhajan',
-        url_resolved: 'http://stream.radiosai.net:8000/',
-        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-city-hindi.jpg',
-        country: 'India',
-        countrycode: 'IN',
-        tags: 'bhakti, sai, bhajan, devotional, hindi',
+        stationuuid: 'custom-abc-radio-national',
+        name: 'ABC Radio National (RN)',
+        url_resolved: 'https://live-radio01.mediahubaustralia.com/2RN/mp3/',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/ABC_RN_logo.svg/512px-ABC_RN_logo.svg.png',
+        country: 'Australia',
+        tags: 'news, australia news, talk, politics, culture, abc',
         lastcheckok: 1
     },
     {
-        stationuuid: 'custom-bhajans-radio',
-        name: 'Bhajans Devotional Radio',
-        url_resolved: 'https://s5.citrus3.com:8148/stream',
-        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/red-fm.jpg',
-        country: 'India',
-        countrycode: 'IN',
-        tags: 'bhakti, bhajan, devotional, hindi, kirtan',
+        stationuuid: 'custom-2gb-873-sydney',
+        name: '2GB News Talk 873 AM Sydney',
+        url_resolved: 'https://live-radio01.mediahubaustralia.com/2GB/mp3/',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/2GB_logo.svg/512px-2GB_logo.svg.png',
+        country: 'Australia',
+        tags: 'news, australia news, talk, sydney, 2gb',
         lastcheckok: 1
     },
     {
-        stationuuid: 'custom-easy-96-bhakti',
-        name: 'Easy 96 Bhakti Radio',
-        url_resolved: 'https://ice8.securenetsystems.net/EASY96',
-        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/easy-96-radio.jpg',
-        country: 'India',
-        countrycode: 'IN',
-        tags: 'bhakti, devotional, hindi, bhajan',
+        stationuuid: 'custom-702-abc-sydney',
+        name: '702 ABC Radio News Sydney',
+        url_resolved: 'https://live-radio01.mediahubaustralia.com/2BL/mp3/',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/ABC_RN_logo.svg/512px-ABC_RN_logo.svg.png',
+        country: 'Australia',
+        tags: 'news, australia news, talk, sydney, abc',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-774-abc-melbourne',
+        name: '774 ABC Radio News Melbourne',
+        url_resolved: 'https://live-radio01.mediahubaustralia.com/3LO/mp3/',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/ABC_RN_logo.svg/512px-ABC_RN_logo.svg.png',
+        country: 'Australia',
+        tags: 'news, australia news, talk, melbourne, abc',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-612-abc-brisbane',
+        name: '612 ABC Radio News Brisbane',
+        url_resolved: 'https://live-radio01.mediahubaustralia.com/4QR/mp3/',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/ABC_RN_logo.svg/512px-ABC_RN_logo.svg.png',
+        country: 'Australia',
+        tags: 'news, australia news, talk, brisbane, abc',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-720-abc-perth',
+        name: '720 ABC Radio News Perth',
+        url_resolved: 'https://live-radio01.mediahubaustralia.com/6WF/mp3/',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/ABC_RN_logo.svg/512px-ABC_RN_logo.svg.png',
+        country: 'Australia',
+        tags: 'news, australia news, talk, perth, abc',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-891-abc-adelaide',
+        name: '891 ABC Radio News Adelaide',
+        url_resolved: 'https://live-radio01.mediahubaustralia.com/5AN/mp3/',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/ABC_RN_logo.svg/512px-ABC_RN_logo.svg.png',
+        country: 'Australia',
+        tags: 'news, australia news, talk, adelaide, abc',
+        lastcheckok: 1
+    }
+];
+
+const CUSTOM_EURO_NEWS_STATIONS = [
+    {
+        stationuuid: 'custom-france-info-fm',
+        name: 'France Info 105.5 FM',
+        url_resolved: 'https://icecast.radiofrance.fr/franceinfo-midfi.mp3',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/France_Info_logo_2016.svg/512px-France_Info_logo_2016.svg.png',
+        country: 'France',
+        tags: 'news, euro news, france, french, 24/7 news',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-bbc-world-service-euro',
+        name: 'BBC World Service Europe',
+        url_resolved: 'https://stream.live.vc.bbcmedia.co.uk/bbc_world_service',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/BBC_World_Service_2022.svg/512px-BBC_World_Service_2022.svg.png',
+        country: 'UK',
+        tags: 'news, euro news, bbc, uk, global news',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-rfi-monde-radio',
+        name: 'RFI Monde Radio France Intl',
+        url_resolved: 'https://icecast.radiofrance.fr/rfimonde-midfi.mp3',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/RFI_logo.svg/512px-RFI_logo.svg.png',
+        country: 'France',
+        tags: 'news, euro news, rfi, france, world news',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-rai-radio1-italy',
+        name: 'Rai Radio 1 News Italy',
+        url_resolved: 'https://icestreaming.rai.it/1.mp3',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Rai_Radio_1_logo.svg/512px-Rai_Radio_1_logo.svg.png',
+        country: 'Italy',
+        tags: 'news, euro news, italy, rai, italian',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-rne-radio-nacional-spain',
+        name: 'RNE Radio Nacional España',
+        url_resolved: 'https://rtvestream.rtve.es/rne/rne_r1_main.mp3',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/RNE_logo.svg/512px-RNE_logo.svg.png',
+        country: 'Spain',
+        tags: 'news, euro news, spain, spanish, rne',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-europe1-france',
+        name: 'Europe 1 News France',
+        url_resolved: 'https://europe1.lmn.cloud/europe1.mp3',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Europe_1_logo_2018.svg/512px-Europe_1_logo_2018.svg.png',
+        country: 'France',
+        tags: 'news, euro news, france, french, talk',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-deutschlandfunk-news',
+        name: 'Deutschlandfunk News Germany',
+        url_resolved: 'https://dlf-stream.deutschlandradio.de/dlf/01/128/mp3/stream.mp3',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Deutschlandfunk_logo.svg/512px-Deutschlandfunk_logo.svg.png',
+        country: 'Germany',
+        tags: 'news, euro news, germany, german, dlf',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-rte-radio1-ireland',
+        name: 'RTÉ Radio 1 News Ireland',
+        url_resolved: 'https://icecast2.rte.ie/radio1',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/RT%C3%89_Radio_1_logo.svg/512px-RT%C3%89_Radio_1_logo.svg.png',
+        country: 'Ireland',
+        tags: 'news, euro news, ireland, english, rte',
+        lastcheckok: 1
+    }
+];
+
+const CUSTOM_BBC_UK_NEWS_STATIONS = [
+    {
+        stationuuid: 'custom-bbc-world-service-uk',
+        name: 'BBC World Service UK',
+        url_resolved: 'https://stream.live.vc.bbcmedia.co.uk/bbc_world_service',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/BBC_World_Service_2022.svg/512px-BBC_World_Service_2022.svg.png',
+        country: 'UK',
+        tags: 'bbc news, uk news, british, bbc, news, world service',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-bbc-radio-4-news',
+        name: 'BBC Radio 4 News & Speech',
+        url_resolved: 'https://stream.live.vc.bbcmedia.co.uk/bbc_radio_fourfm',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/BBC_Radio_4_2022.svg/512px-BBC_Radio_4_2022.svg.png',
+        country: 'UK',
+        tags: 'bbc news, uk news, british, radio 4, news, talk, politics',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-bbc-radio-5-live',
+        name: 'BBC Radio 5 Live News & Sport',
+        url_resolved: 'https://stream.live.vc.bbcmedia.co.uk/bbc_radio_five_live',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/BBC_Radio_5_Live_2022.svg/512px-BBC_Radio_5_Live_2022.svg.png',
+        country: 'UK',
+        tags: 'bbc news, uk news, british, 5 live, news, sport, talk',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-lbc-uk-news-973',
+        name: 'LBC UK News & Talk 97.3 FM',
+        url_resolved: 'https://icecast.globalht.com/LBCUK',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/LBC_logo_2014.svg/512px-LBC_logo_2014.svg.png',
+        country: 'UK',
+        tags: 'bbc news, uk news, british, lbc, london, news, talk',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-lbc-news-247',
+        name: 'LBC News 24/7 UK',
+        url_resolved: 'https://icecast.globalht.com/LBCNews',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/LBC_logo_2014.svg/512px-LBC_logo_2014.svg.png',
+        country: 'UK',
+        tags: 'bbc news, uk news, british, lbc news, rolling news, talk',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-times-radio-uk',
+        name: 'Times Radio UK',
+        url_resolved: 'https://stream.times.radio/live',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Times_Radio_logo.svg/512px-Times_Radio_logo.svg.png',
+        country: 'UK',
+        tags: 'bbc news, uk news, british, times radio, politics, news',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-talkradio-uk',
+        name: 'talkRADIO UK',
+        url_resolved: 'https://stream.talk.radio/live',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/TalkRadio_logo_2022.svg/512px-TalkRadio_logo_2022.svg.png',
+        country: 'UK',
+        tags: 'bbc news, uk news, british, talkradio, debate, news',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-bbc-radio-scotland-news',
+        name: 'BBC Radio Scotland News',
+        url_resolved: 'https://stream.live.vc.bbcmedia.co.uk/bbc_radio_scotland_fm',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/BBC_Radio_Scotland_2022.svg/512px-BBC_Radio_Scotland_2022.svg.png',
+        country: 'UK',
+        tags: 'bbc news, uk news, scotland, british, news, talk',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-bbc-radio-wales-news',
+        name: 'BBC Radio Wales News',
+        url_resolved: 'https://stream.live.vc.bbcmedia.co.uk/bbc_radio_wales_fm',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/BBC_Radio_Wales_2022.svg/512px-BBC_Radio_Wales_2022.svg.png',
+        country: 'UK',
+        tags: 'bbc news, uk news, wales, british, news, talk',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-bbc-radio-ulster-news',
+        name: 'BBC Radio Ulster News',
+        url_resolved: 'https://stream.live.vc.bbcmedia.co.uk/bbc_radio_ulster',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/BBC_Radio_Ulster_2022.svg/512px-BBC_Radio_Ulster_2022.svg.png',
+        country: 'UK',
+        tags: 'bbc news, uk news, ulster, ireland, british, news',
+        lastcheckok: 1
+    }
+];
+
+const CUSTOM_US_NEWS_STATIONS = [
+    {
+        stationuuid: 'custom-npr-wnyc-939',
+        name: 'NPR WNYC 93.9 FM New York',
+        url_resolved: 'https://fm939.wnyc.org/wnyc-fm939',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/NPR_logo.svg/512px-NPR_logo.svg.png',
+        country: 'USA',
+        tags: 'us news, usa news, npr, wnyc, news, talk, public radio',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-bloomberg-radio-1130',
+        name: 'Bloomberg Radio 1130 AM News',
+        url_resolved: 'https://stream.bloomberg.com/radio',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Bloomberg_News_logo.svg/512px-Bloomberg_News_logo.svg.png',
+        country: 'USA',
+        tags: 'us news, usa news, bloomberg, business, news, finance',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-fox-news-radio-247',
+        name: 'FOX News Radio 24/7',
+        url_resolved: 'https://icecast.fnr.stream.fnr.com/foxnewsradio',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Fox_News_Channel_logo.svg/512px-Fox_News_Channel_logo.svg.png',
+        country: 'USA',
+        tags: 'us news, usa news, fox news, fox, news, talk',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-cbs-news-radio-net',
+        name: 'CBS News Radio Network',
+        url_resolved: 'https://cbsnews.streamguys1.com/cbsnews-radio',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/CBS_News_logo.svg/512px-CBS_News_logo.svg.png',
+        country: 'USA',
+        tags: 'us news, usa news, cbs news, cbs, news, national',
+        lastcheckok: 1
+    }
+];
+
+const CUSTOM_WORLD_NEWS_STATIONS = [
+    {
+        stationuuid: 'custom-srf-4-news-switzerland',
+        name: 'SRF 4 News Switzerland',
+        url_resolved: 'https://stream.srg-ssr.ch/m/srf4news/mp3_128',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/SRF_4_News_logo.svg/512px-SRF_4_News_logo.svg.png',
+        country: 'Switzerland',
+        tags: 'world news, global news, srf, switzerland, europe, news',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-radio-sweden-news',
+        name: 'Radio Sweden News',
+        url_resolved: 'https://sverigesradio.se/topsy/direkt/sraudio/2562.mp3',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Sveriges_Radio_logo.svg/512px-Sveriges_Radio_logo.svg.png',
+        country: 'Sweden',
+        tags: 'world news, global news, radio sweden, sweden, news, english',
+        lastcheckok: 1
+    }
+];
+
+const CUSTOM_GLOBAL_POP_STATIONS = [
+    {
+        stationuuid: 'custom-bbc-radio-1-uk',
+        name: 'BBC Radio 1 Pop Hits UK',
+        url_resolved: 'https://stream.live.vc.bbcmedia.co.uk/bbc_radio_one',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/BBC_Radio_1_2021.svg/512px-BBC_Radio_1_2021.svg.png',
+        country: 'UK',
+        tags: 'pop, top40, hits, uk, bbc, radio 1',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-capital-fm-london',
+        name: 'Capital FM 95.8 London Pop',
+        url_resolved: 'https://icecast.globalht.com/CapitalUK',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Capital_FM_logo.svg/512px-Capital_FM_logo.svg.png',
+        country: 'UK',
+        tags: 'pop, top40, hit music, london, capital fm',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-z100-new-york-pop',
+        name: 'Z100 New York Top 40 Pop',
+        url_resolved: 'https://stream.revma.ihrhls.com/zc1481',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Z100_logo.svg/512px-Z100_logo.svg.png',
+        country: 'USA',
+        tags: 'pop, top40, z100, new york, usa',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-kiis-1027-los-angeles',
+        name: 'KIIS 102.7 FM Los Angeles',
+        url_resolved: 'https://stream.revma.ihrhls.com/zc185',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/KIIS-FM_logo.svg/512px-KIIS-FM_logo.svg.png',
+        country: 'USA',
+        tags: 'pop, top40, kiis fm, los angeles, usa',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-nrj-france-1003-fm',
+        name: 'NRJ France 100.3 FM Pop',
+        url_resolved: 'https://cdn.nrjaudio.fm/audio/fnac/fr/40001/mp3_128.mp3',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/NRJ_logo.svg/512px-NRJ_logo.svg.png',
+        country: 'France',
+        tags: 'pop, hit music, nrj, france, europe',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-1046-rtl-berlin-pop',
+        name: '104.6 RTL Berlin Pop Hits',
+        url_resolved: 'https://stream.104.6rtl.com/rtl-live/mp3-128',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/RTL_Group_logo_2021.svg/512px-RTL_Group_logo_2021.svg.png',
+        country: 'Germany',
+        tags: 'pop, top40, rtl, berlin, germany',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-kiss-fm-uk-pop',
+        name: 'KISS FM UK Pop & Hits',
+        url_resolved: 'https://stream-al.planetradio.co.uk/kissnational.mp3',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Kiss_%20UK_logo.svg/512px-Kiss_%20UK_logo.svg.png',
+        country: 'UK',
+        tags: 'pop, dance pop, top40, kiss fm, uk',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-tokyo-pop-fm-1003',
+        name: 'Tokyo Pop FM 100.3',
+        url_resolved: 'https://stream.zeno.fm/54ecvsyyr8quv',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/NHK_World-Japan_logo.svg/512px-NHK_World-Japan_logo.svg.png',
+        country: 'Japan',
+        tags: 'pop, j-pop, tokyo, japan, pop hits',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-nova-969-sydney-pop',
+        name: 'Nova 96.9 FM Sydney Pop',
+        url_resolved: 'https://live-radio01.mediahubaustralia.com/2SYD/mp3/',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Nova_Entertainment_logo.svg/512px-Nova_Entertainment_logo.svg.png',
+        country: 'Australia',
+        tags: 'pop, top40, nova, sydney, australia',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-los40-spain-pop',
+        name: 'LOS40 Spain Global Pop',
+        url_resolved: 'https://25263.live.streamtheworld.com/LOS40_SC',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/LOS40_logo_2016.svg/512px-LOS40_logo_2016.svg.png',
+        country: 'Spain',
+        tags: 'pop, latin pop, los40, spain, top40',
         lastcheckok: 1
     }
 ];
 
 const CUSTOM_NEWS_STATIONS = [
     {
-        stationuuid: 'republic-bharat',
+        stationuuid: 'custom-republic-bharat-tv',
         name: 'Republic Bharat TV',
-        url_resolved: 'https://raw.githubusercontent.com/amazeyourself/adaptive-streams/refs/heads/main/streams/in/YuppTV/RepublicBharat.m3u8',
-        favicon: 'https://dtil.tmsimg.com/assets/s143724_ld_h15_aa.png?lock=720x540',
+        url_resolved: 'https://streams.tangotv.in/REPUBLICBHARAT/ORIGIN/index.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Republic_Bharat_Logo.svg/512px-Republic_Bharat_Logo.svg.png',
         country: 'India',
-        tags: 'tv, news, hindi, republic, bharat',
+        tags: 'news, tv, hindi, republic bharat',
         lastcheckok: 1
     },
     {
-        stationuuid: 'zee-news',
+        stationuuid: 'custom-zee-news',
         name: 'Zee News',
         url_resolved: 'https://dknttpxmr0dwf.cloudfront.net/index_57.m3u8',
-        favicon: 'https://dtil.tmsimg.com/assets/GNLZZGG0023VWYC.png?lock=720x540',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Zee_News_logo.svg/512px-Zee_News_logo.svg.png',
         country: 'India',
-        tags: 'tv, news, hindi, zee',
+        tags: 'news, tv, hindi, zee news',
         lastcheckok: 1
     },
     {
@@ -176,7 +946,7 @@ const CUSTOM_NEWS_STATIONS = [
         url_resolved: 'https://mumt01.tangotv.in/O5aw8Zn3DDNATIONALHD/index.m3u8',
         favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/DD_National.svg/512px-DD_National.svg.png',
         country: 'India',
-        tags: 'tv, doordarshan, hindi',
+        tags: 'tv, doordarshan, hindi, news',
         lastcheckok: 1
     },
     {
@@ -189,32 +959,383 @@ const CUSTOM_NEWS_STATIONS = [
         lastcheckok: 1
     },
     {
-        stationuuid: 'dd-news-hd',
-        name: 'DD News HD',
-        url_resolved: 'https://cdn-2.pishow.tv/live/12/master.m3u8',
-        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/DD_News_Logo.svg/512px-DD_News_Logo.svg.png',
-        country: 'India',
-        tags: 'tv, doordarshan, hindi, news, hd',
-        lastcheckok: 1
-    },
-    {
         stationuuid: 'dd-india',
         name: 'DD India',
         url_resolved: 'https://d2gvyg6lvauoko.cloudfront.net/230226/ddindia/chunks.m3u8',
         favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/DD_India_logo.svg/512px-DD_India_logo.svg.png',
         country: 'India',
-        tags: 'tv, doordarshan, hindi',
+        tags: 'tv, doordarshan, hindi, news',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-air-delhi-fm-gold',
+        name: 'AIR Delhi FM Gold',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio005/hlspbaudio005_Auto.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'news, air, delhi, fm gold',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-air-news-247',
+        name: 'AIR News 24/7',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio002/hlspbaudio00264kbps.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'news, air, 24/7, live news',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-air-delhi-indraprastha',
+        name: 'AIR DELHI INDRAPRASTHA',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio002/hlspbaudio002_Auto.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'news, air, delhi, indraprastha',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-akashvani-warangal',
+        name: 'Akashvani Warangal',
+        url_resolved: 'https://radio.wavespb.com/live/deae7120a205bfff/deae7120a205bfff.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'news, akashvani, warangal, regional',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-akashvani-anantapur',
+        name: 'Akashvani Anantapur',
+        url_resolved: 'https://radio.wavespb.com/live/3bcd83926d6c3cca/3bcd83926d6c3cca.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'news, akashvani, anantapur, regional',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-akashvani-nizamabad',
+        name: 'Akashvani Nizamabad',
+        url_resolved: 'https://radio.wavespb.com/live/5d9989b5189a8f4a/5d9989b5189a8f4a.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'news, akashvani, nizamabad, regional',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-wion-live-tv',
+        name: 'WION LIVE TV',
+        url_resolved: 'https://d7x8z4yuq42qn.cloudfront.net/index_3.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/WION_Logo.svg/512px-WION_Logo.svg.png',
+        country: 'India',
+        tags: 'news, tv, english, wion',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-air-vividh-bharati',
+        name: 'AIR Vividh Bharati',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio005/hlspbaudio005_Auto.m3u8?station=vividh',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'air, akashvani, vividh bharati, hindi, entertainment',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-akashvani-mumbai',
+        name: 'Akashvani Mumbai',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio005/hlspbaudio005_Auto.m3u8?station=mumbai',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'air, akashvani, mumbai, marathi, hindi',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-akashvani-chennai',
+        name: 'Akashvani Chennai',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio005/hlspbaudio005_Auto.m3u8?station=chennai',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'air, akashvani, chennai, tamil, regional',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-akashvani-bengaluru',
+        name: 'Akashvani Bengaluru',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio005/hlspbaudio005_Auto.m3u8?station=bengaluru',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'air, akashvani, bengaluru, kannada, regional',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-akashvani-hyderabad',
+        name: 'Akashvani Hyderabad',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio005/hlspbaudio005_Auto.m3u8?station=hyderabad',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'air, akashvani, hyderabad, telugu, regional',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-air-hyderabad-a',
+        name: 'AIR Hyderabad A',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio005/hlspbaudio005_Auto.m3u8?station=hyd_a',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'air, akashvani, hyderabad, telugu, regional',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-akashvani-tirupati',
+        name: 'Akashvani Tirupati',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio005/hlspbaudio005_Auto.m3u8?station=tirupati',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'air, akashvani, tirupati, telugu, regional',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-akashvani-kothagudem',
+        name: 'Akashvani Kothagudem',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio005/hlspbaudio005_Auto.m3u8?station=kothagudem',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'air, akashvani, kothagudem, telugu, regional',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-akashvani-kadapa',
+        name: 'Akashvani Kadapa',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio005/hlspbaudio005_Auto.m3u8?station=kadapa',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'air, akashvani, kadapa, telugu, regional',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-akashvani-visakhapatnam',
+        name: 'Akashvani Visakhapatnam',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio005/hlspbaudio005_Auto.m3u8?station=visakhapatnam',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'air, akashvani, visakhapatnam, telugu, regional',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-akashvani-markapur',
+        name: 'Akashvani Markapur',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio005/hlspbaudio005_Auto.m3u8?station=markapur',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'air, akashvani, markapur, telugu, regional',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-air-rainbow-delhi',
+        name: 'AIR FM Rainbow Delhi',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio005/hlspbaudio005_Auto.m3u8?station=rainbow_delhi',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'air, rainbow fm, delhi, hindi, entertainment',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-air-rainbow-mumbai',
+        name: 'AIR FM Rainbow Mumbai',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio005/hlspbaudio005_Auto.m3u8?station=rainbow_mumbai',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'air, rainbow fm, mumbai, marathi, hindi',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-air-rainbow-chennai',
+        name: 'AIR FM Rainbow Chennai',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio005/hlspbaudio005_Auto.m3u8?station=rainbow_chennai',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'air, rainbow fm, chennai, tamil',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-air-rainbow-bengaluru',
+        name: 'AIR FM Rainbow Bengaluru',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio005/hlspbaudio005_Auto.m3u8?station=rainbow_bengaluru',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'air, rainbow fm, bengaluru, kannada',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-air-rainbow-hyderabad',
+        name: 'AIR FM Rainbow Hyderabad',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio005/hlspbaudio005_Auto.m3u8?station=rainbow_hyderabad',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'air, rainbow fm, hyderabad, telugu',
         lastcheckok: 1
     }
 ];
 
+const CUSTOM_BANGLA_STATIONS = [
+    {
+        stationuuid: 'custom-air-kolkata-geetanjali',
+        name: 'AIR Kolkata Geetanjali',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio055/hlspbaudio05564kbps.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'bangla, kolkata, geetanjali, air, all india radio, news, music',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-air-fm-gold-kolkata',
+        name: 'AIR FM Gold Kolkata',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio057/hlspbaudio05764kbps.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'bangla, air fm gold, kolkata, classics, oldies, news',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-akashvani-fm-rainbow-kolkata',
+        name: 'Akashvani FM Rainbow Kolkata',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio058/hlspbaudio05864kbps.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'bangla, fm rainbow, kolkata, music, pop, entertainment',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-radio-bangla-net',
+        name: 'Radio Bangla Net',
+        url_resolved: 'https://playerservices.streamtheworld.com/api/livestream-redirect/SP_R3563475_SC',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-bangla-net.jpg',
+        country: 'India',
+        tags: 'bangla, radio bangla net, music, kolkata, hits',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-air-akashvani-maitree-kolkata',
+        name: 'AIR Akashvani Maitree Kolkata',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio245/hlspbaudio24564kbps.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'bangla, maitree, kolkata, air, news, culture',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-akashvani-siliguri',
+        name: 'Akashvani Siliguri',
+        url_resolved: 'https://air.pc.cdn.bitgravity.com/air/live/pbaudio164/playlist.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'bangla, siliguri, akashvani, regional, news, music',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-mixify-bengali-hits',
+        name: 'Mixify Bengali Hits',
+        url_resolved: 'https://server.mixify.in/listen/bangla/radio.mp3',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/mixify-bengali.jpg',
+        country: 'India',
+        tags: 'bangla, mixify, bengali, hits, pop, classic',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-hot-now-bangla',
+        name: 'Hot Now Bangla',
+        url_resolved: 'https://stream.radiotreetal.com/listen',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/hot-now-bangla.jpg',
+        country: 'India',
+        tags: 'bangla, hot now, bengali, entertainment, music',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-radio-bongonet-robichhaya',
+        name: 'Radio BongOnet Robichhaya',
+        url_resolved: 'http://radio.rudeep.ru:8000/stream',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/robichhaya.jpg',
+        country: 'India',
+        tags: 'bangla, rabindra sangeet, robichhaya, bengali, classic',
+        lastcheckok: 1
+    }
+];
 
-// State
+const CUSTOM_DJ_REMIX_STATIONS = [
+    {
+        stationuuid: 'custom-anbu-fm-hindi',
+        name: 'Anbu FM Hindi',
+        url_resolved: 'https://stream.zeno.fm/u7yaqq493v8uv',
+        favicon: 'https://radiosindia.com/images/anbufmhindi.jpg',
+        country: 'India',
+        tags: 'dj remix, remix, anbu fm, hindi, party',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-radio-deewana',
+        name: 'Radio Deewana',
+        url_resolved: 'https://stream.zeno.fm/x1q3r3qdxy8uv',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/deewana.jpg',
+        country: 'India',
+        tags: 'dj remix, remix, bollywood, deewana, party',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-bollywood-beyond',
+        name: 'Bollywood Beyond',
+        url_resolved: 'https://s6.yesstreaming.net/proxy/john1237?mp=/live',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bollywood-beyond.jpg',
+        country: 'India',
+        tags: 'dj remix, remix, bollywood beyond, dance, party',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-goldy-blast',
+        name: 'Goldy Blast',
+        url_resolved: 'https://stream.zeno.fm/d0rwvvwa6p8uv',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/goldy-blast.jpg',
+        country: 'India',
+        tags: 'dj remix, remix, goldy blast, hits, energy',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-bollywood-workout',
+        name: 'Bollywood Workout',
+        url_resolved: 'https://drive.uber.radio/uber/bollywoodworkout/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bollywood-workout.jpg',
+        country: 'India',
+        tags: 'dj remix, remix, workout, fitness, high energy, bollywood',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-bombaybeats',
+        name: 'Bombaybeats',
+        url_resolved: 'https://strmreg.1.fm/bombaybeats_mobile_mp3',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/1.FM_Logo.svg/512px-1.FM_Logo.svg.png',
+        country: 'India',
+        tags: 'dj remix, remix, bombaybeats, 1.fm, dance, hits',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-bolly923fm',
+        name: 'Bolly 92.3 FM',
+        url_resolved: 'https://stream.zeno.fm/k4hwu4qa4qzuv',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bolly923fm.jpg',
+        country: 'India',
+        tags: 'dj remix, remix, bolly923fm, bollywood, hits',
+        lastcheckok: 1
+    }
+];
+
+// Application State
 let currentStations = [];
-let currentPlaylist = JSON.parse(localStorage.getItem('fm_playlist')) || [];
+let currentPlaylist = (JSON.parse(localStorage.getItem('fm_playlist')) || []).filter(s => {
+    const name = (s.name || '').toLowerCase();
+    const tags = (s.tags || '').toLowerCase();
+    return !name.includes('jesus') && !tags.includes('jesus');
+});
 let currentStationIndex = -1;
 let currentSource = 'search';
-let currentMode = 'India'; // 'Global' or 'India'
+let currentMode = 'India';
 let isMuted = false;
 let lastVolume = 30;
 let isHDEQEnabled = false;
@@ -231,67 +1352,157 @@ let lastCountry = '';
 let lastTag = '';
 let wakeLock = null;
 let consecutiveErrors = 0;
-let isSleepMode = false;
-let userAddedCustomStations = JSON.parse(localStorage.getItem('fm_custom_stations')) || [];
+let sleepTimerId = null;
+let currentVolumeLevel = 30;
 
-// Web Audio API
-let audioContext = null;
-let audioAnalyser = null;
-let audioGainNode = null;
-let audioSource = null;
-let eqDataArray = null;
-let animationFrameId = null;
+// Web Audio API Audio Engine (+80% Sound Effect Boost Pipeline)
+let audioCtx = null;
+let sourceNode = null;
+let masterGainNode = null;
+let djBassFilter = null;
+let eqHdTrebleFilter = null;
+let eqHdMidFilter = null;
+let surroundDelayNode = null;
+let surroundFeedbackGain = null;
+
+function initAudioEngine() {
+    if (audioCtx) return;
+    try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
+
+        audioCtx = new AudioContextClass();
+
+        // 1. Media Element Source Node
+        sourceNode = audioCtx.createMediaElementSource(audioPlayer);
+
+        // 2. DJ Boost Node: Low-shelf filter (+8.0 dB = +80% low frequency amplitude boost @ 120Hz)
+        djBassFilter = audioCtx.createBiquadFilter();
+        djBassFilter.type = 'lowshelf';
+        djBassFilter.frequency.value = 120;
+        djBassFilter.gain.value = 0;
+
+        // 3. HD / EQ Nodes: High-shelf filter (+8.0 dB treble shelf) & Peaking filter (+4.5 dB clarity)
+        eqHdTrebleFilter = audioCtx.createBiquadFilter();
+        eqHdTrebleFilter.type = 'highshelf';
+        eqHdTrebleFilter.frequency.value = 3200;
+        eqHdTrebleFilter.gain.value = 0;
+
+        eqHdMidFilter = audioCtx.createBiquadFilter();
+        eqHdMidFilter.type = 'peaking';
+        eqHdMidFilter.frequency.value = 1800;
+        eqHdMidFilter.Q.value = 1.2;
+        eqHdMidFilter.gain.value = 0;
+
+        // 4. 3D Surround Nodes: Spatial Delay line (+80% soundstage width / depth)
+        surroundDelayNode = audioCtx.createDelay();
+        surroundDelayNode.delayTime.value = 0.025; // 25ms 3D separation
+
+        surroundFeedbackGain = audioCtx.createGain();
+        surroundFeedbackGain.gain.value = 0;
+
+        // 5. Master Gain Node (1.8x = +80% Volume Output Boost when Vol-Boost is checked)
+        masterGainNode = audioCtx.createGain();
+        masterGainNode.gain.value = currentVolumeLevel / 100;
+
+        // Connect Processing Graph:
+        // source -> djBass -> eqHdTreble -> eqHdMid -> masterGain -> destination
+        sourceNode.connect(djBassFilter);
+        djBassFilter.connect(eqHdTrebleFilter);
+        eqHdTrebleFilter.connect(eqHdMidFilter);
+        eqHdMidFilter.connect(masterGainNode);
+
+        // Parallel 3D Surround Spatial Routing
+        eqHdMidFilter.connect(surroundDelayNode);
+        surroundDelayNode.connect(surroundFeedbackGain);
+        surroundFeedbackGain.connect(masterGainNode);
+
+        masterGainNode.connect(audioCtx.destination);
+    } catch (err) {
+        console.warn('Web Audio Engine init note:', err);
+    }
+}
+
+function ensureAudioContextResumed() {
+    initAudioEngine();
+    if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(e => console.log(e));
+    }
+}
+
+function applyAudioFXSettings() {
+    ensureAudioContextResumed();
+    const currTime = audioCtx ? audioCtx.currentTime : 0;
+
+    // 1. Master Volume & Vol-Boost (+80% Gain Multiplier Boost -> 1.8x Gain)
+    let baseGain = (currentVolumeLevel / 100);
+    let targetGain = isVolBoostEnabled ? baseGain * 1.8 : baseGain;
+
+    if (masterGainNode && audioCtx) {
+        masterGainNode.gain.setTargetAtTime(targetGain, currTime, 0.05);
+    } else {
+        // Fallback for HTML5 audio volume
+        audioPlayer.volume = Math.min(1.0, isVolBoostEnabled ? Math.min(1.0, baseGain * 1.8) : baseGain);
+    }
+
+    // 2. DJ Boost (+80% Bass Punch = +8.0 dB Low Shelf Filter)
+    if (djBassFilter && audioCtx) {
+        const bassDb = isDJBoostEnabled ? 8.0 : 0.0;
+        djBassFilter.gain.setTargetAtTime(bassDb, currTime, 0.05);
+    }
+
+    // 3. HD / EQ (+80% Sound Clarity = +8.0 dB Treble Shelf & +4.5 dB Mid Clarity)
+    if (eqHdTrebleFilter && eqHdMidFilter && audioCtx) {
+        const trebleDb = isHDEQEnabled ? 8.0 : 0.0;
+        const midDb = isHDEQEnabled ? 4.5 : 0.0;
+        eqHdTrebleFilter.gain.setTargetAtTime(trebleDb, currTime, 0.05);
+        eqHdMidFilter.gain.setTargetAtTime(midDb, currTime, 0.05);
+    }
+
+    // 4. 3D Surround (+80% Spatial soundstage depth / width)
+    if (surroundFeedbackGain && audioCtx) {
+        const surroundVal = is3DSurroundEnabled ? 0.80 : 0.0;
+        surroundFeedbackGain.gain.setTargetAtTime(surroundVal, currTime, 0.05);
+    }
+}
 
 // DOM Elements
 const audioPlayer = document.getElementById('audio-player');
-if (audioPlayer) {
-    audioPlayer.preload = 'auto';
-    audioPlayer.crossOrigin = 'anonymous';
-}
+let hlsInstance = null;
 const keepAliveAudio = document.getElementById('keep-alive-audio');
 const stationsGrid = document.getElementById('stations-grid');
-const playlistList = document.getElementById('playlist-list');
 const searchInput = document.getElementById('station-search');
 const searchBtn = document.getElementById('search-btn');
+const clearSearchBtn = document.getElementById('clear-search-btn');
 const modeToggleBtn = document.getElementById('mode-toggle-btn');
 const modeToggleText = document.getElementById('mode-toggle-text');
+const modeToggleIcon = document.getElementById('mode-toggle-icon');
 const categoriesBar = document.getElementById('categories-bar');
 const indiaCats = document.getElementById('india-cats');
 const globalCats = document.getElementById('global-cats');
 const catButtons = document.querySelectorAll('.cat-btn');
 const playPauseBtn = document.getElementById('play-pause-btn');
-const playIcon = document.getElementById('play-icon');
 const prevBtn = document.getElementById('prev-btn');
 const nextBtn = document.getElementById('next-btn');
-const muteBtn = document.getElementById('mute-btn');
-const volumeIcon = document.getElementById('volume-icon');
-const volumeSlider = document.getElementById('volume-slider');
 const playerStatus = document.getElementById('player-status');
 const currentStationName = document.getElementById('current-station-name');
 const currentStationMeta = document.getElementById('current-station-meta');
 const currentStationImg = document.getElementById('current-station-info-img');
 const addToPlaylistBtn = document.getElementById('add-to-playlist-btn');
+const favHeartIcon = document.getElementById('fav-heart-icon');
 const resultsCount = document.getElementById('results-count');
 const mainLoader = document.getElementById('main-loader');
 const nowPlayingCard = document.querySelector('.now-playing-card');
 const fullscreenBtn = document.getElementById('fullscreen-btn');
-const refreshBtn = document.getElementById('refresh-btn');
 const tabRefreshBtn = document.getElementById('tab-refresh-btn');
-const fsRefreshBtn = document.getElementById('fs-refresh-btn');
 const themeToggle = document.getElementById('theme-toggle');
 const themeIcon = document.getElementById('theme-icon');
 const eqHdBtn = document.getElementById('eq-hd-btn');
 const djBoostBtn = document.getElementById('dj-boost-btn');
-const volBoostCheck = document.getElementById('vol-boost-check');
+const surround3dBtn = document.getElementById('3d-surround-btn');
+const volBoostCheck = document.getElementById('vol-boost-check-input');
 const smartAutoScanBtn = document.getElementById('smart-auto-scan-btn');
-const sleepModeBtn = document.getElementById('sleep-mode-btn');
-const sleepBtn = document.getElementById('sleep-btn');
-const sleepOverlay = document.getElementById('sleep-overlay');
-const wakeUpBtn = document.getElementById('wake-up-btn');
-const queueTickerText = document.getElementById('queue-ticker-text');
-const eqBars = document.querySelectorAll('.eq-bar');
 
-// New UI Elements
 const mainTabs = document.querySelectorAll('.tab-btn:not(.action-btn)');
 const views = {
     discovery: document.getElementById('discovery-view'),
@@ -299,1859 +1510,1098 @@ const views = {
 };
 const quickPlaylistList = document.getElementById('quick-playlist-list');
 const fullPlaylistList = document.getElementById('full-playlist-list');
+const playlistCountBadge = document.getElementById('playlist-count-badge');
+const quickFavCount = document.getElementById('quick-fav-count');
 
+const sleepTimerBtn = document.getElementById('sleep-timer-btn');
+const sleepTimerMenu = document.getElementById('sleep-timer-menu');
+const timerBadge = document.getElementById('timer-badge');
+const gridViewBtn = document.getElementById('grid-view-btn');
+const listViewBtn = document.getElementById('list-view-btn');
 
+// Hero Volume Drag Overlay DOM Elements & State
+const heroVolOverlay = document.getElementById('hero-volume-overlay');
+const heroVolText = document.getElementById('hero-volume-text');
 
+let isDraggingHeroVol = false;
+let volDragStartX = 0;
+let volDragStartValue = 30;
+let volHudTimeout = null;
 
-// Initialize
+function showHeroVolumeHUD(value) {
+    if (!heroVolOverlay || !heroVolText) return;
+    heroVolText.textContent = `${value}%`;
+    heroVolOverlay.classList.add('visible');
+
+    clearTimeout(volHudTimeout);
+    volHudTimeout = setTimeout(() => {
+        if (!isDraggingHeroVol) {
+            heroVolOverlay.classList.remove('visible');
+        }
+    }, 1200);
+}
+
+function setupHeroVolumeDrag() {
+    const heroSec = document.getElementById('hero-section') || document.querySelector('.hero-section');
+    if (!heroSec) return;
+
+    let volDragStartY = 0;
+    let scrollStartTop = 0;
+    let dragDirectionLocked = null; // 'horizontal' | 'vertical' | null
+
+    // Mouse Drag
+    heroSec.addEventListener('mousedown', (e) => {
+        if (e.target.closest('button, input, a, label, .viz-btn, .fav-heart-btn')) {
+            return;
+        }
+        isDraggingHeroVol = true;
+        dragDirectionLocked = null;
+        volDragStartX = e.clientX;
+        volDragStartY = e.clientY;
+        scrollStartTop = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
+        volDragStartValue = currentVolumeLevel;
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isDraggingHeroVol) return;
+
+        const deltaX = e.clientX - volDragStartX;
+        const deltaY = e.clientY - volDragStartY;
+
+        if (!dragDirectionLocked) {
+            if (Math.abs(deltaX) > 8 || Math.abs(deltaY) > 8) {
+                if (Math.abs(deltaX) >= Math.abs(deltaY)) {
+                    dragDirectionLocked = 'horizontal';
+                    if (heroSec) heroSec.classList.add('is-dragging-vol');
+                    updateVolume(volDragStartValue, true);
+                } else {
+                    dragDirectionLocked = 'vertical';
+                }
+            }
+        }
+
+        if (dragDirectionLocked === 'horizontal') {
+            e.preventDefault();
+            const volChange = Math.round(deltaX * 0.35);
+            let newVol = Math.min(100, Math.max(0, volDragStartValue + volChange));
+            updateVolume(newVol, true);
+        } else if (dragDirectionLocked === 'vertical') {
+            window.scrollTo(0, scrollStartTop - deltaY);
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (isDraggingHeroVol) {
+            isDraggingHeroVol = false;
+            dragDirectionLocked = null;
+            if (heroSec) heroSec.classList.remove('is-dragging-vol');
+            volHudTimeout = setTimeout(() => {
+                if (heroVolOverlay) heroVolOverlay.classList.remove('visible');
+            }, 1000);
+        }
+    });
+
+    // Touch Drag
+    heroSec.addEventListener('touchstart', (e) => {
+        if (e.target.closest('button, input, a, label, .viz-btn, .fav-heart-btn')) {
+            return;
+        }
+        if (e.touches.length === 1) {
+            isDraggingHeroVol = true;
+            dragDirectionLocked = null;
+            volDragStartX = e.touches[0].clientX;
+            volDragStartY = e.touches[0].clientY;
+            volDragStartValue = currentVolumeLevel;
+        }
+    }, { passive: true });
+
+    heroSec.addEventListener('touchmove', (e) => {
+        if (!isDraggingHeroVol || e.touches.length !== 1) return;
+        const currentX = e.touches[0].clientX;
+        const currentY = e.touches[0].clientY;
+        const deltaX = currentX - volDragStartX;
+        const deltaY = currentY - volDragStartY;
+
+        if (!dragDirectionLocked) {
+            if (Math.abs(deltaX) > 6 || Math.abs(deltaY) > 6) {
+                if (Math.abs(deltaX) >= Math.abs(deltaY)) {
+                    dragDirectionLocked = 'horizontal';
+                    if (heroSec) heroSec.classList.add('is-dragging-vol');
+                    updateVolume(volDragStartValue, true);
+                } else {
+                    dragDirectionLocked = 'vertical';
+                }
+            }
+        }
+
+        if (dragDirectionLocked === 'horizontal') {
+            if (e.cancelable) e.preventDefault();
+            const volChange = Math.round(deltaX * 0.35);
+            let newVol = Math.min(100, Math.max(0, volDragStartValue + volChange));
+            updateVolume(newVol, true);
+        }
+    }, { passive: false });
+
+    const endTouch = () => {
+        if (isDraggingHeroVol) {
+            isDraggingHeroVol = false;
+            dragDirectionLocked = null;
+            if (heroSec) heroSec.classList.remove('is-dragging-vol');
+            volHudTimeout = setTimeout(() => {
+                if (heroVolOverlay) heroVolOverlay.classList.remove('visible');
+            }, 1000);
+        }
+    };
+
+    heroSec.addEventListener('touchend', endTouch);
+    heroSec.addEventListener('touchcancel', endTouch);
+}
+
+// Initialize Application
 function init() {
     setupEventListeners();
-    fetchStations('', 'India', '', false); // Initial load: Search without Auto-play
+    setupStationAudioAura();
+    setupHeroVolumeDrag();
+    fetchStations('', 'India');
     renderPlaylist();
     updateVolume(30);
     loadTheme();
-    
-    // Status Badge Color Observer
-    const statusObserver = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            if (mutation.type === 'childList' || mutation.type === 'characterData') {
-                const text = playerStatus.textContent.toLowerCase();
-                
-                if (text.includes('buffer') || text.includes('load') || text.includes('scan') || text.includes('tune')) {
-                    playerStatus.style.color = '#eab308'; // yellow
-                    playerStatus.style.background = 'rgba(234, 179, 8, 0.15)';
-                    playerStatus.style.borderColor = 'rgba(234, 179, 8, 0.3)';
-                    playerStatus.style.boxShadow = '0 0 15px rgba(234, 179, 8, 0.4)';
-                } else if (text.includes('play')) {
-                    playerStatus.style.color = '#22c55e'; // green
-                    playerStatus.style.background = 'rgba(34, 197, 94, 0.15)';
-                    playerStatus.style.borderColor = 'rgba(34, 197, 94, 0.3)';
-                    playerStatus.style.boxShadow = '0 0 15px rgba(34, 197, 94, 0.4)';
-                } else if (text.includes('pause') || text.includes('stop') || text.includes('error') || text.includes('fail') || text.includes('stall')) {
-                    playerStatus.style.color = '#ef4444'; // red
-                    playerStatus.style.background = 'rgba(239, 68, 68, 0.15)';
-                    playerStatus.style.borderColor = 'rgba(239, 68, 68, 0.3)';
-                    playerStatus.style.boxShadow = '0 0 15px rgba(239, 68, 68, 0.4)';
-                } else {
-                    playerStatus.style.color = 'orange'; // default
-                    playerStatus.style.background = 'rgba(255, 165, 0, 0.15)';
-                    playerStatus.style.borderColor = 'rgba(255, 165, 0, 0.3)';
-                    playerStatus.style.boxShadow = '0 0 15px rgba(255, 165, 0, 0.4)';
-                }
-            }
-        });
+    setupStatusObserver();
+}
+
+function setupStatusObserver() {
+    const statusObserver = new MutationObserver(() => {
+        const text = playerStatus.textContent.toLowerCase();
+
+        if (text.includes('buffer') || text.includes('load') || text.includes('scan') || text.includes('tune')) {
+            playerStatus.style.color = 'var(--gold-accent)';
+            playerStatus.style.background = 'rgba(245, 158, 11, 0.15)';
+            playerStatus.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+            playerStatus.style.boxShadow = '0 0 12px rgba(245, 158, 11, 0.3)';
+        } else if (text.includes('play')) {
+            playerStatus.style.color = 'var(--emerald-accent)';
+            playerStatus.style.background = 'rgba(16, 185, 129, 0.15)';
+            playerStatus.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+            playerStatus.style.boxShadow = '0 0 12px rgba(16, 185, 129, 0.3)';
+        } else if (text.includes('pause') || text.includes('stop') || text.includes('error') || text.includes('fail') || text.includes('stall')) {
+            playerStatus.style.color = 'var(--accent-color)';
+            playerStatus.style.background = 'rgba(236, 72, 153, 0.15)';
+            playerStatus.style.borderColor = 'rgba(236, 72, 153, 0.3)';
+            playerStatus.style.boxShadow = '0 0 12px rgba(236, 72, 153, 0.3)';
+        } else {
+            playerStatus.style.color = 'var(--cyan-accent)';
+            playerStatus.style.background = 'rgba(6, 182, 212, 0.15)';
+            playerStatus.style.borderColor = 'rgba(6, 182, 212, 0.3)';
+            playerStatus.style.boxShadow = '0 0 12px rgba(6, 182, 212, 0.3)';
+        }
     });
     statusObserver.observe(playerStatus, { childList: true, characterData: true, subtree: true });
+}
 
-    // Auto-adjusting helper for mobile
-    window.addEventListener('resize', () => {
-        lucide.createIcons();
-    });
+function showToast(message, icon = 'info') {
+    // Disabled all button click notifications/popups as requested
+    return;
 }
 
 function setupEventListeners() {
-    searchBtn.addEventListener('click', () => {
-        const query = searchInput.value.trim();
-        const country = currentMode === 'India' ? 'India' : '';
-        fetchStations(query, country, '', true); // Quick search and auto-play
-        switchView('discovery');
+    // Search
+    searchBtn.addEventListener('click', performSearch);
+    searchInput.addEventListener('input', () => {
+        clearSearchBtn.style.display = searchInput.value.trim() ? 'flex' : 'none';
+    });
+    clearSearchBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        clearSearchBtn.style.display = 'none';
+        fetchStations('', currentMode === 'India' ? 'India' : '');
+    });
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') performSearch();
     });
 
+    function performSearch() {
+        const query = searchInput.value.trim();
+        const country = currentMode === 'India' ? 'India' : '';
+        fetchStations(query, country);
+        switchView('discovery');
+    }
+
+    // Mode Toggle (India / Global)
     modeToggleBtn.addEventListener('click', () => {
         searchInput.value = '';
+        clearSearchBtn.style.display = 'none';
         if (currentMode === 'India') {
             currentMode = 'Global';
             modeToggleText.textContent = 'Global';
-            const icon = document.getElementById('mode-toggle-icon');
-            if (icon) icon.textContent = '🌍';
+            if (modeToggleIcon) modeToggleIcon.textContent = '🌍';
             modeToggleBtn.classList.remove('india-active');
             indiaCats.style.display = 'none';
             globalCats.style.display = 'flex';
-            fetchStations('', '', '', true); // Auto-play first global station
+            fetchStations('', '');
+            showToast('Switched to Global Mode', 'globe');
         } else {
             currentMode = 'India';
             modeToggleText.textContent = 'India';
-            const icon = document.getElementById('mode-toggle-icon');
-            if (icon) icon.textContent = '🇮🇳';
+            if (modeToggleIcon) modeToggleIcon.textContent = '🇮🇳';
             modeToggleBtn.classList.add('india-active');
             globalCats.style.display = 'none';
             indiaCats.style.display = 'flex';
-            fetchStations('', 'India', '', true); // Auto-play first Indian station
+            fetchStations('', 'India');
+            showToast('Switched to India Mode', 'flag');
         }
         updateActiveCat('All');
+        switchView('discovery');
     });
 
+    // Categories
     catButtons.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            // If dragging, let the capture phase handle prevention
+        btn.addEventListener('click', () => {
             const tag = btn.dataset.tag;
             const country = currentMode === 'India' ? 'India' : '';
             fetchStations('', country, tag, true);
             updateActiveCat(btn.textContent);
+            switchView('discovery');
         });
     });
 
-    // Drag to scroll for category bar
+    // Drag category scroll
     let isDown = false;
-    let startX;
-    let scrollLeft;
-    let isDragging = false;
-
+    let startX, scrollLeft;
     categoriesBar.addEventListener('mousedown', (e) => {
         isDown = true;
-        isDragging = false;
         categoriesBar.style.cursor = 'grabbing';
         startX = e.pageX - categoriesBar.offsetLeft;
         scrollLeft = categoriesBar.scrollLeft;
     });
-    categoriesBar.addEventListener('mouseleave', () => {
-        isDown = false;
-        categoriesBar.style.cursor = 'grab';
-    });
-    categoriesBar.addEventListener('mouseup', () => {
-        isDown = false;
-        categoriesBar.style.cursor = 'grab';
-    });
+    categoriesBar.addEventListener('mouseleave', () => { isDown = false; categoriesBar.style.cursor = 'grab'; });
+    categoriesBar.addEventListener('mouseup', () => { isDown = false; categoriesBar.style.cursor = 'grab'; });
     categoriesBar.addEventListener('mousemove', (e) => {
         if (!isDown) return;
         e.preventDefault();
         const x = e.pageX - categoriesBar.offsetLeft;
-        const walk = (x - startX) * 2; // Scroll-fast multiplier
-        if (Math.abs(walk) > 5) isDragging = true;
+        const walk = (x - startX) * 2;
         categoriesBar.scrollLeft = scrollLeft - walk;
     });
-    // Prevent click if dragged
-    categoriesBar.addEventListener('click', (e) => {
-        if (isDragging) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-    }, true);
 
-    searchInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            const country = currentMode === 'India' ? 'India' : '';
-            fetchStations(searchInput.value.trim(), country);
-            switchView('discovery');
-        }
-    });
-
-    if (refreshBtn) {
-        refreshBtn.addEventListener('click', () => {
-            fetchStations(lastQuery, lastCountry, lastTag, false, true);
-        });
-    }
-
+    // Refresh button
     if (tabRefreshBtn) {
-        tabRefreshBtn.addEventListener('click', () => {
-            fetchStations(lastQuery, lastCountry, lastTag, false, true);
-        });
+        tabRefreshBtn.addEventListener('click', () => fetchStations(lastQuery, lastCountry, lastTag));
     }
 
-    if (fsRefreshBtn) {
-        fsRefreshBtn.addEventListener('click', () => {
-            fetchStations(lastQuery, lastCountry, lastTag, false, true);
-            if (window.lucide) {
-                lucide.createIcons();
-            }
-        });
-    }
-
-    if (fullscreenBtn) {
-        fullscreenBtn.addEventListener('click', () => {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => console.log(err));
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
-            }
-        });
-    }
-
-    // Multi-click (2 or 3 times) to toggle Fullscreen
-    let cardClickCount = 0;
-    let cardClickTimeout = null;
-
-    if (nowPlayingCard) {
-        nowPlayingCard.addEventListener('click', (e) => {
-            // Ignore if clicking interactive controls (buttons, volume slider)
-            if (e.target.closest('button') || e.target.closest('input')) return;
-
-            cardClickCount++;
-            
-            // If user clicked 2 or more times quickly (handles double or triple tap)
-            if (cardClickCount >= 2) {
-                clearTimeout(cardClickTimeout);
-                cardClickCount = 0;
-                
-                if (!document.fullscreenElement) {
-                    document.documentElement.requestFullscreen().catch(err => console.log(err));
-                } else {
-                    if (document.exitFullscreen) {
-                        document.exitFullscreen();
-                    }
-                }
-                
-                // Clear any accidental text selection from tapping
-                if (window.getSelection) {
-                    window.getSelection().removeAllRanges();
-                } else if (document.selection) {
-                    document.selection.empty();
-                }
-            } else {
-                cardClickTimeout = setTimeout(() => {
-                    cardClickCount = 0; // Reset after short delay
-                }, 400); // 400ms window to tap again
-            }
-        });
-    }
-
-    document.addEventListener('fullscreenchange', () => {
-        if (document.fullscreenElement) {
+    // Fullscreen
+    const handleFSChange = () => {
+        const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+        const fsIcon = document.getElementById('fullscreen-icon');
+        if (isFS) {
             document.body.classList.add('is-fullscreen');
+            if (fsIcon) fsIcon.setAttribute('data-lucide', 'minimize');
         } else {
             document.body.classList.remove('is-fullscreen');
+            if (fsIcon) fsIcon.setAttribute('data-lucide', 'maximize');
         }
+        if (window.lucide) lucide.createIcons();
+    };
+
+    // Fullscreen Toggle Helper
+    const toggleFullscreen = () => {
+        const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+        if (!isFS) {
+            const el = document.documentElement;
+            const reqFS = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+            if (reqFS) reqFS.call(el).catch(err => console.log(err));
+        } else {
+            const exitFS = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
+            if (exitFS) exitFS.call(document);
+        }
+    };
+
+    if (fullscreenBtn) {
+        fullscreenBtn.addEventListener('click', toggleFullscreen);
+    }
+
+    // Double click window / hero section to toggle fullscreen
+    document.addEventListener('dblclick', (e) => {
+        if (e.target.closest('input, textarea, select, button, a, label, .fav-heart-btn')) {
+            return;
+        }
+        e.preventDefault();
+        toggleFullscreen();
     });
 
+    ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(evt => {
+        document.addEventListener(evt, handleFSChange);
+    });
+
+    // View Switcher (Grid / List)
+    if (gridViewBtn && listViewBtn) {
+        gridViewBtn.addEventListener('click', () => {
+            gridViewBtn.classList.add('active');
+            listViewBtn.classList.remove('active');
+            stationsGrid.classList.add('grid-layout');
+        });
+        listViewBtn.addEventListener('click', () => {
+            listViewBtn.classList.add('active');
+            gridViewBtn.classList.remove('active');
+            stationsGrid.classList.remove('grid-layout');
+        });
+    }
+
+    // Theme Toggle
     themeToggle.addEventListener('click', toggleTheme);
 
+    // Playback Controls
     playPauseBtn.addEventListener('click', togglePlay);
-    
     prevBtn.addEventListener('click', playPrevious);
     nextBtn.addEventListener('click', playNext);
 
-    if (muteBtn) {
-        muteBtn.addEventListener('click', toggleMute);
-    }
-    
-    if (volumeSlider) {
-        volumeSlider.addEventListener('input', (e) => {
-            updateVolume(e.target.value);
-        });
-    }
-
+    // Playlist Add / Heart Button
     addToPlaylistBtn.addEventListener('click', () => {
         if (currentStationIndex >= 0 && currentStations[currentStationIndex]) {
-            addToPlaylist(currentStations[currentStationIndex]);
+            togglePlaylistStation(currentStations[currentStationIndex]);
         }
     });
 
-    currentStationImg.addEventListener('click', () => {
-        addToPlaylistBtn.click();
-    });
+    // FX Toggles
+    if (eqHdBtn) eqHdBtn.addEventListener('click', toggleHDEQ);
+    if (djBoostBtn) djBoostBtn.addEventListener('click', toggleDJBoost);
+    if (surround3dBtn) surround3dBtn.addEventListener('click', toggle3DSurround);
+    if (volBoostCheck) volBoostCheck.addEventListener('change', toggleVolBoost);
+    if (smartAutoScanBtn) smartAutoScanBtn.addEventListener('click', toggleSmartAutoScan);
 
-    if (eqHdBtn) {
-        eqHdBtn.addEventListener('click', toggleHDEQ);
-    }
-    
-    if (djBoostBtn) {
-        djBoostBtn.addEventListener('click', toggleDJBoost);
-    }
-    
-    const surround3dBtn = document.getElementById('surround-3d-btn') || document.getElementById('3d-surround-btn');
-    if (surround3dBtn) {
-        surround3dBtn.addEventListener('click', toggle3DSurround);
-    }
+    // Sleep Timer
+    if (sleepTimerBtn && sleepTimerMenu) {
+        sleepTimerBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sleepTimerMenu.style.display = sleepTimerMenu.style.display === 'none' ? 'flex' : 'none';
+        });
+        document.addEventListener('click', () => { sleepTimerMenu.style.display = 'none'; });
 
-    if (volBoostCheck) {
-        volBoostCheck.addEventListener('change', toggleVolBoost);
-    }
-
-    if (smartAutoScanBtn) {
-        smartAutoScanBtn.addEventListener('click', toggleSmartAutoScan);
-    }
-
-    // Add / Scan Station Modal Event Listeners
-    const openAddStationBtn = document.getElementById('open-add-station-btn');
-    const closeAddStationBtn = document.getElementById('close-add-station-btn');
-    const addStationModal = document.getElementById('add-station-modal');
-    const addStationForm = document.getElementById('add-station-form');
-    const scanStreamBtn = document.getElementById('scan-stream-btn');
-
-    if (openAddStationBtn && addStationModal) {
-        openAddStationBtn.addEventListener('click', () => {
-            addStationModal.style.display = 'flex';
-            if (typeof lucide !== 'undefined') lucide.createIcons();
+        const timerOpts = sleepTimerMenu.querySelectorAll('.timer-opt');
+        timerOpts.forEach(opt => {
+            opt.addEventListener('click', () => {
+                timerOpts.forEach(o => o.classList.remove('active'));
+                opt.classList.add('active');
+                const mins = parseInt(opt.dataset.minutes);
+                setSleepTimer(mins);
+            });
         });
     }
 
-    if (closeAddStationBtn && addStationModal) {
-        closeAddStationBtn.addEventListener('click', () => {
-            addStationModal.style.display = 'none';
-        });
-        addStationModal.addEventListener('click', (e) => {
-            if (e.target === addStationModal) {
-                addStationModal.style.display = 'none';
-            }
-        });
-    }
 
-    if (scanStreamBtn) {
-        scanStreamBtn.addEventListener('click', () => {
-            const urlInput = document.getElementById('new-station-url');
-            const urlVal = urlInput ? urlInput.value.trim() : '';
-            
-            if (!urlVal) {
-                alert('Please enter a Stream URL first!');
-                return;
-            }
 
-            scanStreamBtn.disabled = true;
-            scanStreamBtn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> <span>Scanning...</span>';
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-
-            const testAudio = new Audio();
-            let hasResolved = false;
-
-            const cleanup = () => {
-                testAudio.pause();
-                testAudio.src = '';
-                scanStreamBtn.disabled = false;
-                scanStreamBtn.innerHTML = '<i data-lucide="zap"></i> <span>Scan Stream</span>';
-                if (typeof lucide !== 'undefined') lucide.createIcons();
-            };
-
-            const timeoutId = setTimeout(() => {
-                if (!hasResolved) {
-                    hasResolved = true;
-                    cleanup();
-                    alert('Stream scan completed - Signal Ready!');
-                }
-            }, 5000);
-
-            testAudio.oncanplay = () => {
-                if (!hasResolved) {
-                    hasResolved = true;
-                    clearTimeout(timeoutId);
-                    cleanup();
-                    alert('Stream Signal Verified! 128kbps HD Ready');
-                }
-            };
-
-            testAudio.onerror = () => {
-                if (!hasResolved) {
-                    hasResolved = true;
-                    clearTimeout(timeoutId);
-                    cleanup();
-                    alert('Unable to connect to stream URL');
-                }
-            };
-
-            testAudio.src = urlVal;
-            testAudio.load();
-        });
-    }
-
-    if (addStationForm) {
-        addStationForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const nameVal = document.getElementById('new-station-name').value.trim();
-            const urlVal = document.getElementById('new-station-url').value.trim();
-            const catVal = document.getElementById('new-station-category').value.trim();
-            const countryVal = document.getElementById('new-station-country').value.trim();
-            const logoVal = document.getElementById('new-station-logo').value.trim();
-
-            if (!nameVal || !urlVal) {
-                alert('Station Name and Stream URL are required');
-                return;
-            }
-
-            const newStationObj = {
-                stationuuid: 'custom-' + Date.now(),
-                name: nameVal,
-                url_resolved: urlVal,
-                url: urlVal,
-                favicon: logoVal || 'logo.png',
-                tags: catVal,
-                country: countryVal || 'India',
-                votes: 1250,
-                bitrate: 128,
-                lastcheckok: 1,
-                isCustom: true
-            };
-
-            userAddedCustomStations.unshift(newStationObj);
-            localStorage.setItem('fm_custom_stations', JSON.stringify(userAddedCustomStations));
-
-            if (addStationModal) addStationModal.style.display = 'none';
-            addStationForm.reset();
-
-            alert(`Added '${nameVal}' to ${catVal.toUpperCase()} category!`);
-
-            currentStations.unshift(newStationObj);
-            renderStations();
-            playStation(0, 'search');
-        });
-    }
-
-    // Tab Switching
+    // Main Tabs
     mainTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            const target = tab.dataset.tab;
-            switchView(target);
-        });
+        tab.addEventListener('click', () => switchView(tab.dataset.tab));
     });
 
-    // Now Playing Card Gesture Volume Control
-    let isDraggingVol = false;
-    let startDragY = 0;
-    let startDragVol = 0;
-
-    const handleVolDragStart = (e) => {
-        if (!nowPlayingCard.classList.contains('playing')) return;
-        // Ignore if clicking interactive controls inside the card
-        if (e.target.closest('button') || e.target.closest('input')) return;
-        
-        const rect = nowPlayingCard.getBoundingClientRect();
-        const startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-        const startY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-        
-        // Only allow volume control if dragging on the left half of the card
-        if (startX > rect.left + (rect.width / 2)) {
-            return; // Right side -> do nothing, allows default page scroll
-        }
-        
-        isDraggingVol = true;
-        startDragY = startY;
-        startDragVol = (volumeSlider ? parseInt(volumeSlider.value) : lastVolume) || 30;
-        
-        const dragOverlay = document.getElementById('volume-drag-overlay');
-        const dragText = document.getElementById('volume-drag-text');
-        if (dragOverlay && dragText) {
-            dragText.textContent = startDragVol;
-            dragOverlay.classList.add('active');
-        }
-    };
-
-    const handleVolDragMove = (e) => {
-        if (!isDraggingVol || !nowPlayingCard.classList.contains('playing')) return;
-        
-        // Prevent default scrolling on touch devices while adjusting volume
-        if (e.cancelable) e.preventDefault(); 
-        
-        const currentY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-        // Moving up (negative diff) increases volume, moving down decreases it
-        const diffY = startDragY - currentY; 
-        
-        // 150px drag height = full 100% volume change
-        const volChange = Math.round((diffY / 150) * 100);
-        let newVol = Math.max(0, Math.min(100, startDragVol + volChange));
-        
-        updateVolume(newVol);
-        
-        const dragText = document.getElementById('volume-drag-text');
-        if (dragText) {
-            dragText.textContent = newVol;
-        }
-    };
-
-    const handleVolDragEnd = () => {
-        if (isDraggingVol) {
-            const dragOverlay = document.getElementById('volume-drag-overlay');
-            if (dragOverlay) {
-                dragOverlay.classList.remove('active');
-            }
-        }
-        isDraggingVol = false;
-    };
-
-    if (nowPlayingCard) {
-        nowPlayingCard.addEventListener('mousedown', handleVolDragStart);
-        window.addEventListener('mousemove', handleVolDragMove, { passive: false });
-        window.addEventListener('mouseup', handleVolDragEnd);
-
-        nowPlayingCard.addEventListener('touchstart', handleVolDragStart, { passive: true });
-        window.addEventListener('touchmove', handleVolDragMove, { passive: false });
-        window.addEventListener('touchend', handleVolDragEnd);
-    }
-
-    // Network Connection Monitoring
-    window.addEventListener('offline', () => {
-        playerStatus.textContent = 'Internet Disconnected';
-        playerStatus.style.color = '#ef4444'; // Red
-        resultsCount.textContent = 'Offline';
-        if (isSmartScanning) {
-            toggleSmartAutoScan(); // Stop auto-scan if running
-        }
-        if (!audioPlayer.paused) {
-            audioPlayer.pause();
-            if (nowPlayingCard) nowPlayingCard.classList.remove('playing');
-        }
-    });
-
-    window.addEventListener('online', () => {
-        playerStatus.textContent = 'Internet Restored';
-        playerStatus.style.color = '#22c55e'; // Green
-        setTimeout(() => {
-            fetchStations(lastQuery, lastCountry, lastTag, false);
-        }, 1500); // Re-fetch stations after a brief delay
-    });
-
-    // Keyboard Controls
+    // Keyboard Shortcuts
     document.addEventListener('keydown', (e) => {
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-
-        switch(e.code) {
-            case 'Space':
-                e.preventDefault();
-                togglePlay();
-                break;
-            case 'ArrowUp':
-                e.preventDefault();
-                let upVol = Math.min(100, parseInt((volumeSlider ? volumeSlider.value : lastVolume) || 30) + 5);
-                updateVolume(upVol);
-                break;
-            case 'ArrowDown':
-                e.preventDefault();
-                let downVol = Math.max(0, parseInt((volumeSlider ? volumeSlider.value : lastVolume) || 30) - 5);
-                updateVolume(downVol);
-                break;
-            case 'ArrowLeft':
-                e.preventDefault();
-                playPrevious();
-                break;
-            case 'ArrowRight':
-                e.preventDefault();
-                playNext();
-                break;
+        switch (e.code) {
+            case 'Space': e.preventDefault(); togglePlay(); break;
+            case 'ArrowUp': e.preventDefault(); updateVolume(Math.min(100, currentVolumeLevel + 5), true); break;
+            case 'ArrowDown': e.preventDefault(); updateVolume(Math.max(0, currentVolumeLevel - 5), true); break;
+            case 'ArrowLeft': e.preventDefault(); playPrevious(); break;
+            case 'ArrowRight': e.preventDefault(); playNext(); break;
         }
     });
 
-    // Audio Player Events
+    // Audio Event Handlers
     audioPlayer.onplay = () => {
-        userExplicitlyPaused = false;
-        document.body.classList.add('is-playing');
-        if (isSleepMode) {
-            enableSleepMode(false);
-        }
+        ensureAudioContextResumed();
+        applyAudioFXSettings();
         playPauseBtn.innerHTML = '<i data-lucide="pause" id="play-icon"></i>';
         lucide.createIcons();
         playerStatus.textContent = 'Playing';
         if (nowPlayingCard) nowPlayingCard.classList.add('playing');
         requestWakeLock();
-        if (keepAliveAudio) keepAliveAudio.play().catch(e => console.log('Keep-alive failed:', e));
-        
-        // Initialize Web Audio API on first play
-        if (!audioContext && (window.AudioContext || window.webkitAudioContext)) {
-            try {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                audioAnalyser = audioContext.createAnalyser();
-                audioAnalyser.fftSize = 256; /* Higher resolution for specific instruments */
-                audioAnalyser.smoothingTimeConstant = 0.65; /* Lower smoothing for punchier, real-time sync with beats and voice */
-                
-                audioGainNode = audioContext.createGain();
-                
-                audioSource = audioContext.createMediaElementSource(audioPlayer);
-                audioSource.connect(audioGainNode);
-                audioGainNode.connect(audioAnalyser);
-                audioAnalyser.connect(audioContext.destination);
-                
-                eqDataArray = new Uint8Array(audioAnalyser.frequencyBinCount);
-                updateEqualizer();
-            } catch (e) {
-                console.warn('Web Audio API not supported or failed to initialize', e);
-            }
-        } else if (audioContext && audioContext.state === 'suspended') {
-            audioContext.resume();
-        }
+        if (keepAliveAudio) keepAliveAudio.play().catch(e => console.log(e));
     };
 
-    let bufferingWatchdogTimer = null;
-
-    function startBufferingWatchdog() {
-        clearTimeout(bufferingWatchdogTimer);
-        if (userExplicitlyPaused || autoPlayBlocked) return;
-        
-        bufferingWatchdogTimer = setTimeout(() => {
-            if (!userExplicitlyPaused && (audioPlayer.paused || audioPlayer.readyState < 3)) {
-                console.log('Buffering stalled after 3.5s - Auto playing next station');
-                playerStatus.textContent = 'Buffering Stalled - Auto Playing Next...';
-                playerStatus.style.color = 'var(--accent-color)';
-                playNext();
-            }
-        }, 3500); // 3.5 seconds
-    }
-
     audioPlayer.onplaying = () => {
-        consecutiveErrors = 0; // Reset error count on successful play
-        clearTimeout(playCheckTimeout); // Clear any buffering timeouts
-        clearTimeout(bufferingWatchdogTimer);
-        document.body.classList.add('is-playing');
+        consecutiveErrors = 0;
+        if (playCheckTimeout) {
+            clearTimeout(playCheckTimeout);
+            playCheckTimeout = null;
+        }
         if (nowPlayingCard) nowPlayingCard.classList.add('playing');
         playerStatus.textContent = 'Playing';
-        
-        if (isSmartScanning) {
-            clearTimeout(smartScanTimeout);
-            smartScanTimeout = setTimeout(() => {
-                if (!isSmartScanning) return;
-                currentStationIndex = (currentStationIndex + 1) % currentStations.length;
-                playSmartScanStation();
-            }, 8000);
-        }
     };
 
     audioPlayer.onpause = () => {
-        // Prevent unintended automatic pausing (e.g. browser throttling or network hiccups)
-        if (!userExplicitlyPaused) {
-            console.log('Unintended pause event detected. Attempting instant auto-resume...');
-            audioPlayer.play().then(() => {
-                document.body.classList.add('is-playing');
-                if (nowPlayingCard) nowPlayingCard.classList.add('playing');
-                playerStatus.textContent = 'Playing';
-                playerStatus.style.color = '#22c55e';
-            }).catch(err => {
-                console.warn('Auto-resume failed. Auto playing next working station...', err);
-                playerStatus.textContent = 'Auto Playing Next...';
-                playerStatus.style.color = 'var(--accent-color)';
-                playNext();
-            });
-            return;
+        if (playCheckTimeout) {
+            clearTimeout(playCheckTimeout);
+            playCheckTimeout = null;
         }
-
-        document.body.classList.remove('is-playing');
-        if (nowPlayingCard) nowPlayingCard.classList.remove('playing');
         playPauseBtn.innerHTML = '<i data-lucide="play" id="play-icon"></i>';
         lucide.createIcons();
-        if ('mediaSession' in navigator) {
-            navigator.mediaSession.playbackState = 'paused';
-        }
-        
-        // Auto Release Wake Lock so screen light turns off automatically
+        playerStatus.textContent = 'Paused';
+        if (nowPlayingCard) nowPlayingCard.classList.remove('playing');
         releaseWakeLock();
         if (keepAliveAudio) keepAliveAudio.pause();
-        
-        // Stop scanning/background checks when paused
-        clearTimeout(smartScanTimeout);
-        clearTimeout(playCheckTimeout);
-        clearTimeout(bufferingWatchdogTimer);
-        playerStatus.textContent = 'Paused';
     };
 
-    audioPlayer.onwaiting = () => {
-        if (!userExplicitlyPaused) {
-            playerStatus.textContent = 'Buffering...';
-            startBufferingWatchdog();
+    audioPlayer.onerror = () => {
+        if (playCheckTimeout) {
+            clearTimeout(playCheckTimeout);
+            playCheckTimeout = null;
         }
-    };
-
-    audioPlayer.onstalled = () => {
-        if (!userExplicitlyPaused) {
-            playerStatus.textContent = 'Re-connecting Stream...';
-            playerStatus.style.color = '#eab308';
-            startBufferingWatchdog();
-            audioPlayer.play().catch(() => {
-                playNext();
-            });
-        }
-    };
-
-    audioPlayer.onerror = (e) => {
-        console.error('Audio playback error:', e);
-        if (!userExplicitlyPaused) {
-            clearTimeout(bufferingWatchdogTimer);
-            document.body.classList.remove('is-playing');
+        consecutiveErrors++;
+        if (consecutiveErrors < 8) {
+            playerStatus.textContent = 'Stream Error - Auto reconnecting...';
+            setTimeout(() => playNext(), 1500);
+        } else {
+            playerStatus.textContent = 'Playback Error';
             if (nowPlayingCard) nowPlayingCard.classList.remove('playing');
-            playerStatus.textContent = 'Stream Error - Auto Playing Next...';
-            playerStatus.style.color = 'var(--accent-color)';
-            playNext();
+            consecutiveErrors = 0;
         }
     };
-    
-    audioPlayer.onended = () => {
-        console.log('Stream ended. Reconnecting...');
-        audioPlayer.load();
-        audioPlayer.play().catch(e => {
-            console.error('Reconnect failed, playing next:', e);
-            playNext();
-        });
-    };
-
-    audioPlayer.onloadstart = () => {
-        if (!userExplicitlyPaused) {
-            playerStatus.textContent = 'Buffering...';
-            startBufferingWatchdog();
-        }
-    };
-
-    // Prevent background auto-pausing when tab visibility changes
-    document.addEventListener('visibilitychange', () => {
-        if (!userExplicitlyPaused && audioPlayer.paused) {
-            audioPlayer.play().catch(e => console.log('Background resume attempt:', e));
-        }
-        if (document.hidden && !audioPlayer.paused) {
-            if ('mediaSession' in navigator) {
-                navigator.mediaSession.playbackState = 'playing';
-            }
-        } else if (document.visibilityState === 'visible' && !audioPlayer.paused) {
-            requestWakeLock();
-        }
-    });
 }
 
-function updateEqualizer() {
-    if (!audioAnalyser || !eqBars || !eqBars.length) return;
-    
-    animationFrameId = requestAnimationFrame(updateEqualizer);
-    
-    if (audioPlayer.paused || audioPlayer.muted) {
-        // Reset to minimal height when paused
-        eqBars.forEach(bar => bar.style.height = '10%');
-        return;
-    }
-    
-    audioAnalyser.getByteFrequencyData(eqDataArray);
-    
-    // Non-linear mapping targeting specific frequency ranges
-    // Bins correspond to ~172Hz each (at 44.1kHz / 256 fftSize). 
-    // Mapped for: Kick(0-172), Bassline, Low-mid, Mid(Voice), Lead(Voice), Upper-Mid(Snare), High-mid, High, High, Treble, Treble, Air
-    const freqMap = [0, 1, 3, 6, 10, 15, 22, 30, 42, 56, 75, 100];
-    
-    for (let i = 0; i < eqBars.length; i++) {
-        const dataIndex = freqMap[i] || i; // Fallback just in case
-        
-        // Add a slight multiplier to higher frequencies to make them pop out more
-        let value = eqDataArray[dataIndex];
-        if (i > 4) value = Math.min(255, value * (1 + (i - 4) * 0.15));
-        
-        // Map 0-255 to 10%-100%
-        const heightPercent = 10 + (value / 255) * 90;
-        eqBars[i].style.height = `${heightPercent}%`;
-    }
-}
+// Fetch Stations
 
-// Custom API fetch mappings for complex categories
-const fetchMappings = {
-    'australia news': [ { tag: 'news', country: 'Australia' } ],
-    'euro news': [ { name: 'euronews' }, { tag: 'news', language: 'english' } ],
-    'bbc news': [ { name: 'bbc news' }, { name: 'bbc radio', tag: 'news' } ],
-    'us news': [ { tag: 'news', country: 'United States' }, { tag: 'news', country: 'United States of America' } ],
-    'world news': [ { tag: 'world news' }, { tag: 'international news' }, { tag: 'global news' } ],
-    'russian news': [ { tag: 'news', country: 'Russia' }, { tag: 'news', language: 'russian' } ],
-    'france news': [ { tag: 'news', country: 'France' }, { tag: 'news', language: 'french' } ],
-    'pop': [ { tag: 'pop' }, { tag: 'top 40' }, { tag: 'hits' } ],
-    'rock': [ { tag: 'rock' }, { tag: 'classic rock' }, { tag: 'hard rock' } ],
-    'jazz': [ { tag: 'jazz' }, { tag: 'smooth jazz' } ],
-    'classical': [ { tag: 'classical' }, { tag: 'symphony' } ],
-    'hip hop': [ { tag: 'hip hop' }, { tag: 'rap' }, { tag: 'rnb' } ],
-    'electronic': [ { tag: 'electronic' }, { tag: 'edm' }, { tag: 'techno' } ],
-    'ambient': [ { tag: 'ambient' }, { tag: 'chillout' }, { tag: 'relax' } ],
-    'dance music': [ { tag: 'dance' }, { tag: 'dance music' }, { tag: 'club' } ],
-    'educational': [ { tag: 'educational' }, { tag: 'education' }, { tag: 'learning' } ],
-    'sports': [ { tag: 'sports' }, { tag: 'sport' }, { tag: 'live sports' } ],
-    'talk': [ { tag: 'talk' }, { tag: 'talk radio' }, { tag: 'speech' }, { tag: 'podcast' } ],
-    'hindi': [ { tag: 'hindi', country: 'India' }, { language: 'hindi', country: 'India' }, { name: 'hindi', country: 'India' }, { name: 'lucknow', country: 'India' } ],
-    'classic': [ { tag: 'classical', country: 'India' }, { tag: 'retro', country: 'India' }, { tag: 'gold', country: 'India' }, { name: 'hindi classical', country: 'India' }, { name: 'retro', country: 'India' }, { name: 'gold', country: 'India' }, { name: 'classic', country: 'India' } ],
-    'regional': [
-        { tag: 'tamil', country: 'India' }, { language: 'tamil', country: 'India' }, { state: 'tamil nadu', country: 'India' },
-        { tag: 'kannada', country: 'India' }, { language: 'kannada', country: 'India' }, { state: 'karnataka', country: 'India' },
-        { tag: 'telugu', country: 'India' }, { language: 'telugu', country: 'India' }, { state: 'telangana', country: 'India' }, { state: 'andhra pradesh', country: 'India' },
-        { tag: 'malayalam', country: 'India' }, { language: 'malayalam', country: 'India' }, { state: 'kerala', country: 'India' },
-        { tag: 'marathi', country: 'India' }, { language: 'marathi', country: 'India' }, { state: 'maharashtra', country: 'India' },
-        { tag: 'gujarati', country: 'India' }, { language: 'gujarati', country: 'India' }, { state: 'gujarat', country: 'India' }
-    ],
-    'bollywood': [ { tag: 'bollywood', country: 'India' }, { tag: 'hindi', country: 'India' } ],
-    'dj remix': [ { tag: 'dj remix', country: 'India' }, { tag: 'remix', country: 'India' }, { name: 'anbu fm hindi' }, { name: 'anbu fm' }, { name: 'radio deewana' }, { name: 'bollywoodandbeyond' }, { name: 'goldy blast' }, { name: 'bollywood diwali party' } ],
-    'singer': [ { name: 'latamangeshkarradio' }, { name: 'kishorekumarradio' }, { name: 'Hits Of Lata Mangeshkar' }, { name: 'Rafi hit songs' }, { name: 'Mohammed Rafi' }, { name: 'Hits Of Kishor Kumar' }, { name: 'Goldy Mukesh' }, { name: 'hit of lata' }, { name: 'Mukesh Radio' }, { name: 'shreyaghosal' }, { name: 'arijitsingh' }, { name: 'Kumar Sanu' }, { name: 'Sonu Nigam' }, { name: 'Alka Yagnik' }, { name: 'Kishore Kumar' }, { name: 'Lata Mangeshkar' }, { name: 'Bollywood Arijit singh' }, { name: 'Bollywood Shaharukh khan' }, { name: 'Bollywood alkayagnik' }, { name: 'radio madhuban' }, { name: 'Bollywood sonu nigam' }, { name: 'Bollywood shreya ghosal' }, { name: 'Bollywood Vishal shekhar' }, { name: 'Bollywood armaan malik' }, { name: 'Bollywood nehakakkar' } ],
-    'ghazal': [ { name: 'gazal radio london' }, { name: 'Radio gyansthali 89.6 fm' } ],
-    'news': [ { tag: 'news', country: 'India' }, { name: 'wion live tv' } ]
-};
-
-// API Functions
-async function fetchStations(query = '', country = '', tag = '', autoPlay = false, forceRefresh = false) {
-    if (!navigator.onLine) {
-        playerStatus.textContent = 'Offline';
-        playerStatus.style.color = '#ef4444'; // Red error status
-        resultsCount.textContent = '0 stations found (No Internet)';
-        stationsGrid.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-secondary); grid-column: 1/-1;">No internet connection. Please check your network and try again.</div>';
-        return;
-    }
-
+async function fetchStations(query = '', country = '', tag = '', autoPlay = false) {
     lastQuery = query;
     lastCountry = country;
     lastTag = tag;
-    
-    const cacheKey = `stations_cache_${query}_${country}_${tag}`;
-    let loadedFromCache = false;
-    
-    // Check if we have cached stations to load instantly
-    const cachedData = !forceRefresh ? localStorage.getItem(cacheKey) : null;
-    if (cachedData) {
-        try {
-            currentStations = JSON.parse(cachedData);
-            renderStations();
-            resultsCount.textContent = `${currentStations.length} stations found`;
-            
-            if (currentStations.length > 0) {
-                if (autoPlay) {
-                    playStation(0, 'search');
-                } else if (!audioPlayer.getAttribute('src')) {
-                    currentStationIndex = 0;
-                    updatePlayerUI(currentStations[0]);
-                    playerStatus.textContent = 'Ready (Cached)';
-                }
-            }
-            loadedFromCache = true;
-        } catch (e) {
-            console.error('Cache parsing error', e);
-        }
-    }
-    
-    if (!loadedFromCache) {
-        mainLoader.style.display = 'flex';
-        stationsGrid.innerHTML = '';
-    }
-    
+
+    mainLoader.style.display = 'flex';
+    stationsGrid.innerHTML = '';
+
     let url = `${API_BASE}/stations/search?limit=${DEFAULT_LIMIT}&order=clickcount&reverse=true&hidebroken=true`;
-    if (country) {
-        url += `&country=${encodeURIComponent(country)}`;
-    }
-    if (tag) {
-        url += `&tag=${encodeURIComponent(tag)}`;
-    }
-    if (query) {
-        url += `&name=${encodeURIComponent(query)}`;
-    }
+    if (country) url += `&country=${encodeURIComponent(country)}`;
+    if (tag) url += `&tag=${encodeURIComponent(tag)}`;
+    if (query) url += `&name=${encodeURIComponent(query)}`;
 
     try {
-        if (tag.toLowerCase() === 'bhakti') {
-            const p1 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=bhakti`).then(r => r.json()).catch(() => []);
-            const p2 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=devotional`).then(r => r.json()).catch(() => []);
-            const p3 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=hindu`).then(r => r.json()).catch(() => []);
-            const p4 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=spiritual`).then(r => r.json()).catch(() => []);
-            const p5 = fetch(`${API_BASE}/stations/search?limit=5&order=clickcount&reverse=true&hidebroken=true&name=bhaktiworld%20media%20Bhagavad%20Gita`).then(r => r.json()).catch(() => []);
-            const p6 = fetch(`${API_BASE}/stations/search?limit=5&order=clickcount&reverse=true&hidebroken=true&name=Bhaktisudha`).then(r => r.json()).catch(() => []);
-            const p7 = fetch(`${API_BASE}/stations/search?limit=5&order=clickcount&reverse=true&hidebroken=true&name=classic%20radio%20bhakti%20sangeet`).then(r => r.json()).catch(() => []);
-            const p8 = fetch(`${API_BASE}/stations/search?limit=5&order=clickcount&reverse=true&hidebroken=true&name=Bhagavad%20Gita%20Radio`).then(r => r.json()).catch(() => []);
-            
-            const [d1, d2, d3, d4, d5, d6, d7, d8] = await Promise.all([p1, p2, p3, p4, p5, p6, p7, p8]);
-            const combined = [...CUSTOM_BHAKTI_STATIONS, ...d5, ...d6, ...d7, ...d8, ...d1, ...d2, ...d3, ...d4];
-            
-            // Remove duplicates based on stationuuid, stream URL, and normalized station name
-            currentStations = combined.filter((v,i,a) => a.findIndex(t => 
-                (t.stationuuid && v.stationuuid && t.stationuuid === v.stationuuid) ||
-                (t.url_resolved && v.url_resolved && t.url_resolved.trim().toLowerCase() === v.url_resolved.trim().toLowerCase()) ||
-                (t.name && v.name && t.name.trim().toLowerCase() === v.name.trim().toLowerCase())
-            ) === i);
-        } else if (tag.toLowerCase() === 'bangla') {
-            const p1 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=bangla`).then(r => r.json()).catch(() => []);
-            const p2 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=bengali`).then(r => r.json()).catch(() => []);
-            const p3 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&language=bengali`).then(r => r.json()).catch(() => []);
-            const p5 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&state=West%20Bengal`).then(r => r.json()).catch(() => []);
-            const p6 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=kolkata`).then(r => r.json()).catch(() => []);
-            const p7 = fetch(`${API_BASE}/stations/search?limit=5&order=clickcount&reverse=true&hidebroken=true&name=Hot%20Now%20Bangla`).then(r => r.json()).catch(() => []);
-            const p8 = fetch(`${API_BASE}/stations/search?limit=5&order=clickcount&reverse=true&hidebroken=true&name=AIR%20FM%20Gold%20Kolkata`).then(r => r.json()).catch(() => []);
-            
-            const [d1, d2, d3, d5, d6, d7, d8] = await Promise.all([p1, p2, p3, p5, p6, p7, p8]);
-            // Place Indian stations first
-            const combined = [...d7, ...d8, ...d1, ...d2, ...d3, ...d5, ...d6];
-            
-            // Remove duplicates
-            currentStations = combined.filter((v,i,a) => a.findIndex(t => (t.stationuuid === v.stationuuid)) === i);
-            
-            // Remove unwanted stations from Bangla category
-            const excludedBangla = ['my club remix', 'vividh bharti mumbai', 'radio bollyfm', 'fm rainbow delhi 32 kbps', 'radio mirchi lucknow', 'bollywood gaane purane'];
-            currentStations = currentStations.filter(s => {
-                const name = s.name ? s.name.toLowerCase().trim() : '';
-                return !excludedBangla.some(ex => name === ex || name.includes(ex));
+        const lowerTag = tag.toLowerCase();
+        const lowerQuery = query.toLowerCase();
+
+        if (lowerTag === 'ghazal' || lowerTag === 'gazal' || lowerQuery.includes('ghazal') || lowerQuery.includes('gazal')) {
+            currentStations = [...CUSTOM_GHAZAL_STATIONS];
+        } else if (lowerTag === 'punjabi' || lowerTag === 'panjabi' || lowerQuery.includes('punjabi') || lowerQuery.includes('panjabi')) {
+            const resp = await fetch(url).then(r => r.json()).catch(() => []);
+            currentStations = [...CUSTOM_PUNJABI_STATIONS, ...resp];
+        } else if (lowerTag === 'bangla' || lowerTag === 'bengali' || lowerQuery.includes('bangla') || lowerQuery.includes('bengali')) {
+            const resp = await fetch(url).then(r => r.json()).catch(() => []);
+            currentStations = [...CUSTOM_BANGLA_STATIONS, ...resp];
+        } else if (lowerTag === 'dj remix' || lowerTag === 'remix' || lowerQuery.includes('remix') || lowerQuery.includes('dj')) {
+            const resp = await fetch(url).then(r => r.json()).catch(() => []);
+            currentStations = [...CUSTOM_DJ_REMIX_STATIONS, ...resp];
+        } else if (lowerTag === 'singer' || lowerQuery.includes('singer')) {
+            const resp = await fetch(url).then(r => r.json()).catch(() => []);
+            currentStations = [...CUSTOM_SINGER_STATIONS, ...resp];
+        } else if (lowerTag === 'hindi' || lowerQuery === 'hindi') {
+            const resp = await fetch(url).then(r => r.json()).catch(() => []);
+            currentStations = [...CUSTOM_HINDI_STATIONS, ...resp];
+        } else if (lowerTag === 'classic' || lowerTag === 'old' || lowerTag === 'retro' || lowerQuery.includes('classic') || lowerQuery.includes('old') || lowerQuery.includes('retro')) {
+            const allCustom = [...CUSTOM_HINDI_STATIONS, ...CUSTOM_BANGLA_STATIONS, ...CUSTOM_NEWS_STATIONS, ...CUSTOM_BHAKTI_STATIONS, ...CUSTOM_SINGER_STATIONS, ...CUSTOM_GHAZAL_STATIONS, ...CUSTOM_PUNJABI_STATIONS, ...CUSTOM_DJ_REMIX_STATIONS];
+            const classicCustom = allCustom.filter(s => {
+                if (!s.tags) return false;
+                const t = s.tags.toLowerCase();
+                return t.includes('classic') || t.includes('old') || t.includes('retro');
             });
-        } else if (tag.toLowerCase() === 'punjabi') {
-            const p1 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=punjabi`).then(r => r.json()).catch(() => []);
-            const p2 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&language=punjabi`).then(r => r.json()).catch(() => []);
-            const p3 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&state=Punjab`).then(r => r.json()).catch(() => []);
-            const p4 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=bhangra`).then(r => r.json()).catch(() => []);
-            
-            const [d1, d2, d3, d4] = await Promise.all([p1, p2, p3, p4]);
-            const combined = [...d1, ...d2, ...d3, ...d4];
-            currentStations = combined.filter((v,i,a) => a.findIndex(t => (t.stationuuid === v.stationuuid)) === i);
-        } else if (tag.toLowerCase() === 'bhojpuri') {
-            const p1 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=bhojpuri`).then(r => r.json()).catch(() => []);
-            const p2 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&language=bhojpuri`).then(r => r.json()).catch(() => []);
-            const p3 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=bihar`).then(r => r.json()).catch(() => []);
-            const p4 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&tag=patna`).then(r => r.json()).catch(() => []);
-            const p5 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&state=Bihar`).then(r => r.json()).catch(() => []);
-            const p6 = fetch(`${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true&country=India&name=bihar`).then(r => r.json()).catch(() => []);
-            
-            const [d1, d2, d3, d4, d5, d6] = await Promise.all([p1, p2, p3, p4, p5, p6]);
-            const combined = [...d5, ...d6, ...d4, ...d3, ...d1, ...d2];
-            currentStations = combined.filter((v,i,a) => a.findIndex(t => (t.stationuuid === v.stationuuid)) === i);
-        } else if (tag && fetchMappings[tag.toLowerCase()]) {
-            const mappings = fetchMappings[tag.toLowerCase()];
-            const promises = mappings.map(params => {
-                let pUrl = `${API_BASE}/stations/search?limit=100&order=clickcount&reverse=true&hidebroken=true`;
-                if (params.tag) pUrl += `&tag=${encodeURIComponent(params.tag)}`;
-                if (params.country) pUrl += `&country=${encodeURIComponent(params.country)}`;
-                if (params.language) pUrl += `&language=${encodeURIComponent(params.language)}`;
-                if (params.state) pUrl += `&state=${encodeURIComponent(params.state)}`;
-                if (params.name) pUrl += `&name=${encodeURIComponent(params.name)}`;
-                return fetch(pUrl).then(r => r.json()).catch(() => []);
+            const resp = await fetch(url).then(r => r.json()).catch(() => []);
+            currentStations = [...classicCustom, ...resp];
+        } else if (lowerTag === 'air' || lowerTag === 'all india radio' || lowerTag === 'akashvani' || lowerTag.includes('rainbow') || lowerQuery === 'air' || lowerQuery.includes('all india radio') || lowerQuery.includes('akashvani') || lowerQuery.includes('rainbow')) {
+            const allCustom = [...CUSTOM_HINDI_STATIONS, ...CUSTOM_BANGLA_STATIONS, ...CUSTOM_NEWS_STATIONS, ...CUSTOM_BHAKTI_STATIONS, ...CUSTOM_SINGER_STATIONS, ...CUSTOM_GHAZAL_STATIONS, ...CUSTOM_PUNJABI_STATIONS, ...CUSTOM_DJ_REMIX_STATIONS];
+            const airCustom = allCustom.filter(s => {
+                if (!s.tags) return false;
+                const t = s.tags.toLowerCase();
+                return t.includes('air') || t.includes('all india radio') || t.includes('akashvani') || t.includes('rainbow');
             });
-            
-            const results = await Promise.all(promises);
-            const combined = results.flat();
-            
-            // Remove duplicates
-            let filtered = combined.filter((v,i,a) => a.findIndex(t => (t.stationuuid === v.stationuuid)) === i);
-            
-            // Apply category-specific exclusions and strict deduplication
-            if (tag.toLowerCase() === 'dj remix') {
-                filtered = filtered.filter(s => {
-                    const name = s.name ? s.name.toLowerCase() : '';
-                    return !name.includes('anbu fm kannada') && !name.includes('anbu fm malayalam');
-                });
-                
-                // Further deduplicate by name to remove community duplicates
-                filtered = filtered.filter((v,i,a) => a.findIndex(t => (t.name && v.name && t.name.trim().toLowerCase() === v.name.trim().toLowerCase())) === i);
-            } else if (tag.toLowerCase() === 'news') {
-                filtered = filtered.filter(s => {
-                    const name = s.name ? s.name.toLowerCase().trim() : '';
-                    return name !== 'wion' && !name.includes('wion am stereo 1430');
-                });
-                filtered.unshift(...CUSTOM_NEWS_STATIONS);
-            } else if (tag.toLowerCase() === 'hindi' || tag.toLowerCase() === 'bollywood') {
-                filtered.unshift(...CUSTOM_HINDI_STATIONS);
-            } else if (tag.toLowerCase() === 'singer') {
-                // Inject custom stations for artists that do not exist natively on the radio-browser API
-                filtered.unshift(...CUSTOM_SINGER_STATIONS);
-            } else if (tag.toLowerCase() === 'classic') {
-                const excludedClassic = [
-                    'london telugu radio', 'aural melodics', 'radio mattoli', 'jn fm tamil', 
-                    'اذاعة القرآن الكر', 'kathiravan fm', 'air coimbatore', 'air pune fm', 
-                    'fm kottarakkara', 'fm rainbow krishna vani vijayawada', 'chann pardesi radio', 
-                    'air warangal', 'air raagam', 'air kochi', 'vanavilfm - radio maestro', 
-                    'air fm gold chennai', 'retro ma', 'radio retro bollywood', 'air fm gold kolkata', 
-                    'tamil panpalai gold', 'fm-gold-chennai', 'goldy garba', 'fmgoldtamil', 
-                    'jn fm tamil classic', 'goldy bhal', 'golden voice radio'
-                ];
-                filtered = filtered.filter(s => {
-                    const name = s.name ? s.name.toLowerCase().trim() : '';
-                    return !excludedClassic.some(ex => name === ex || name.includes(ex));
-                });
+            const resp = await fetch(url).then(r => r.json()).catch(() => []);
+            currentStations = [...airCustom, ...resp];
+        } else if (lowerTag === 'bhakti' || lowerTag === 'devotional' || lowerQuery.includes('bhakti')) {
+            const resp = await fetch(url).then(r => r.json()).catch(() => []);
+            currentStations = [...CUSTOM_BHAKTI_STATIONS, ...resp];
+        } else if (lowerTag === 'pop' || lowerQuery.includes('pop')) {
+            const resp = await fetch(url).then(r => r.json()).catch(() => []);
+            currentStations = [...CUSTOM_GLOBAL_POP_STATIONS, ...resp];
+        } else if (lowerTag === 'world news' || lowerQuery.includes('world news')) {
+            const resp = await fetch(url).then(r => r.json()).catch(() => []);
+            currentStations = [...CUSTOM_WORLD_NEWS_STATIONS, ...CUSTOM_BBC_UK_NEWS_STATIONS, ...CUSTOM_EURO_NEWS_STATIONS, ...CUSTOM_US_NEWS_STATIONS, ...CUSTOM_AUSTRALIAN_NEWS_STATIONS, ...resp];
+        } else if (lowerTag.includes('us ') || lowerTag === 'us news' || lowerQuery.includes('us news') || lowerTag.includes('usa')) {
+            const resp = await fetch(url).then(r => r.json()).catch(() => []);
+            currentStations = [...CUSTOM_US_NEWS_STATIONS, ...resp];
+        } else if (lowerTag.includes('bbc') || lowerTag.includes('uk') || lowerTag.includes('british') || lowerQuery.includes('bbc')) {
+            const resp = await fetch(url).then(r => r.json()).catch(() => []);
+            currentStations = [...CUSTOM_BBC_UK_NEWS_STATIONS, ...resp];
+        } else if (lowerTag.includes('australia') || lowerQuery.includes('australia')) {
+            const resp = await fetch(url).then(r => r.json()).catch(() => []);
+            currentStations = [...CUSTOM_AUSTRALIAN_NEWS_STATIONS, ...resp];
+        } else if (lowerTag.includes('euro') || lowerQuery.includes('euro')) {
+            const resp = await fetch(url).then(r => r.json()).catch(() => []);
+            currentStations = [...CUSTOM_EURO_NEWS_STATIONS, ...resp];
+        } else if (lowerTag.includes('news') || lowerQuery.includes('news')) {
+            if (country === 'India' || currentMode === 'India') {
+                currentStations = [...CUSTOM_NEWS_STATIONS];
+            } else {
+                const resp = await fetch(url).then(r => r.json()).catch(() => []);
+                currentStations = [...CUSTOM_WORLD_NEWS_STATIONS, ...CUSTOM_US_NEWS_STATIONS, ...CUSTOM_BBC_UK_NEWS_STATIONS, ...CUSTOM_AUSTRALIAN_NEWS_STATIONS, ...CUSTOM_EURO_NEWS_STATIONS, ...CUSTOM_NEWS_STATIONS, ...resp];
             }
-            
-            currentStations = filtered;
-        } else if (!tag && !query && country === 'India') {
-            const response = await fetch(url);
-            let defaultStations = await response.json();
-            
-            const promises = [];
-            Object.values(fetchMappings).forEach(mappings => {
-                mappings.forEach(params => {
-                    let pUrl = `${API_BASE}/stations/search?limit=15&order=clickcount&reverse=true&hidebroken=true`;
-                    if (params.tag) pUrl += `&tag=${encodeURIComponent(params.tag)}`;
-                    if (params.country) pUrl += `&country=${encodeURIComponent(params.country)}`;
-                    if (params.language) pUrl += `&language=${encodeURIComponent(params.language)}`;
-                    if (params.state) pUrl += `&state=${encodeURIComponent(params.state)}`;
-                    if (params.name) pUrl += `&name=${encodeURIComponent(params.name)}`;
-                    promises.push(fetch(pUrl).then(r => r.json()).catch(() => []));
-                });
-            });
-            const results = await Promise.all(promises);
-            let allCatStations = results.flat();
-            
-            // Add custom injected stations
-            allCatStations = [...CUSTOM_HINDI_STATIONS, ...CUSTOM_BHAKTI_STATIONS, ...allCatStations, ...CUSTOM_NEWS_STATIONS, ...CUSTOM_SINGER_STATIONS];
-            
-            currentStations = [...defaultStations, ...allCatStations];
         } else {
             const response = await fetch(url);
-            currentStations = await response.json();
-        }
-        // Prepend Vividh Bharti Mumbai and Bollywood Gaane Purane for India 'All' category
-        if (country === 'India' && !tag && !query) {
-            const stationsToPrepend = ['vividh bharti mumbai', 'fm rainbow delhi 32 kbps', 'radio mirchi lucknow', 'bollywood gaane purane', 'akashvani fm rainbow lucknow'];
-            
-            for (let i = stationsToPrepend.length - 1; i >= 0; i--) {
-                const stationName = stationsToPrepend[i];
-                let index = currentStations.findIndex(s => s.name && s.name.trim().toLowerCase() === stationName);
-                
-                if (index > -1) {
-                    const station = currentStations.splice(index, 1)[0];
-                    currentStations.unshift(station);
-                } else {
-                    try {
-                        const resp = await fetch(`${API_BASE}/stations/search?name=${encodeURIComponent(stationName)}&limit=1`);
-                        const stations = await resp.json();
-                        if (stations.length > 0) {
-                            currentStations.unshift(stations[0]);
+            const apiRes = await response.json().catch(() => []);
+            if (country === 'India' || currentMode === 'India') {
+                const allCustom = [...CUSTOM_HINDI_STATIONS, ...CUSTOM_BANGLA_STATIONS, ...CUSTOM_NEWS_STATIONS, ...CUSTOM_BHAKTI_STATIONS, ...CUSTOM_SINGER_STATIONS, ...CUSTOM_GHAZAL_STATIONS, ...CUSTOM_PUNJABI_STATIONS, ...CUSTOM_DJ_REMIX_STATIONS];
+                if (query || tag) {
+                    const matchedCustom = allCustom.filter(s => {
+                        let matchQ = true;
+                        let matchT = true;
+                        if (query) {
+                            matchQ = (s.name && s.name.toLowerCase().includes(lowerQuery)) || (s.tags && s.tags.toLowerCase().includes(lowerQuery));
                         }
-                    } catch(e) { console.error(`Failed to fetch ${stationName}`, e); }
+                        if (tag) {
+                            matchT = s.tags && s.tags.toLowerCase().includes(lowerTag);
+                        }
+                        return matchQ && matchT;
+                    });
+                    currentStations = [...matchedCustom, ...apiRes];
+                } else {
+                    currentStations = [...allCustom, ...apiRes];
+                }
+            } else {
+                currentStations = apiRes;
+            }
+        }
+
+        // Enforce STRICT Active Station Filtering (lastcheckok === 1), Unique Channel Verification, and Block List
+        const seenNames = new Set();
+        const seenUrls = new Set();
+        currentStations = currentStations.filter(station => {
+            if (!station) return false;
+            // Only include active stations verified by server check
+            if (station.lastcheckok !== 1 && station.lastcheckok !== undefined) return false;
+
+            const rawName = station.name || '';
+            const rawTags = station.tags || '';
+            // Block Jesus Radio and any Jesus-related stations
+            if (rawName.toLowerCase().includes('jesus') || rawTags.toLowerCase().includes('jesus')) {
+                return false;
+            }
+
+            // Exclude London, Bangladesh, and China radio stations in India mode
+            if (currentMode === 'India' || country === 'India') {
+                const sCountry = (station.country || '').toLowerCase();
+                const sName = (station.name || '').toLowerCase();
+                const sTags = (station.tags || '').toLowerCase();
+
+                // Explicit exception for Gazal Radio London
+                if (sName !== 'gazal radio london' && sName !== 'gazal radio london uk') {
+                    if (sCountry.includes('bangladesh') || sCountry.includes('china') || sCountry.includes('uk') || sCountry.includes('united kingdom')) {
+                        return false;
+                    }
+                    if (sName.includes('bangladesh') || sName.includes('china') || sName.includes('london') || sName.includes('landon') || sName.includes('chinese')) {
+                        return false;
+                    }
+                    if (sTags.includes('bangladesh') || sTags.includes('china') || sTags.includes('london')) {
+                        return false;
+                    }
                 }
             }
-        }
-        
-        const excludedStations = [
-            "air kolhapur", "air jalandhar", "air indore", "air nagpur", 
-            "air telgu", "air hydrabad a", "air jalendhar", "air alwar", 
-            "air tuticorin", "air madikeri", "air mevad kandva", 
-            "air satara", "air sasaram", "my radio dj", "jesus alive radio",
-            "jesus radio malayalam", "hand of jesus",
-            "radio mariam", "nour mariam", "mariam", "dipak",
-            "london telugu radio", "aural melodics", "radio mattoli", "jn fm tamil", 
-            "اذاعة القرآن الكر", "kathiravan fm", "air coimbatore", "air pune fm", 
-            "fm kottarakkara", "fm rainbow krishna vani vijayawada", "chann pardesi radio", 
-            "air warangal", "air raagam", "air pune fm (high bit rate)", "air kochi", 
-            "vanavilfm - radio maestro", "air fm gold chennai", "retro ma", 
-            "radio retro bollywood", "air fm gold kolkata", "tamil panpalai gold", 
-            "fm-gold-chennai", "goldy garba", "fmgoldtamil", "jn fm tamil classic", 
-            "goldy bhal", "golden voice radio", "mirchi top 20", "mirchi top", "radio mirchi top"
-        ];
-        currentStations = currentStations.filter(station => {
-            const name = station.name ? station.name.toLowerCase().trim() : '';
-            return !excludedStations.some(ex => name.includes(ex));
-        });
 
-        // Strict category segregation
-        if (country === 'India') {
-            currentStations = currentStations.filter(station => station.country === 'India' || station.countrycode === 'IN' || station.countrycode === 'IN ');
-        } else if (!country) {
-            currentStations = currentStations.filter(station => station.country !== 'India' && station.countrycode !== 'IN' && station.countrycode !== 'IN ');
-        }
+            const streamUrl = station.url_resolved || station.url;
+            if (!streamUrl || typeof streamUrl !== 'string' || !streamUrl.trim()) return false;
 
-        // Prepend user-added custom stations matching query or tag
-        const lowerTag = tag ? tag.toLowerCase() : '';
-        const lowerQuery = query ? query.toLowerCase() : '';
-        const userMatches = userAddedCustomStations.filter(s => {
-            if (!s) return false;
-            const sTags = (s.tags || '').toLowerCase();
-            const sName = (s.name || '').toLowerCase();
-            if (lowerTag && !sTags.includes(lowerTag)) return false;
-            if (lowerQuery && !sName.includes(lowerQuery) && !sTags.includes(lowerQuery)) return false;
+            const normName = station.name ? station.name.trim().toLowerCase().replace(/[^a-z0-9]/g, '') : '';
+            const normUrl = streamUrl.trim().toLowerCase();
+
+            if (normName && seenNames.has(normName)) return false;
+            if (seenUrls.has(normUrl)) return false;
+
+            if (normName) seenNames.add(normName);
+            seenUrls.add(normUrl);
+
             return true;
         });
-        currentStations = [...userMatches, ...currentStations];
-
-        // Ensure strictly only active/working stations are allowed
-        currentStations = currentStations.filter(station => station.lastcheckok === 1 || station.lastcheckok === undefined);
-
-        // Deduplicate stations globally (by UUID, by Stream URL, and by normalized Name) to prevent repeats
-        currentStations = currentStations.filter((v,i,a) => 
-            a.findIndex(t => 
-                (t.stationuuid && v.stationuuid && t.stationuuid === v.stationuuid) || 
-                (t.url_resolved && v.url_resolved && t.url_resolved.trim().toLowerCase() === v.url_resolved.trim().toLowerCase()) ||
-                (t.name && v.name && t.name.trim().toLowerCase() === v.name.trim().toLowerCase())
-            ) === i
-        );
-
-        // Save fresh fetched data to cache
-        try {
-            localStorage.setItem(cacheKey, JSON.stringify(currentStations));
-        } catch(e) { console.error('Cache save error', e); }
-
         renderStations();
         resultsCount.textContent = `${currentStations.length} stations found`;
-        
-        if (currentStations.length > 0 && !loadedFromCache) {
+
+        if (currentStations.length > 0) {
             if (autoPlay) {
                 playStation(0, 'search');
-            } else if (!audioPlayer.getAttribute('src')) {
-                // Just set up the UI for the first station without loading the stream yet
+            } else {
                 currentStationIndex = 0;
                 updatePlayerUI(currentStations[0]);
-                playerStatus.textContent = 'Ready (Paused)';
-                // Remove playing class just in case
-                if (nowPlayingCard) nowPlayingCard.classList.remove('playing');
-                audioPlayer.removeAttribute('src'); 
+                playerStatus.textContent = 'Ready';
             }
         }
-        
-        // Reset retry count on success
-        retryCount = 0;
     } catch (error) {
-        console.error('Failed to fetch stations on server:', API_BASE, error);
-        
-        retryCount++;
-        if (retryCount < API_ENDPOINTS.length) {
-            currentApiIndex = (currentApiIndex + 1) % API_ENDPOINTS.length;
-            API_BASE = API_ENDPOINTS[currentApiIndex];
-            console.log('Retrying with new server:', API_BASE);
-            await fetchStations(query, country, tag, autoPlay);
-            return; // Exit current function context, let the retry handle it
-        } else {
-            stationsGrid.innerHTML = '<p class="error">Failed to load stations after trying all servers. Please check your internet connection.</p>';
-            retryCount = 0; // Reset for next manual attempt
-        }
+        console.error('Fetch error:', error);
+        stationsGrid.innerHTML = '<div class="empty-state"><p>Unable to connect to radio server. Retrying...</p></div>';
     } finally {
-        if (retryCount === 0) {
-            mainLoader.style.display = 'none';
-        }
+        mainLoader.style.display = 'none';
     }
 }
 
-// Render Functions
+// Render Stations Grid
 function renderStations() {
     if (currentStations.length === 0) {
-        stationsGrid.innerHTML = '<div class="empty-state"><p>No stations found for this search.</p></div>';
+        stationsGrid.innerHTML = '<div class="empty-state"><i data-lucide="radio"></i><p>No stations found for this selection.</p></div>';
         return;
     }
 
-    stationsGrid.innerHTML = currentStations.map((station, index) => `
-        <div class="station-item" onclick="playStation(${index}, 'search', this)">
-            <img src="${station.favicon || DEFAULT_LOGO}" 
-                 class="list-img" 
-                 loading="lazy"
-                 onerror="this.onerror=null; this.src='${DEFAULT_LOGO}';">
-            <div class="item-info">
-                <h4>${station.name}</h4>
-                <p>${station.country} • ${station.tags ? station.tags.split(',').slice(0, 2).join(', ') : 'Radio'}</p>
+    stationsGrid.innerHTML = currentStations.map((station, index) => {
+        const isFav = currentPlaylist.some(s => s.stationuuid === station.stationuuid);
+        const nameUpper = (station.name || '').toUpperCase();
+        return `
+            <div class="station-item ${currentStationIndex === index && currentSource === 'search' ? 'active' : ''}" onclick="playStation(${index}, 'search', this)">
+                <img src="${station.favicon || DEFAULT_LOGO}" class="list-img" loading="eager" onerror="this.src='${DEFAULT_LOGO}';">
+                <div class="item-info">
+                    <h4>${nameUpper}</h4>
+                    <p>${station.country || 'Global'} • ${station.tags ? station.tags.split(',')[0] : 'FM'}</p>
+                </div>
+                <div class="item-actions">
+                    <button class="icon-btn" onclick="event.stopPropagation(); togglePlaylistById('${station.stationuuid}')" title="${isFav ? 'Remove Favorite' : 'Add Favorite'}">
+                        <i data-lucide="${isFav ? 'heart' : 'plus-circle'}" style="${isFav ? 'color: var(--accent-color)' : ''}"></i>
+                    </button>
+                </div>
             </div>
-            <div class="item-actions">
-                <button class="icon-btn" onclick="event.stopPropagation(); addToPlaylistById('${station.stationuuid}')">
-                    <i data-lucide="plus-circle"></i>
-                </button>
-            </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
+    updateQueueInfo();
     lucide.createIcons();
 }
 
 function renderPlaylist() {
-    const playlistHTML = currentPlaylist.length === 0 
-        ? `<div class="empty-state"><i data-lucide="list-music"></i><p>No stations saved yet</p></div>`
-        : currentPlaylist.map((station, index) => `
+    const isFavEmpty = currentPlaylist.length === 0;
+    const playlistHTML = isFavEmpty
+        ? `<div class="empty-state"><i data-lucide="list-music"></i><p>No favorite stations saved</p></div>`
+        : currentPlaylist.map((station, index) => {
+            const nameUpper = (station.name || '').toUpperCase();
+            return `
             <div class="station-item" onclick="playStation(${index}, 'playlist', this)">
-                <img src="${station.favicon || DEFAULT_LOGO}" 
-                     class="list-img" 
-                     loading="lazy"
-                     onerror="this.onerror=null; this.src='${DEFAULT_LOGO}';">
+                <img src="${station.favicon || DEFAULT_LOGO}" class="list-img" loading="eager" onerror="this.src='${DEFAULT_LOGO}';">
                 <div class="item-info">
-                    <h4>${station.name}</h4>
+                    <h4>${nameUpper}</h4>
                     <p>${station.country || 'Custom Station'}</p>
                 </div>
                 <div class="item-actions">
                     <button class="icon-btn" onclick="event.stopPropagation(); removeFromPlaylist(${index})">
-                        <i data-lucide="trash-2"></i>
+                        <i data-lucide="trash-2" style="color: var(--accent-color)"></i>
                     </button>
                 </div>
             </div>
-        `).join('');
+        `;
+        }).join('');
 
     if (quickPlaylistList) quickPlaylistList.innerHTML = playlistHTML;
     if (fullPlaylistList) fullPlaylistList.innerHTML = playlistHTML;
-    
+    if (playlistCountBadge) playlistCountBadge.textContent = currentPlaylist.length;
+    if (quickFavCount) quickFavCount.textContent = `${currentPlaylist.length} items`;
+
+    updateQueueInfo();
     lucide.createIcons();
 }
 
 function switchView(target) {
-    // Update Tabs
     mainTabs.forEach(tab => {
-        if (tab.dataset.tab === target) {
-            tab.classList.add('active');
-        } else {
-            tab.classList.remove('active');
-        }
+        tab.classList.toggle('active', tab.dataset.tab === target);
     });
-
-    // Update Views
     Object.keys(views).forEach(key => {
-        if (key === target) {
-            views[key].style.display = 'block';
-        } else {
-            views[key].style.display = 'none';
-        }
+        if (views[key]) views[key].style.display = key === target ? 'block' : 'none';
     });
 }
 
-
-// Playback Logic
+// Playback Engine - Instant Super Fast Radio Playback
 function playStation(index, source = 'search', element = null) {
-    userExplicitlyPaused = false; // Playing a new station manually overrides explicit pause
+    ensureAudioContextResumed();
     currentSource = source;
-    let station;
-    if (source === 'search') {
-        station = currentStations[index];
-        currentStationIndex = index;
-    } else {
-        station = currentPlaylist[index];
-    }
-
+    const list = source === 'search' ? currentStations : currentPlaylist;
+    const station = list[index];
     if (!station) return;
 
-    // Update Player UI
+    currentStationIndex = index;
     updatePlayerUI(station);
-    
-    // Update Queue Info Text
-    if (queueTickerText) {
-        let list = source === 'search' ? currentStations : currentPlaylist;
-        if (list.length > 0) {
-            const pIdx = (index - 1 + list.length) % list.length;
-            const nIdx = (index + 1) % list.length;
-            const prevStationName = list[pIdx].name || 'Unknown';
-            const nextStationName = list[nIdx].name || 'Unknown';
-            const prevStationHTML = `<i data-lucide="skip-back" style="width:14px; height:14px; display:inline-block; vertical-align:middle; margin-right:4px;"></i><span style="vertical-align:middle;">Prev: ${prevStationName}</span>`;
-            const nextStationHTML = `<i data-lucide="skip-forward" style="width:14px; height:14px; display:inline-block; vertical-align:middle; margin-right:4px;"></i><span style="vertical-align:middle;">Next: ${nextStationName}</span>`;
-            
-            queueTickerText.innerHTML = nextStationHTML;
-            queueTickerText.className = 'queue-next';
-            showingNextInQueue = true;
-            lucide.createIcons();
-            
-            clearInterval(queueTickerInterval);
-            queueTickerInterval = setInterval(() => {
-                queueTickerText.style.opacity = '0';
-                setTimeout(() => {
-                    if (showingNextInQueue) {
-                        queueTickerText.innerHTML = prevStationHTML;
-                        queueTickerText.className = 'queue-prev';
-                    } else {
-                        queueTickerText.innerHTML = nextStationHTML;
-                        queueTickerText.className = 'queue-next';
-                    }
-                    lucide.createIcons();
-                    queueTickerText.style.opacity = '1';
-                    showingNextInQueue = !showingNextInQueue;
-                }, 300);
-            }, 4000);
-        }
-    }
 
-    // Instant visual response for fast play feel
-    document.body.classList.add('is-playing');
-    if (nowPlayingCard) nowPlayingCard.classList.add('playing');
-    if (playPauseBtn) {
-        playPauseBtn.innerHTML = '<i data-lucide="pause" id="play-icon"></i>';
-        lucide.createIcons();
-    }
-    if (playerStatus) {
-        playerStatus.textContent = 'Tuning In...';
-        playerStatus.style.color = '#eab308';
-    }
-
-    // Fast Load and Play Execution
     const streamUrl = station.url_resolved || station.url;
-    audioPlayer.pause();
-    if (audioPlayer.src !== streamUrl) {
-        audioPlayer.src = streamUrl;
-    }
-    audioPlayer.load(); // Force immediate network handshake
-    
-    let autoPlayBlocked = false;
-    
-    const playPromise = audioPlayer.play();
-    if (playPromise !== undefined) {
-        playPromise.then(() => {
-            document.body.classList.add('is-playing');
-            if (nowPlayingCard) nowPlayingCard.classList.add('playing');
-            if (playerStatus) {
-                playerStatus.textContent = 'Playing';
-                playerStatus.style.color = '#22c55e';
-            }
-        }).catch(e => {
-            console.warn('Auto-play blocked or stream load error:', e);
-            playerStatus.textContent = 'Click Play to start';
-            if (e.name === 'NotAllowedError') {
-                autoPlayBlocked = true;
-            }
-        });
+    if (!streamUrl) return;
+
+    // Clear existing play check timeout if any
+    if (playCheckTimeout) {
+        clearTimeout(playCheckTimeout);
+        playCheckTimeout = null;
     }
 
-    // Auto-skip logic if stream stalls or shows pause (unless user blocked auto-play or paused intentionally)
-    clearTimeout(playCheckTimeout);
+    // Set 4.5 second auto-skip timeout if station does not start playing
     playCheckTimeout = setTimeout(() => {
-        if ((audioPlayer.paused || audioPlayer.readyState < 3) && !autoPlayBlocked && !isSmartScanning && !userExplicitlyPaused) {
-            console.log('Stream stalled, deleting broken station and skipping...');
-            playerStatus.textContent = 'Broken Stream - Deleting & Skipping...';
-            
-            // Delete the station completely
-            const list = currentSource === 'search' ? currentStations : currentPlaylist;
-            if (list && list.length > 0 && currentStationIndex >= 0 && currentStationIndex < list.length) {
-                list.splice(currentStationIndex, 1);
-                
-                // If we deleted the last item, wrap around
-                if (currentStationIndex >= list.length) {
-                    currentStationIndex = 0;
-                }
-                
-                if (currentSource === 'search') renderStations();
-                else {
-                    renderPlaylist();
-                    localStorage.setItem('fm_playlist', JSON.stringify(currentPlaylist));
-                }
-            }
-            
-            setTimeout(() => {
-                if (list && list.length > 0) {
-                    playStation(currentStationIndex, currentSource);
-                }
-            }, 1000);
+        if (audioPlayer.paused || audioPlayer.currentTime === 0 || audioPlayer.readyState < 3) {
+            console.warn('Station did not play within 4.5 seconds. Auto-skipping to next station...');
+            if (playerStatus) playerStatus.textContent = 'Stream Timeout - Playing Next...';
+            playNext();
         }
     }, 4500);
 
-    // Background Audio Support (Media Session)
-    if ('mediaSession' in navigator) {
-        navigator.mediaSession.metadata = new MediaMetadata({
-            title: station.name,
-            artist: station.country || 'FM Radio',
-            album: station.tags || 'Internet Radio',
-            artwork: [
-                { src: station.favicon || DEFAULT_LOGO, sizes: '200x200', type: 'image/png' }
-            ]
-        });
-
-        navigator.mediaSession.setActionHandler('play', () => audioPlayer.play());
-        navigator.mediaSession.setActionHandler('pause', () => audioPlayer.pause());
-        navigator.mediaSession.setActionHandler('previoustrack', () => playPrevious());
-        navigator.mediaSession.setActionHandler('nexttrack', () => playNext());
-        
-        navigator.mediaSession.playbackState = 'playing';
+    // Instant status and visual feedback
+    if (playerStatus) playerStatus.textContent = 'Connecting...';
+    if (nowPlayingCard) nowPlayingCard.classList.add('playing');
+    if (playPauseBtn) {
+        playPauseBtn.innerHTML = '<i data-lucide="pause" id="play-icon"></i>';
+        if (window.lucide) lucide.createIcons();
     }
 
-    // Add active class
+    // Configure fast audio player attributes
+    audioPlayer.preload = 'auto';
+    audioPlayer.autoplay = true;
+
+    // Destroy existing HLS instance if any
+    if (hlsInstance) {
+        hlsInstance.destroy();
+        hlsInstance = null;
+    }
+
+    // Fast HLS Stream (.m3u8) Playback Optimization
+    if (streamUrl.includes('.m3u8') && typeof Hls !== 'undefined' && Hls.isSupported()) {
+        hlsInstance = new Hls({
+            enableWorker: true,
+            lowLatencyMode: true,
+            backBufferLength: 10,
+            maxBufferLength: 3,
+            maxMaxBufferLength: 6,
+            liveSyncDurationCount: 2,
+            liveMaxLatencyDurationCount: 4,
+            startFragPrefetch: true
+        });
+        hlsInstance.loadSource(streamUrl);
+        hlsInstance.attachMedia(audioPlayer);
+        hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+            audioPlayer.play().catch(e => console.warn('Autoplay error:', e));
+        });
+        hlsInstance.on(Hls.Events.ERROR, (event, data) => {
+            if (data.fatal) {
+                switch (data.type) {
+                    case Hls.ErrorTypes.NETWORK_ERROR:
+                        hlsInstance.startLoad();
+                        break;
+                    case Hls.ErrorTypes.MEDIA_ERROR:
+                        hlsInstance.recoverMediaError();
+                        break;
+                    default:
+                        hlsInstance.destroy();
+                        hlsInstance = null;
+                        audioPlayer.src = streamUrl;
+                        audioPlayer.play().catch(e => console.warn('Direct fallback error:', e));
+                        break;
+                }
+            }
+        });
+    } else {
+        audioPlayer.src = streamUrl;
+        audioPlayer.play().catch(e => {
+            console.warn('Autoplay blocked:', e);
+            if (playerStatus) playerStatus.textContent = 'Click Play to Listen';
+        });
+    }
+
     const items = document.querySelectorAll('.station-item');
     items.forEach(item => item.classList.remove('active'));
-    
-    if (element) {
-        element.classList.add('active');
-    } else {
-        if (items.length > index) {
-            items[index].classList.add('active');
-        }
+    if (element) element.classList.add('active');
+}
+
+
+function updateQueueInfo() {
+    const queuePrevItem = document.getElementById('queue-prev-item');
+    const queueNextItem = document.getElementById('queue-next-item');
+    const queuePrevName = document.getElementById('queue-prev-name');
+    const queueNextName = document.getElementById('queue-next-name');
+
+    const list = currentSource === 'search' ? currentStations : currentPlaylist;
+    if (!list || list.length === 0) {
+        if (queuePrevName) queuePrevName.textContent = '--';
+        if (queueNextName) queueNextName.textContent = '--';
+        return;
     }
+
+    const idx = (currentStationIndex >= 0 && currentStationIndex < list.length) ? currentStationIndex : 0;
+    const prevIndex = (idx - 1 + list.length) % list.length;
+    const nextIndex = (idx + 1) % list.length;
+
+    const prevStation = list[prevIndex];
+    const nextStation = list[nextIndex];
+
+    if (queuePrevName) queuePrevName.textContent = prevStation ? prevStation.name.toUpperCase() : '--';
+    if (queueNextName) queueNextName.textContent = nextStation ? nextStation.name.toUpperCase() : '--';
+
+    // Reset rotation state: start with NEXT showing first
+    showingNextInQueue = true;
+    if (queueNextItem && queuePrevItem) {
+        queueNextItem.style.display = 'inline-flex';
+        queuePrevItem.style.display = 'none';
+    }
+
+    // Set 3-second alternating toggle interval
+    if (queueTickerInterval) clearInterval(queueTickerInterval);
+    queueTickerInterval = setInterval(() => {
+        showingNextInQueue = !showingNextInQueue;
+        if (queueNextItem && queuePrevItem) {
+            if (showingNextInQueue) {
+                queueNextItem.style.display = 'inline-flex';
+                queuePrevItem.style.display = 'none';
+            } else {
+                queueNextItem.style.display = 'none';
+                queuePrevItem.style.display = 'inline-flex';
+            }
+        }
+    }, 3000);
 }
 
 function updatePlayerUI(station) {
-    const name = station.name || 'Unknown Station';
+    const name = (station.name || 'Unknown Station').toUpperCase();
     const country = station.country || 'Global';
-    const tags = station.tags ? station.tags.split(',').slice(0, 2).join(', ') : 'Radio';
+    const tags = station.tags ? station.tags.split(',').slice(0, 2).join(', ') : 'FM Radio';
     const img = station.favicon || DEFAULT_LOGO;
 
-    const defaultLogo = DEFAULT_LOGO;
-    const defaultMini = DEFAULT_LOGO;
-
-    const nameLen = name.length;
-    let isSpecialPrefix = false;
-    let prefixScale = 0.35;
-
-    if (nameLen >= 3) {
-        const center = (nameLen - 1) / 2;
-        let formattedName = '';
-        let wrapIndex = -1;
-        
-        let lowerName = name.toLowerCase();
-        if (lowerName.startsWith('2b! radio ')) {
-            wrapIndex = '2b! radio '.length - 1;
-            isSpecialPrefix = true;
-            prefixScale = 0.30;
-        } else if (lowerName.startsWith('bhakti sagar ')) {
-            wrapIndex = 'bhakti sagar '.length - 1;
-            isSpecialPrefix = true;
-            prefixScale = 0.65; // 35% decrease
-        } else if (lowerName.startsWith('bhakti sagar')) {
-            wrapIndex = 'bhakti sagar'.length;
-            isSpecialPrefix = true;
-            prefixScale = 0.65; // 35% decrease
-        } else if (lowerName.startsWith('bhakti world media ')) {
-            wrapIndex = 'bhakti world media '.length - 1;
-            isSpecialPrefix = true;
-            prefixScale = 0.65; // 35% decrease
-        } else if (lowerName.startsWith('bhakti world ')) {
-            wrapIndex = 'bhakti world '.length - 1;
-            isSpecialPrefix = true;
-            prefixScale = 0.65; // 35% decrease
-        } else if (lowerName.startsWith('bhakti ')) {
-            wrapIndex = 'bhakti '.length - 1;
-            isSpecialPrefix = true;
-            prefixScale = 0.65; // 35% decrease
-        } else if (lowerName.startsWith('bhakti')) {
-            wrapIndex = 'bhakti'.length;
-            isSpecialPrefix = true;
-            prefixScale = 0.65; // 35% decrease
-        } else if (lowerName.startsWith('hit of ')) {
-            wrapIndex = 'hit of '.length - 1;
-            isSpecialPrefix = true;
-        } else if (lowerName.startsWith('hits of ')) {
-            wrapIndex = 'hits of '.length - 1;
-            isSpecialPrefix = true;
-        } else if (lowerName.startsWith('bollywood ')) {
-            wrapIndex = 'bollywood '.length - 1;
-            isSpecialPrefix = true;
-        } else if (nameLen > 18) {
-            wrapIndex = name.lastIndexOf(' ');
-        }
-        
-        for (let i = 0; i < nameLen; i++) {
-            if (i === wrapIndex) {
-                formattedName += `<br>`;
-                continue;
-            }
-            const distance = Math.abs(i - center);
-            let scale = 1 + (distance / center) * 0.25; // Up to 25% increase at edges
-            
-            // Only decrease the font size for the special prefix words
-            if (isSpecialPrefix && i < wrapIndex) {
-                scale = scale * prefixScale;
-            }
-            
-            let char = name[i] === ' ' ? '&nbsp;' : name[i];
-            formattedName += `<span style="font-size: ${scale}em; vertical-align: baseline; display: inline-block;">${char}</span>`;
-        }
-        currentStationName.innerHTML = formattedName;
-    } else {
-        currentStationName.textContent = name;
+    if (currentStationName) currentStationName.textContent = name;
+    if (currentStationMeta) currentStationMeta.textContent = `${country} • ${tags}`;
+    if (currentStationImg) {
+        currentStationImg.src = img;
+        currentStationImg.onerror = () => { currentStationImg.src = DEFAULT_LOGO; };
     }
-    
-    // Reset inline styles
-    currentStationName.style.fontSize = '';
-    currentStationName.style.textAlign = '';
-    
-    if (name.length >= 25 && name.lastIndexOf(' ') === -1) {
-        // Scroll right to left for very long names without spaces
-        currentStationName.classList.add('marquee-name');
-    } else {
-        currentStationName.classList.remove('marquee-name');
-        
-        if (isSpecialPrefix) {
-            currentStationName.style.textAlign = 'center';
-        }
-        
-        const lowerStr = name.toLowerCase();
-        if (lowerStr.startsWith('bhakti sagar') || lowerStr.startsWith('bhakti')) {
-            // Decrease overall font size by 35%
-            currentStationName.style.fontSize = 'clamp(0.72rem, 3.9vw, 1.22rem)';
-        } else if (name.length > 32) {
-            // Decrease font size 25% for names over 32 characters
-            currentStationName.style.fontSize = 'clamp(0.84rem, 4.5vw, 1.4rem)';
-        } else if (name.length >= 16) {
-            // Decrease font size 15% for names 16-32 characters
-            currentStationName.style.fontSize = 'clamp(0.95rem, 5.1vw, 1.59rem)';
+
+    const isFav = currentPlaylist.some(s => s.stationuuid === station.stationuuid);
+    if (favHeartIcon) {
+        favHeartIcon.setAttribute('data-lucide', isFav ? 'heart' : 'heart-off');
+        if (addToPlaylistBtn) {
+            addToPlaylistBtn.style.color = isFav ? 'var(--accent-color)' : '#fff';
         }
     }
-    
-    currentStationMeta.textContent = `${country} • ${tags}`;
-    
-    // Set up main image with timeout and error fallback
-    let mainImgLoaded = false;
-    currentStationImg.onload = () => { mainImgLoaded = true; };
-    currentStationImg.onerror = () => { currentStationImg.src = defaultLogo; };
-    currentStationImg.src = img;
-    setTimeout(() => {
-        if (!mainImgLoaded && currentStationImg.src === img) {
-            currentStationImg.src = defaultLogo;
-        }
-    }, 2500); // 2.5 seconds timeout
-    
-    playerStatus.textContent = 'Loading...';
+    updateQueueInfo();
+    lucide.createIcons();
 }
 
 function togglePlay() {
+    ensureAudioContextResumed();
     if (audioPlayer.paused) {
-        userExplicitlyPaused = false;
-        if (!audioPlayer.getAttribute('src') && currentStations.length > 0) {
-            playStation(currentStationIndex >= 0 ? currentStationIndex : 0, 'search');
-        } else if (!audioPlayer.getAttribute('src') && currentPlaylist.length > 0) {
-            playStation(currentStationIndex >= 0 ? currentStationIndex : 0, 'playlist');
-        } else {
-            // Force a fresh connection to the live edge when resuming, avoiding stale buffer delays
-            audioPlayer.load();
-            audioPlayer.play().catch(e => console.warn('Play failed', e));
-            if (nowPlayingCard) nowPlayingCard.classList.add('playing');
+        if (!audioPlayer.src && currentStations.length > 0) {
+            playStation(0, 'search');
+        } else if (audioPlayer.src) {
+            audioPlayer.play().catch(e => console.warn(e));
         }
     } else {
-        userExplicitlyPaused = true;
-        clearTimeout(playCheckTimeout); // Stop any pending auto-skips
         audioPlayer.pause();
-        audioPlayer.removeAttribute('src'); // Stop downloading stream data
-        audioPlayer.load(); // Flush buffer
     }
-    // Double check icon (already handled by event listeners, but for responsiveness)
-    setTimeout(() => {
-        const iconName = audioPlayer.paused ? 'play' : 'pause';
-        playPauseBtn.innerHTML = `<i data-lucide="${iconName}" id="play-icon"></i>`;
-        lucide.createIcons();
-    }, 50);
 }
 
 function playNext() {
-    let list = currentSource === 'search' ? currentStations : currentPlaylist;
+    const list = currentSource === 'search' ? currentStations : currentPlaylist;
     if (list.length === 0) return;
     currentStationIndex = (currentStationIndex + 1) % list.length;
     playStation(currentStationIndex, currentSource);
 }
 
 function playPrevious() {
-    let list = currentSource === 'search' ? currentStations : currentPlaylist;
+    const list = currentSource === 'search' ? currentStations : currentPlaylist;
     if (list.length === 0) return;
     currentStationIndex = (currentStationIndex - 1 + list.length) % list.length;
     playStation(currentStationIndex, currentSource);
 }
 
-// Volume Controls with 80% sound boost effect per active feature
-function updateVolume(value) {
-    let baseVolume = value / 100;
-    if (volumeSlider) volumeSlider.value = value;
-    
-    // Calculate 80% increase multiplier (+0.8 factor per active boost feature)
-    let boostMultiplier = 1.0;
-    if (isVolBoostEnabled) boostMultiplier += 0.8;
-    if (isDJBoostEnabled) boostMultiplier += 0.8;
-    if (isHDEQEnabled) boostMultiplier += 0.8;
-    if (is3DSurroundEnabled) boostMultiplier += 0.8;
+// Volume Controls
+function updateVolume(value, showHUD = false) {
+    currentVolumeLevel = Math.min(100, Math.max(0, parseInt(value) || 0));
+    applyAudioFXSettings();
 
-    let finalVolume = Math.min(1.0, baseVolume * boostMultiplier);
-    audioPlayer.volume = finalVolume;
-    
-    if (audioGainNode) {
-        audioGainNode.gain.value = boostMultiplier;
-    }
-    
-    let volIconName = 'volume-2';
-    if (finalVolume === 0) {
-        volIconName = 'volume-x';
-    } else if (finalVolume < 0.5) {
-        volIconName = 'volume-1';
-    }
-    
-    const muteBtnElement = document.getElementById('mute-btn');
-    if (muteBtnElement) {
-        muteBtnElement.innerHTML = `<i data-lucide="${volIconName}" id="volume-icon"></i>`;
-        lucide.createIcons();
-    }
-    
-    if (baseVolume > 0) {
-        lastVolume = value;
-        isMuted = false;
+    if (showHUD && typeof showHeroVolumeHUD === 'function') {
+        showHeroVolumeHUD(currentVolumeLevel);
     }
 }
 
-function toggleMute() {
-    if (isMuted) {
-        updateVolume(lastVolume);
+// Playlist Functions
+function togglePlaylistStation(station) {
+    const index = currentPlaylist.findIndex(s => s.stationuuid === station.stationuuid);
+    if (index > -1) {
+        currentPlaylist.splice(index, 1);
+        showToast('Removed from Favorites', 'trash-2');
     } else {
-        lastVolume = volumeSlider ? volumeSlider.value : 30;
-        updateVolume(0);
-        isMuted = true;
+        currentPlaylist.push(station);
+        showToast('Saved to Favorites', 'heart');
     }
-}
-
-// Playlist Logic
-function addToPlaylist(station) {
-    if (currentPlaylist.some(s => s.stationuuid === station.stationuuid)) {
-        alert('Station already in playlist!');
-        return;
-    }
-    currentPlaylist.push(station);
-    savePlaylist();
+    localStorage.setItem('fm_playlist', JSON.stringify(currentPlaylist));
     renderPlaylist();
+    updatePlayerUI(station);
 }
 
-function addToPlaylistById(uuid) {
+function togglePlaylistById(uuid) {
     const station = currentStations.find(s => s.stationuuid === uuid);
-    if (station) {
-        addToPlaylist(station);
-    }
+    if (station) togglePlaylistStation(station);
 }
 
 function removeFromPlaylist(index) {
     currentPlaylist.splice(index, 1);
-    
-    if (currentSource === 'playlist') {
-        if (currentStationIndex === index) {
-            currentStationIndex = -1; // Removed currently playing station
-        } else if (currentStationIndex > index) {
-            currentStationIndex--; // Shift index back
-        }
-    }
-    
-    savePlaylist();
-    renderPlaylist();
-}
-
-function savePlaylist() {
     localStorage.setItem('fm_playlist', JSON.stringify(currentPlaylist));
+    renderPlaylist();
+    showToast('Removed from Favorites', 'trash-2');
 }
 
 function updateActiveCat(label) {
     catButtons.forEach(btn => {
-        if (btn.textContent === label) {
-            btn.classList.add('active');
-        } else {
-            btn.classList.remove('active');
-        }
+        btn.classList.toggle('active', btn.textContent === label);
     });
 }
 
-// Theme Functions
+// Theme
 function toggleTheme() {
-    const isLight = document.body.getAttribute('data-theme') === 'light';
-    const newTheme = isLight ? 'dark' : 'light';
+    const current = document.body.getAttribute('data-theme');
+    const newTheme = current === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
 }
 
 function setTheme(theme) {
     document.body.setAttribute('data-theme', theme);
     localStorage.setItem('fm_theme', theme);
-    
-    if (theme === 'light') {
-        themeIcon.setAttribute('data-lucide', 'sun');
-    } else {
-        themeIcon.setAttribute('data-lucide', 'moon');
+    if (themeIcon) {
+        themeIcon.setAttribute('data-lucide', theme === 'light' ? 'sun' : 'moon');
+        lucide.createIcons();
     }
-    lucide.createIcons();
 }
 
 function loadTheme() {
-    const savedTheme = localStorage.getItem('fm_theme') || 'dark';
-    setTheme(savedTheme);
+    setTheme(localStorage.getItem('fm_theme') || 'dark');
 }
 
-// HD/EQ Logic (+80% Sound Effect Boost)
+// FX Toggles with Sound Effect Boost Pipeline
 function toggleHDEQ() {
     isHDEQEnabled = !isHDEQEnabled;
-    if (isHDEQEnabled) {
-        eqHdBtn.style.backgroundColor = 'var(--primary-color)';
-        eqHdBtn.style.color = '#fff';
-        playerStatus.textContent = 'HD/EQ Active (+80% Boost)';
-    } else {
-        eqHdBtn.style.backgroundColor = 'transparent';
-        eqHdBtn.style.color = 'inherit';
-        playerStatus.textContent = 'HD/EQ Disabled';
-    }
-    
-    updateVolume(volumeSlider ? volumeSlider.value : lastVolume || 30);
-    
-    setTimeout(() => {
-        if (audioPlayer.paused) playerStatus.textContent = 'Paused';
-        else playerStatus.textContent = 'Playing';
-    }, 2000);
+    eqHdBtn.classList.toggle('active', isHDEQEnabled);
+    applyAudioFXSettings();
+    showToast(isHDEQEnabled ? 'HD Audio & EQ Active' : 'HD Audio Off', 'sliders');
 }
 
-// DJ Boost Logic (+80% Sound Effect Boost)
 function toggleDJBoost() {
     isDJBoostEnabled = !isDJBoostEnabled;
-    if (isDJBoostEnabled) {
-        djBoostBtn.style.backgroundColor = 'var(--accent-color)';
-        djBoostBtn.style.color = '#fff';
-        playerStatus.textContent = 'DJ Boost ON (+80% Boost)';
-    } else {
-        djBoostBtn.style.backgroundColor = 'transparent';
-        djBoostBtn.style.color = 'inherit';
-        playerStatus.textContent = 'DJ Boost OFF';
-    }
-    
-    updateVolume(volumeSlider ? volumeSlider.value : lastVolume || 30);
-    
-    setTimeout(() => {
-        if (audioPlayer.paused) playerStatus.textContent = 'Paused';
-        else playerStatus.textContent = 'Playing';
-    }, 2000);
+    djBoostBtn.classList.toggle('active', isDJBoostEnabled);
+    applyAudioFXSettings();
+    showToast(isDJBoostEnabled ? 'DJ Beats Boost Active' : 'DJ Boost Off', 'zap');
 }
 
-// 3D Surround Logic (+80% Sound Effect Boost)
 function toggle3DSurround() {
     is3DSurroundEnabled = !is3DSurroundEnabled;
-    const surroundBtn = document.getElementById('surround-3d-btn') || document.getElementById('3d-surround-btn');
-    if (surroundBtn) {
-        if (is3DSurroundEnabled) {
-            surroundBtn.style.backgroundColor = '#06b6d4';
-            surroundBtn.style.color = '#fff';
-            playerStatus.textContent = '3D Surround ON (+80% Boost)';
-        } else {
-            surroundBtn.style.backgroundColor = 'transparent';
-            surroundBtn.style.color = 'inherit';
-            playerStatus.textContent = '3D Surround OFF';
-        }
-    }
-    
-    updateVolume(volumeSlider ? volumeSlider.value : lastVolume || 30);
-    
-    setTimeout(() => {
-        if (audioPlayer.paused) playerStatus.textContent = 'Paused';
-        else playerStatus.textContent = 'Playing';
-    }, 2000);
+    surround3dBtn.classList.toggle('active', is3DSurroundEnabled);
+    applyAudioFXSettings();
+    showToast(is3DSurroundEnabled ? '3D Surround Active' : '3D Sound Off', 'disc');
 }
 
-// Vol Boost Logic (+80% Sound Effect Boost)
 function toggleVolBoost(e) {
     isVolBoostEnabled = e.target.checked;
-    if (isVolBoostEnabled) {
-        playerStatus.textContent = 'Vol Boost ON (+80% Boost)';
-    } else {
-        playerStatus.textContent = 'Vol Boost OFF';
+    const volCheckContainer = e.target.closest('.vol-boost-check');
+    if (volCheckContainer) {
+        volCheckContainer.classList.toggle('active', isVolBoostEnabled);
     }
-    
-    updateVolume(volumeSlider ? volumeSlider.value : lastVolume || 30);
-    
-    setTimeout(() => {
-        if (audioPlayer.paused) playerStatus.textContent = 'Paused';
-        else playerStatus.textContent = 'Playing';
-    }, 2000);
+    applyAudioFXSettings();
+    showToast(isVolBoostEnabled ? 'Volume Boost ON' : 'Volume Boost OFF', 'volume-2');
 }
 
-// Smart Auto Scan Logic
 function toggleSmartAutoScan() {
-    if (!navigator.onLine) {
-        alert('Cannot start Auto Scan. No internet connection available.');
-        return;
-    }
-    
     isSmartScanning = !isSmartScanning;
-    
     if (isSmartScanning) {
         smartAutoScanBtn.innerHTML = '<i data-lucide="stop-circle"></i><span>Stop Scan</span>';
-        smartAutoScanBtn.style.backgroundColor = 'var(--accent-color)';
+        smartAutoScanBtn.style.background = 'var(--accent-color)';
         smartAutoScanBtn.style.color = '#fff';
         lucide.createIcons();
-        
-        if (currentStations.length === 0) {
-            alert('No stations in the current list to scan!');
-            toggleSmartAutoScan();
-            return;
-        }
-        
-        if (currentStationIndex < 0) currentStationIndex = 0;
-        
-        playerStatus.textContent = 'Auto Scan Started...';
+        showToast('Auto Scan Started', 'zap');
         playSmartScanStation();
     } else {
         smartAutoScanBtn.innerHTML = '<i data-lucide="zap"></i><span>Auto Scan</span>';
-        smartAutoScanBtn.style.backgroundColor = '';
-        smartAutoScanBtn.style.color = 'var(--primary-color)';
+        smartAutoScanBtn.style.background = '';
+        smartAutoScanBtn.style.color = '';
         lucide.createIcons();
-        
         clearTimeout(smartScanTimeout);
-        clearTimeout(playCheckTimeout);
-        playerStatus.textContent = 'Auto Scan Stopped';
+        showToast('Auto Scan Stopped', 'stop-circle');
     }
 }
 
 function playSmartScanStation() {
-    if (!isSmartScanning) return;
-    
+    if (!isSmartScanning || currentStations.length === 0) return;
+    currentStationIndex = (currentStationIndex + 1) % currentStations.length;
     playStation(currentStationIndex, 'search');
-    
-    clearTimeout(playCheckTimeout);
-    clearTimeout(smartScanTimeout);
-    
-    // Check if station plays within 4.5 seconds
-    playCheckTimeout = setTimeout(() => {
-        if (!isSmartScanning) return;
-        
-        if (audioPlayer.paused || audioPlayer.readyState < 3) {
-            // Failed or taking too long - delete station
-            playerStatus.textContent = 'Deleting unresponsive station...';
-            
-            if (currentStations.length > 0) {
-                currentStations.splice(currentStationIndex, 1);
-                if (currentStationIndex >= currentStations.length) {
-                    currentStationIndex = 0;
-                }
-                renderStations();
-            }
-            
-            setTimeout(() => {
-                if (currentStations.length > 0) playSmartScanStation();
-                else toggleSmartAutoScan(); // Stop if empty
-            }, 1000);
-        }
-    }, 4500);
+    smartScanTimeout = setTimeout(() => playSmartScanStation(), 7000);
 }
 
-// Start App
-init();
+// Sleep Timer Logic
+function setSleepTimer(minutes) {
+    if (sleepTimerId) clearTimeout(sleepTimerId);
+    if (minutes === 0) {
+        timerBadge.style.display = 'none';
+        showToast('Sleep Timer Off', 'clock');
+        return;
+    }
+    timerBadge.style.display = 'block';
+    timerBadge.textContent = `${minutes}m`;
+    showToast(`Sleep Timer set to ${minutes} min`, 'clock');
 
-// --- Wake Lock Logic ---
+    sleepTimerId = setTimeout(() => {
+        audioPlayer.pause();
+        timerBadge.style.display = 'none';
+        showToast('Radio paused by Sleep Timer', 'moon');
+    }, minutes * 60 * 1000);
+}
+
+// Wake Lock
 async function requestWakeLock() {
     try {
-        if ('wakeLock' in navigator) {
-            wakeLock = await navigator.wakeLock.request('screen');
-            wakeLock.addEventListener('release', () => {
-                console.log('Wake Lock was released');
-            });
-            console.log('Wake Lock is active');
-        }
-    } catch (err) {
-        console.error(`Wake Lock error: ${err.name}, ${err.message}`);
-    }
+        if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
+    } catch (e) { console.log(e); }
 }
 
 function releaseWakeLock() {
-    if (wakeLock !== null) {
-        wakeLock.release().catch(console.error);
-        wakeLock = null;
-        console.log('Wake Lock released manually');
-    }
+    if (wakeLock) { wakeLock.release(); wakeLock = null; }
 }
 
-// --- Sleep Mode & Screen Auto-Off Functions ---
-function enableSleepMode(enable) {
-    isSleepMode = enable;
-    if (isSleepMode) {
-        document.body.classList.add('sleep-mode-active');
-        if (sleepOverlay) sleepOverlay.classList.add('active');
-        releaseWakeLock(); // Release screen lock so screen light automatically turns off via system screen timeout
-        if (keepAliveAudio) keepAliveAudio.pause();
-        
-        if (!audioPlayer.paused) {
-            userExplicitlyPaused = true;
-            audioPlayer.pause();
+// Dynamic Station Audio Background Light Aura Render Loop
+function setupStationAudioAura() {
+    const stationAudioAura = document.getElementById('station-audio-aura');
+    if (!stationAudioAura) return;
+
+    function animateAura() {
+        requestAnimationFrame(animateAura);
+        if (document.body.getAttribute('data-theme') === 'light') {
+            stationAudioAura.style.display = 'none';
+            return;
         }
-        playerStatus.textContent = '🌙 Sleep Mode (Screen Auto-Off)';
-        if (sleepBtn) {
-            sleepBtn.style.backgroundColor = 'var(--secondary-color)';
-            sleepBtn.style.color = '#fff';
+        stationAudioAura.style.display = 'block';
+
+        const isPlaying = !audioPlayer.paused && audioPlayer.readyState >= 3;
+        if (isPlaying) {
+            const time = Date.now() * 0.004;
+            const pulse = 1 + Math.abs(Math.sin(time * 6) * Math.cos(time * 3)) * 0.22;
+            const blur = 16 + pulse * 14;
+            const opacity = 0.5 + pulse * 0.45;
+            const hueShift = (time * 60) % 360;
+
+            stationAudioAura.style.transform = `scale(${pulse})`;
+            stationAudioAura.style.filter = `blur(${blur}px)`;
+            stationAudioAura.style.opacity = opacity;
+            stationAudioAura.style.background = `radial-gradient(circle, hsl(${hueShift}, 100%, 60%) 0%, hsl(${(hueShift + 60) % 360}, 100%, 55%) 50%, hsl(${(hueShift + 120) % 360}, 100%, 50%) 100%)`;
+        } else {
+            stationAudioAura.style.transform = 'scale(0.95)';
+            stationAudioAura.style.filter = 'blur(12px)';
+            stationAudioAura.style.opacity = '0.2';
         }
+    }
+
+    animateAura();
+}
+
+// Toggle discovery grid & playlist sections
+function toggleBothSections(btn) {
+    const stations = document.getElementById('stations-grid');
+    const playlist = document.getElementById('quick-playlist-list');
+    if (!stations || !playlist) return;
+
+    if (stations.style.display === 'none') {
+        stations.style.display = stations.classList.contains('grid-layout') ? 'grid' : 'flex';
+        playlist.style.display = 'flex';
+        if (btn) btn.innerHTML = '<i data-lucide="chevron-down"></i>';
     } else {
-        document.body.classList.remove('sleep-mode-active');
-        if (sleepOverlay) sleepOverlay.classList.remove('active');
-        if (sleepBtn) {
-            sleepBtn.style.backgroundColor = 'transparent';
-            sleepBtn.style.color = 'inherit';
-        }
-        if (!audioPlayer.paused) {
-            requestWakeLock();
-            if (keepAliveAudio) keepAliveAudio.play().catch(console.error);
-        }
+        stations.style.display = 'none';
+        playlist.style.display = 'none';
+        if (btn) btn.innerHTML = '<i data-lucide="chevron-up"></i>';
+    }
+
+    if (window.lucide) {
+        lucide.createIcons();
     }
 }
 
-function toggleSleepMode() {
-    enableSleepMode(!isSleepMode);
-}
-
-// --- Dynamic Visualizer Logic ---
-const eqBarsList = document.querySelectorAll('.eq-bar');
-let barValues = new Array(12).fill(10);
-let barTargets = new Array(12).fill(10);
-
-function updateVisualizer() {
-    // Determine if audio is actively playing
-    const isPlaying = !audioPlayer.paused && audioPlayer.readyState >= 3;
-    const vol = audioPlayer.muted ? 0 : audioPlayer.volume;
-    const volScale = (vol * 0.8) + 0.2; // Keep some movement even at low volume
-
-    if (isPlaying) {
-        // Randomly generate new height targets for a realistic look
-        if (Math.random() > 0.4) {
-            for (let i = 0; i < 12; i++) {
-                // Creates a bell-like curve (mids bounce higher than edges)
-                const eqCurve = 1 - Math.abs(i - 5.5) / 7; 
-                const rawBounce = Math.random() * 85; // 0 to 85% extra height
-                
-                // Add some temporal randomness to simulate actual frequencies
-                barTargets[i] = 15 + (rawBounce * eqCurve * volScale);
-            }
-        }
-    } else {
-        // Flatline to base height if paused/stopped
-        for (let i = 0; i < 12; i++) {
-            barTargets[i] = 10;
-        }
-    }
-
-    // Smooth transition physics
-    for (let i = 0; i < 12; i++) {
-        // Easing factor (0.3) for smooth, fluid motion
-        barValues[i] += (barTargets[i] - barValues[i]) * 0.3; 
-        
-        if (eqBarsList[i]) {
-            eqBarsList[i].style.height = `${barValues[i]}%`;
-        }
-    }
-
-    requestAnimationFrame(updateVisualizer);
-}
-
-// Start visualizer loop
-requestAnimationFrame(updateVisualizer);
+// Start
+init();
