@@ -1,258 +1,337 @@
 <!DOCTYPE html>
-<html lang="en"><head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#0b1020">
-<title>Bluetooth Voice Connect</title>
-
-<!-- QR libraries (only external deps) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-
-
-<link rel="stylesheet" href="style.css"></head>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <title>RKD FM | Next-Gen Internet Radio Discovery</title>
+    <meta name="description" content="Discover and stream world FM internet stations with RKD FM. Rapidly scan, play, and save your favorite stations with futuristic audio visualizers.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Icons & HLS Stream Player -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    
+    <link rel="stylesheet" href="style.css">
+</head>
 <body>
+    <div class="app-container">
+        <!-- Dynamic Background Lights -->
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+        <div class="cyber-grid-overlay"></div>
+        
+        <!-- Top App Header -->
+        <header>
+            <div class="logo">
+                <div class="logo-text-group">
+                    <img src="rkd_logo.png" alt="RKD Logo" class="header-logo-img">
+                    <div class="logo-text-inner">
+                        <span class="logo-title">RKD FM</span>
+                        <span class="logo-sub">CYBER RADIO DECK</span>
+                    </div>
+                </div>
+            </div>
 
-<!-- ================= HEADER ================= -->
-<header class="app-header">
-  <div class="brand">
-    <div class="brand-logo">B</div>
-    <div>
-      <div class="brand-name">Bluetooth Voice Connect</div>
-      <div style="font-size:11px; color:var(--muted);" id="headerSub">Ready</div>
+
+            <div class="header-controls">
+                <!-- Sleep Timer Button -->
+                <div class="sleep-timer-wrapper">
+                    <button id="sleep-timer-btn" class="icon-btn theme-btn" title="Sleep Timer">
+                        <i data-lucide="clock"></i>
+                        <span id="timer-badge" class="timer-badge" style="display: none;">OFF</span>
+                    </button>
+                    <div id="sleep-timer-menu" class="sleep-timer-menu glass" style="display: none;">
+                        <span class="menu-title">Sleep Timer</span>
+                        <button data-minutes="0" class="timer-opt active">Off</button>
+                        <button data-minutes="15" class="timer-opt">15 Min</button>
+                        <button data-minutes="30" class="timer-opt">30 Min</button>
+                        <button data-minutes="45" class="timer-opt">45 Min</button>
+                        <button data-minutes="60" class="timer-opt">60 Min</button>
+                    </div>
+                </div>
+
+                <button id="fullscreen-btn" class="icon-btn theme-btn" title="Toggle Fullscreen">
+                    <i data-lucide="maximize" id="fullscreen-icon"></i>
+                </button>
+                
+                <button id="theme-toggle" class="icon-btn theme-btn" title="Toggle Light/Dark Theme">
+                    <i data-lucide="moon" id="theme-icon"></i>
+                </button>
+            </div>
+        </header>
+
+
+
+        <main>
+        <div id="discovery-view">
+            <!-- Main Vintage Receiver Deck (Model SX-1970 High Fidelity) -->
+            <section class="hero-section vintage-receiver-section" id="hero-section">
+                <!-- Hero Drag Volume Percentage Orange Circle HUD -->
+                <div id="hero-volume-overlay" class="hero-volume-overlay">
+                    <div class="volume-circle-hud">
+                        <span id="hero-volume-text" class="volume-text-num">30%</span>
+                        <span class="volume-hud-label">VOLUME</span>
+                    </div>
+                </div>
+
+                <div class="vintage-receiver-chassis">
+                    <!-- Category Selector Bar (Compact Chassis Header) -->
+                    <nav class="category-nav glass" id="categories-nav">
+                        <button id="mode-toggle-btn" class="tab-btn action-btn india-active mode-pill-btn">
+                            <span id="mode-toggle-icon" class="flag-icon">🇮🇳</span>
+                            <span id="mode-toggle-text">India</span>
+                        </button>
+                        
+                        <div class="cats-wrapper" id="categories-bar">
+                            <div class="cat-scroll" id="india-cats">
+                                <button class="cat-btn active" data-tag="">ALL</button>
+                                <button class="cat-btn" data-tag="bollywood">BOLLYWOOD</button>
+                                <button class="cat-btn" data-tag="news">NEWS</button>
+                                <button class="cat-btn" data-tag="bhakti">BHAKTI</button>
+                                <button class="cat-btn" data-tag="dj remix">DJ - REMIX</button>
+                                <button class="cat-btn" data-tag="classic">CLASSIC</button>
+                                <button class="cat-btn" data-tag="bangla">BANGLA</button>
+                                <button class="cat-btn" data-tag="singer">SINGER</button>
+                                <button class="cat-btn" data-tag="gazal">GAZAL</button>
+                                <button class="cat-btn" data-tag="music">MUSIC</button>
+                                <button class="cat-btn" data-tag="air">AIR</button>
+                                <button class="cat-btn" data-tag="bhojpuri">BHOJPURI</button>
+                                <button class="cat-btn" data-tag="punjabi">PUNJABI</button>
+                                <button class="cat-btn" data-tag="regional">REGIONAL</button>
+                            </div>
+                            
+                            <div class="cat-scroll" id="global-cats" style="display: none;">
+                                <button class="cat-btn active" data-tag="">ALL</button>
+                                <button class="cat-btn" data-tag="australia news">AUSTRALIA NEWS</button>
+                                <button class="cat-btn" data-tag="euro news">EURO NEWS</button>
+                                <button class="cat-btn" data-tag="bbc news">BBC NEWS</button>
+                                <button class="cat-btn" data-tag="us news">US NEWS</button>
+                                <button class="cat-btn" data-tag="world news">WORLD NEWS</button>
+                                <button class="cat-btn" data-tag="russian news">RUSSIAN NEWS</button>
+                                <button class="cat-btn" data-tag="pop">POP</button>
+                                <button class="cat-btn" data-tag="rock">ROCK</button>
+                                <button class="cat-btn" data-tag="jazz">JAZZ</button>
+                                <button class="cat-btn" data-tag="classical">CLASSICAL</button>
+                                <button class="cat-btn" data-tag="hip hop">HIP HOP</button>
+                                <button class="cat-btn" data-tag="electronic">ELECTRONIC</button>
+                                <button class="cat-btn" data-tag="ambient">AMBIENT</button>
+                                <button class="cat-btn" data-tag="dance music">DANCE MUSIC</button>
+                                <button class="cat-btn" data-tag="educational">EDUCATIONAL</button>
+                                <button class="cat-btn" data-tag="sports">SPORTS</button>
+                                <button class="cat-btn" data-tag="talk">TALK</button>
+                            </div>
+                        </div>
+                    </nav>
+
+                    <!-- TOP PANEL: Dark Charcoal Display & Dual VU Meters -->
+                    <div class="top-dark-panel">
+
+                        <!-- Lower Display & Dial Screen -->
+                        <div class="receiver-display-screen">
+                            <div class="display-top-bar">
+                                <div class="vfd-screen">
+                                    <span id="player-status" class="status-badge-vfd">READY</span>
+                                    <span id="current-station-name" class="vfd-text">PLEASE SELECT A STATION</span>
+                                    <span id="current-station-meta" class="vfd-sub-text" style="display:none;"></span>
+                                </div>
+                                <div class="display-right-tools">
+                                    <button id="add-to-playlist-btn" class="fav-heart-btn vintage-heart" title="Save to Playlist">
+                                        <i data-lucide="heart" id="fav-heart-icon"></i>
+                                    </button>
+                                    <div id="stereo-indicator" class="stereo-badge active">
+                                        <span class="dot">•</span> STEREO
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Horizontal FM Tuning Scale -->
+                            <div class="fm-dial-container" id="fm-dial-track">
+                                <div class="dial-scale-lines">
+                                    <div class="dial-needle" id="dial-needle">
+                                        <div class="needle-head"></div>
+                                        <div class="needle-line"></div>
+                                    </div>
+                                    <div class="dial-ticks-bg"></div>
+                                    <div class="dial-numbers">
+                                        <span>88</span>
+                                        <span>90</span>
+                                        <span>92</span>
+                                        <span>94</span>
+                                        <span>96</span>
+                                        <span>98</span>
+                                        <span>100</span>
+                                        <span>102</span>
+                                        <span>104</span>
+                                        <span>106</span>
+                                        <span>108</span>
+                                    </div>
+                                </div>
+                                <div class="dial-footer-row">
+                                    <span class="freq-bound">88 MHz</span>
+                                    <span class="center-title">FM STEREO RECEIVER</span>
+                                    <span class="freq-bound">108 MHz</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BOTTOM PANEL: Brushed Silver Aluminum Faceplate -->
+                    <div class="bottom-silver-panel">
+                        <div class="controls-top-row">
+                            <!-- Left: 3 Skeuomorphic Rotary Knobs -->
+                            <div class="rotary-knobs-group">
+                                <!-- Volume Knob -->
+                                <div class="knob-wrapper" id="knob-volume-wrapper">
+                                    <span class="knob-label">VOLUME</span>
+                                    <div class="knob-control" id="knob-volume" data-knob="volume">
+                                        <div class="knob-dial">
+                                            <div class="knob-indicator"></div>
+                                        </div>
+                                    </div>
+                                    <span class="knob-value" id="volume-val-display">10%</span>
+                                </div>
+
+                                <!-- Tuning Knob -->
+                                <div class="knob-wrapper" id="knob-tuning-wrapper">
+                                    <span class="knob-label">TUNING</span>
+                                    <div class="knob-control" id="knob-tuning" data-knob="tuning">
+                                        <div class="knob-dial tuning-dial-style">
+                                            <div class="knob-indicator red-indicator"></div>
+                                        </div>
+                                    </div>
+                                    <span class="knob-value" id="tuning-val-display">88.0 MHz</span>
+                                </div>
+
+                                <!-- Bass Knob -->
+                                <div class="knob-wrapper" id="knob-bass-wrapper">
+                                    <span class="knob-label">BASS</span>
+                                    <div class="knob-control" id="knob-bass" data-knob="bass">
+                                        <div class="knob-dial">
+                                            <div class="knob-indicator"></div>
+                                        </div>
+                                    </div>
+                                    <span class="knob-value" id="bass-val-display">0</span>
+                                </div>
+                            </div>
+
+                            <!-- Right: Receiver Toggles Box -->
+                            <div class="toggles-box">
+                                <div class="box-header-title">RADIO PLAY CONTROLLER</div>
+                                <div class="toggles-buttons-row">
+                                    <button class="receiver-push-btn pwr-btn" id="btn-toggle-pwr" title="Previous Station">
+                                        <i data-lucide="skip-back"></i>
+                                    </button>
+                                    <button class="receiver-push-btn st-btn" id="btn-toggle-st" title="Play / Pause">
+                                        <i data-lucide="play"></i>
+                                    </button>
+                                    <button class="receiver-push-btn mut-btn" id="btn-toggle-mut" title="Next Station">
+                                        <i data-lucide="skip-forward"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Presets Box -->
+                        <div class="presets-box">
+                            <div class="box-header-title">PRESETS</div>
+                            <div class="presets-buttons-row">
+                                <button class="preset-btn" data-preset="autoscan" id="preset-btn-autoscan" title="Auto Scan Stations">AUTO SCAN</button>
+                                <button class="preset-btn active" data-preset="discover" id="preset-btn-discover" title="Discover Stations">DISCOVER</button>
+                                <button class="preset-btn" data-preset="playlist" id="preset-btn-playlist" title="My Playlist">PLAYLIST</button>
+                                <button class="preset-btn" data-preset="refresh" id="preset-btn-refresh" title="Refresh Station List">REFRESH</button>
+                            </div>
+                        </div>
+
+                        <!-- Station List Carousel (Scroll Left to Right / Right to Left) -->
+                        <div class="chassis-stations-box">
+                            <div class="chassis-stations-header">
+                                <span class="box-header-title">LIVE RADIO STATIONS</span>
+                                <span id="results-count" class="results-badge">0 stations found</span>
+                            </div>
+                            
+                            <div id="stations-grid" class="stations-list stations-horizontal-scroll">
+                                <!-- Stations injected here -->
+                            </div>
+                            
+                            <div class="loader-container" id="main-loader" style="display: none;">
+                                <div class="loader-cyber">
+                                    <div class="spinner"></div>
+                                    <span>Scanning Frequencies...</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hidden Station Info Img to satisfy legacy JS handlers -->
+                        <img id="current-station-info-img" src="rkd_logo.png" style="display:none;" alt="Station Logo">
+
+                        <!-- Footer Model Plate Text -->
+                        <div class="chassis-footer-row">
+                            <span class="model-name">MODEL SX-1970 HIGH FIDELITY</span>
+                            <span class="drag-hint">DRAG KNOBS UP/DOWN TO ALIGN</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Full Playlist View -->
+        <div id="playlist-view" style="display: none;">
+            <section class="content-grid-single">
+                <div class="section-header">
+                    <h2>Your Saved Stations Playlist</h2>
+                </div>
+                <div id="full-playlist-list" class="stations-list">
+                    <!-- Playlist will be rendered here -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+
+        <!-- Toast Notifications Container -->
+        <div id="toast-container" class="toast-container"></div>
+
+        <!-- Hidden Audio Element -->
+        <audio id="audio-player" autoplay preload="auto" crossorigin="anonymous"></audio>
+        <!-- Keep-Alive Audio for Background Playback -->
+        <audio id="keep-alive-audio" loop preload="auto" src="data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA"></audio>
     </div>
-  </div>
-  <div class="status-pill" id="statusPill">
-    <span class="status-dot" id="statusDot"></span>
-    <span id="statusText">Idle</span>
-  </div>
-</header>
 
-<!-- ================= APP SHELL ================= -->
-<div class="app-shell">
+    <script src="script.js"></script>
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
 
-  <!-- Desktop side nav (hidden on mobile) -->
-  <nav class="side-nav" aria-label="Primary">
-    <button class="nav-btn active" data-nav="connect"><span class="ic">🔗</span><span>Connect</span></button>
-    <button class="nav-btn" data-nav="voice"><span class="ic">🎙️</span><span>Voice</span></button>
-    <button class="nav-btn" data-nav="qr"><span class="ic">📷</span><span>QR</span></button>
-    <button class="nav-btn" data-nav="settings"><span class="ic">⚙️</span><span>Settings</span></button>
-  </nav>
+        // Mouse-following Parallax Glowing Blobs
+        document.addEventListener('mousemove', (e) => {
+            const x = e.clientX;
+            const y = e.clientY;
+            
+            const blob1 = document.querySelector('.blob-1');
+            const blob2 = document.querySelector('.blob-2');
+            const blob3 = document.querySelector('.blob-3');
+            
+            if (blob1 && blob2 && blob3) {
+                const moveX1 = (x - window.innerWidth / 2) * 0.04;
+                const moveY1 = (y - window.innerHeight / 2) * 0.04;
+                blob1.style.transform = `translate(${moveX1}px, ${moveY1}px)`;
+                
+                const moveX2 = (x - window.innerWidth / 2) * -0.04;
+                const moveY2 = (y - window.innerHeight / 2) * -0.04;
+                blob2.style.transform = `translate(${moveX2}px, ${moveY2}px)`;
 
-  <main>
+                const moveX3 = (x - window.innerWidth / 2) * 0.02;
+                const moveY3 = (y - window.innerHeight / 2) * 0.02;
+                blob3.style.transform = `translate(${moveX3}px, ${moveY3}px)`;
+            }
+        });
+    </script>
+</body>
+</html>
 
-    <!-- ================= HOME / CONNECT ================= -->
-    <section class="screen active" id="screen-connect">
-      <div class="hero">
-        <div class="big-icon">📡</div>
-        <h1>Connect with another device</h1>
-        <p>Bring both devices nearby. Connect using Bluetooth and verify with a QR code.</p>
-      </div>
-
-      <div class="card">
-        <h2>Start a session</h2>
-        <p>Choose how you want to connect.</p>
-        <div style="display:flex; flex-direction:column; gap:10px; margin-top:8px;">
-          <button class="btn primary" id="btnSearchBT">🔵 Search Bluetooth Devices</button>
-          <div class="btn-row">
-            <button class="btn" id="btnScanQR">📷 Scan QR Code</button>
-            <button class="btn" id="btnShowQR">🔳 Show My QR Code</button>
-          </div>
-          <button class="btn ghost" id="btnHowTo">❓ How to Connect</button>
-        </div>
-      </div>
-
-      <div class="card" id="compatCard">
-        <h2>Browser support</h2>
-        <div id="compatList" class="perm-list"></div>
-        <button class="btn mt-12" id="btnCheckCompat">Check Permissions</button>
-      </div>
-
-      <div class="card">
-        <h2>Recent Connections</h2>
-        <div id="historyList" class="device-list"></div>
-        <button class="btn ghost mt-12" id="btnClearHistory">Clear History</button>
-      </div>
-    </section>
-
-    <!-- ================= BLUETOOTH SEARCH ================= -->
-    <section class="screen" id="screen-bt-search">
-      <div class="card center">
-        <div class="scan-anim"><div class="core">📡</div></div>
-        <h2>Searching for nearby devices…</h2>
-        <p id="btSearchHint">Using the Web Bluetooth device picker. Select a device to continue.</p>
-        <div class="progress mt-12"><div id="btProgress"></div></div>
-      </div>
-
-      <div class="card">
-        <h2>Nearby Devices</h2>
-        <p>Devices shown here come from your browser's Bluetooth picker.</p>
-        <div class="device-list" id="btDeviceList"></div>
-      </div>
-
-      <div class="btn-row mt-8">
-        <button class="btn ghost" id="btnCancelBT">Cancel</button>
-        <button class="btn primary" id="btnRescanBT">Rescan</button>
-      </div>
-    </section>
-
-    <!-- ================= QR SHOW ================= -->
-    <section class="screen" id="screen-qr-show">
-      <div class="card center">
-        <h2>Your Connection QR</h2>
-        <p>Ask the other user to scan this QR code.</p>
-        <div class="qr-wrap" id="qrHolder"></div>
-        <div class="mono mt-8" id="qrSession" style="font-size:12px; color:var(--muted);"></div>
-        <div class="qr-expire mt-8">QR expires in: <span id="qrCountdown">02:00</span></div>
-        <div class="btn-row mt-12">
-          <button class="btn" id="btnRefreshQR">🔄 Refresh QR</button>
-          <button class="btn ghost" id="btnCloseQR">Close</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- ================= QR SCAN ================= -->
-    <section class="screen" id="screen-qr-scan">
-      <div class="card center">
-        <h2>Scan Pairing QR</h2>
-        <p>Point your camera at the other device's QR code.</p>
-        <div id="qrReader" style="margin-top:10px; border-radius:14px; overflow:hidden;"></div>
-        <div class="btn-row mt-12">
-          <button class="btn ghost" id="btnCancelScan">Cancel</button>
-          <button class="btn" id="btnToggleFlash">💡 Flash</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- ================= VOICE ================= -->
-    <section class="screen" id="screen-voice">
-      <div class="voice-stage">
-        <div class="peer-avatar" id="peerAvatar">👤</div>
-        <div class="peer-name" id="peerName">No device connected</div>
-        <div class="peer-status" id="peerStatus">Connect a device to start</div>
-
-        <div class="bars" id="voiceBars">
-          <span></span><span></span><span></span><span></span>
-          <span></span><span></span><span></span><span></span>
-        </div>
-
-        <button class="mic-btn" id="micBtn" aria-label="Push to talk">🎙️</button>
-        <div class="mic-label" id="micLabel">PRESS TO TALK</div>
-
-        <div class="row between mt-16" style="max-width:360px; margin-left:auto; margin-right:auto;">
-          <label class="row" style="gap:8px; font-size:13px; color:var(--muted);">
-            <span class="switch"><input type="checkbox" id="continuousToggle"><span class="slider"></span></span>
-            Continuous Voice Mode
-          </label>
-          <button class="btn ghost" id="btnLockMic" style="width:auto; min-height:40px; padding:8px 12px; font-size:13px;">🔒 Lock</button>
-        </div>
-
-        <div class="volume mt-16" style="max-width:420px; margin-left:auto; margin-right:auto;">
-          <button class="vol-btn" id="btnMute" title="Mute">🔊</button>
-          <input type="range" id="volRange" min="0" max="100" value="75">
-          <span id="volText" style="width:38px; text-align:right; font-size:13px; color:var(--muted);">75%</span>
-        </div>
-
-        <div class="btn-row mt-16">
-          <button class="btn" id="btnTestMic">🎙️ Test Microphone</button>
-          <button class="btn" id="btnTestSpeaker">🔊 Test Speaker</button>
-        </div>
-
-        <details class="card mt-16" style="text-align:left;">
-          <summary style="cursor:pointer; font-weight:600;">Connection Info</summary>
-          <div class="kv mt-12" id="connInfo"></div>
-        </details>
-
-        <button class="btn danger mt-12" id="btnDisconnect">Disconnect</button>
-      </div>
-    </section>
-
-    <!-- ================= SETTINGS ================= -->
-    <section class="screen" id="screen-settings">
-      <div class="card">
-        <h2>Audio</h2>
-        <div class="row between mt-8">
-          <span>Push-to-talk (default)</span>
-          <label class="switch"><input type="checkbox" id="setPTT" checked=""><span class="slider"></span></label>
-        </div>
-        <div class="row between mt-8">
-          <span>Continuous voice</span>
-          <label class="switch"><input type="checkbox" id="setContinuous"><span class="slider"></span></label>
-        </div>
-        <div class="row between mt-8">
-          <span>Auto reconnect</span>
-          <label class="switch"><input type="checkbox" id="setAutoReconnect" checked=""><span class="slider"></span></label>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>QR</h2>
-        <div class="row between mt-8">
-          <span>Expiration (seconds)</span>
-          <input type="number" id="setQRExpire" min="30" max="600" value="120" style="width:90px; padding:8px; border-radius:10px; background:var(--card-2); color:var(--text); border:1px solid var(--border);">
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Appearance</h2>
-        <div class="row mt-8" style="gap:8px;">
-          <button class="btn" data-theme-btn="light">☀️ Light</button>
-          <button class="btn" data-theme-btn="dark">🌙 Dark</button>
-          <button class="btn" data-theme-btn="system">🖥️ System</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Permissions</h2>
-        <div id="permList" class="perm-list mt-8"></div>
-        <button class="btn mt-12" id="btnRecheckPerm">Check Permissions</button>
-      </div>
-
-      <div class="card">
-        <h2>Privacy</h2>
-        <ul style="padding-left:18px; color:var(--muted); line-height:1.7; margin:6px 0 0;">
-          <li>Voice is not recorded by default</li>
-          <li>No cloud voice server</li>
-          <li>No account required</li>
-          <li>Camera is used only for QR scanning</li>
-          <li>Microphone is used only after permission</li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <h2>Help</h2>
-        <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
-          <button class="btn" data-help="bluetooth">Bluetooth guide</button>
-          <button class="btn" data-help="microphone">Microphone guide</button>
-          <button class="btn" data-help="camera">Camera guide</button>
-          <button class="btn" data-help="compat">Browser compatibility</button>
-        </div>
-      </div>
-    </section>
-
-  </main>
-</div>
-
-<!-- ================= BOTTOM NAV ================= -->
-<nav class="bottom-nav" aria-label="Primary">
-  <button class="nav-btn active" data-nav="connect"><span class="ic">🔗</span><span>Connect</span></button>
-  <button class="nav-btn" data-nav="voice"><span class="ic">🎙️</span><span>Voice</span></button>
-  <button class="nav-btn" data-nav="qr"><span class="ic">📷</span><span>QR</span></button>
-  <button class="nav-btn" data-nav="settings"><span class="ic">⚙️</span><span>Settings</span></button>
-</nav>
-
-<!-- ================= MODAL ================= -->
-<div class="modal-backdrop" id="modal">
-  <div class="modal">
-    <h3 id="modalTitle">Title</h3>
-    <p id="modalBody">Body</p>
-    <div id="modalActions" class="btn-row"></div>
-  </div>
-</div>
-
-<!-- ================= TOAST ================= -->
-<div class="toast" id="toast">Hello</div>
-
-
-
-<script src="script.js"></script></body></html>
