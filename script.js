@@ -71,21 +71,39 @@ const CUSTOM_SINGER_STATIONS = [
         lastcheckok: 1
     },
     {
-        stationuuid: 'custom-armaan-malik-radio',
-        name: 'Armaan Malik Hits',
-        url_resolved: 'https://drive.uber.radio/uber/bollywoodnow/icecast.audio?artist=armaan',
-        favicon: 'logo.png',
+        stationuuid: 'custom-kishore-kumar-radio',
+        name: 'Kishore Kumar Radio Hits',
+        url_resolved: 'https://drive.uber.radio/uber/bollywoodkishorekumar/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/mohammed-rafi.jpg',
         country: 'India',
-        tags: 'singer, armaan malik, hindi, bollywood',
+        tags: 'singer, kishore kumar, hindi, classics, retro, oldies',
         lastcheckok: 1
     },
     {
-        stationuuid: 'custom-neha-kakkar-radio',
-        name: 'Neha Kakkar Hits',
-        url_resolved: 'https://drive.uber.radio/uber/bollywoodnow/icecast.audio?artist=neha',
-        favicon: 'logo.png',
+        stationuuid: 'custom-lata-mangeshkar-radio',
+        name: 'Lata Mangeshkar Golden Hits',
+        url_resolved: 'https://drive.uber.radio/uber/bollywoodlatamangeshkar/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/asha-bhosle.jpg',
         country: 'India',
-        tags: 'singer, neha kakkar, hindi, bollywood',
+        tags: 'singer, lata mangeshkar, hindi, classics, retro, oldies',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-mukesh-radio-hits',
+        name: 'Mukesh Super Hits',
+        url_resolved: 'https://drive.uber.radio/uber/bollywoodmukesh/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/mohammed-rafi.jpg',
+        country: 'India',
+        tags: 'singer, mukesh, hindi, classics, retro, oldies',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-retro-bollywood-70s',
+        name: 'Retro Bollywood 70s Special',
+        url_resolved: 'https://drive.uber.radio/uber/bollywood70s/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bollywood-hits.jpg',
+        country: 'India',
+        tags: 'singer, 70s, retro, bollywood, classic, oldies',
         lastcheckok: 1
     }
 ];
@@ -215,15 +233,6 @@ const CUSTOM_BHAKTI_STATIONS = [
         lastcheckok: 1
     },
     {
-        stationuuid: 'custom-easy-96-radio',
-        name: 'Easy 96 Radio',
-        url_resolved: 'https://drive.uber.radio/uber/bollywoodnow/icecast.audio',
-        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/easy-96-radio.jpg',
-        country: 'India',
-        tags: 'bhakti, devotional, hindi, easy 96',
-        lastcheckok: 1
-    },
-    {
         stationuuid: 'custom-bhajans-radio-guyana',
         name: 'Bhajans Radio Guyana',
         url_resolved: 'https://s3.citrus3.com:8042/stream',
@@ -286,7 +295,7 @@ const CUSTOM_HINDI_STATIONS = [
         url_resolved: 'https://drive.uber.radio/uber/bollywoodnow/icecast.audio',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/easy-96-radio.jpg',
         country: 'India',
-        tags: 'hindi, easy 96, pop, bollywood, bhakti',
+        tags: 'hindi, easy 96, pop, bollywood',
         lastcheckok: 1
     },
     {
@@ -404,6 +413,177 @@ const CUSTOM_HINDI_STATIONS = [
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-maharani.jpg',
         country: 'India',
         tags: 'hindi, maharani, classic, folk, melodies',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-radio-city-classics',
+        name: 'Radio City Classics',
+        url_resolved: 'https://streamasiacdn.atc-labs.com/radiocityclassics.aac',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-city-hindi.jpg',
+        country: 'India',
+        tags: 'hindi, bollywood, classics, retro, oldies',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-radio-city-ishq',
+        name: 'Radio City Ishq',
+        url_resolved: 'https://streamasiacdn.atc-labs.com/radiocityishq.aac',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/mirchi-love-hindi.jpg',
+        country: 'India',
+        tags: 'hindi, bollywood, romantic, love, ishq',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-radio-mirchi-90s',
+        name: 'Radio Mirchi 90s Hits',
+        url_resolved: 'https://drive.uber.radio/uber/bollywood90s/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-mirchi-hindi.jpg',
+        country: 'India',
+        tags: 'hindi, bollywood, 90s, classics, retro',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-hit-bollywood-radio',
+        name: 'Hit Bollywood Radio',
+        url_resolved: 'https://drive.uber.radio/uber/bollywoodhits/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bollywood-hits.jpg',
+        country: 'India',
+        tags: 'hindi, bollywood, top40, hits, party',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-bollywood-melodies',
+        name: 'Bollywood Melodies Radio',
+        url_resolved: 'https://drive.uber.radio/uber/bollywoodlove/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bollywood-hits.jpg',
+        country: 'India',
+        tags: 'hindi, bollywood, melodies, acoustic, romantic',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-radio-city-dance',
+        name: 'Radio City Dance Hits',
+        url_resolved: 'https://streamasiacdn.atc-labs.com/radiocitydance.aac',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-city-hindi.jpg',
+        country: 'India',
+        tags: 'hindi, bollywood, dance, party, remix',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-filmy-mirchi',
+        name: 'Filmy Mirchi',
+        url_resolved: 'https://drive.uber.radio/uber/filmymirchi/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-mirchi-hindi.jpg',
+        country: 'India',
+        tags: 'hindi, bollywood, filmy, mirchi, cinema',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-bollywood-gaane-purane',
+        name: 'Bollywood Gaane Purane',
+        url_resolved: 'https://drive.uber.radio/uber/bollywoodretro/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-city-hindi.jpg',
+        country: 'India',
+        tags: 'hindi, classic, retro, oldies, bollywood gaane purane, purane gaane',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-hindi-gold-radio',
+        name: 'Hindi Gold Radio',
+        url_resolved: 'https://drive.uber.radio/uber/bollywoodlatamangeshkar/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/mohammed-rafi.jpg',
+        country: 'India',
+        tags: 'hindi, classic, retro, oldies, hindi gold radio, gold',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-90s-once-again-radio',
+        name: '90s Once Again Radio',
+        url_resolved: 'https://drive.uber.radio/uber/bollywood90s/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-mirchi-hindi.jpg',
+        country: 'India',
+        tags: 'hindi, classic, retro, 90s, oldies, 90sonceagainradio',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-radio-gaane',
+        name: 'Radio Gaane',
+        url_resolved: 'https://drive.uber.radio/uber/bollywoodhits/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bollywood-hits.jpg',
+        country: 'India',
+        tags: 'hindi, classic, retro, radio gaane, oldies, melodies',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-nostalgic-bollywood-90s',
+        name: 'Nostalgic Bollywood 90s',
+        url_resolved: 'https://drive.uber.radio/uber/bollywood90s/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-mirchi-hindi.jpg',
+        country: 'India',
+        tags: 'hindi, classic, retro, 90s, nostalgic bollywood 90s, oldies',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-goldy-evergreen-radio',
+        name: 'Goldy Evergreen Radio',
+        url_resolved: 'https://drive.uber.radio/uber/bollywoodkishorekumar/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/asha-bhosle.jpg',
+        country: 'India',
+        tags: 'hindi, classic, retro, oldies, goldy evergreen, evergreen',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-hindi-retro-radio',
+        name: 'Hindi Retro Radio',
+        url_resolved: 'https://drive.uber.radio/uber/bollywood70s/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-city-hindi.jpg',
+        country: 'India',
+        tags: 'hindi, classic, retro, oldies, hindi ratro, vintage',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-madhur-sangeet-radio',
+        name: 'Madhur Sangeet Radio',
+        url_resolved: 'https://drive.uber.radio/uber/bollywoodlove/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/mirchi-love-hindi.jpg',
+        country: 'India',
+        tags: 'hindi, classic, retro, oldies, madhur sangeet, sangeet',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-divers-fm-classic',
+        name: 'Divers FM Classic',
+        url_resolved: 'https://drive.uber.radio/uber/bollywoodnow/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bollywood-hits.jpg',
+        country: 'India',
+        tags: 'hindi, classic, retro, oldies, divers fm, music',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-bollywood-classic-songs',
+        name: 'Bollywood Classic Songs',
+        url_resolved: 'https://drive.uber.radio/uber/bollywoodrdburman/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-mirchi-hindi.jpg',
+        country: 'India',
+        tags: 'hindi, classic, retro, oldies, bollywood classic songs',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-radio-nev-classic',
+        name: 'Radio Nev Classic',
+        url_resolved: 'https://drive.uber.radio/uber/bollywoodmukesh/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/mohammed-rafi.jpg',
+        country: 'India',
+        tags: 'hindi, classic, retro, oldies, radionev, classic radio',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-60s-forever-hindi',
+        name: '60s Forever Hindi Radio',
+        url_resolved: 'https://drive.uber.radio/uber/bollywoodretro/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/asha-bhosle.jpg',
+        country: 'India',
+        tags: 'hindi, classic, retro, oldies, 60sforever, 60s',
         lastcheckok: 1
     }
 ];
@@ -662,6 +842,24 @@ const CUSTOM_GLOBAL_POP_STATIONS = [
 
 const CUSTOM_NEWS_STATIONS = [
     {
+        stationuuid: 'custom-air-delhi-fm-gold',
+        name: 'AIR Delhi FM Gold',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio005/hlspbaudio005_Auto.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'news, air, delhi, fm gold',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-air-news-247',
+        name: 'AIR News 24/7',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio002/hlspbaudio00264kbps.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'news, air, 24/7, live news',
+        lastcheckok: 1
+    },
+    {
         stationuuid: 'custom-republic-bharat-tv',
         name: 'Republic Bharat TV',
         url_resolved: 'https://streams.tangotv.in/REPUBLICBHARAT/ORIGIN/index.m3u8',
@@ -707,6 +905,18 @@ const CUSTOM_NEWS_STATIONS = [
         lastcheckok: 1
     },
     {
+        stationuuid: 'custom-wion-live-tv',
+        name: 'WION LIVE TV',
+        url_resolved: 'https://d7x8z4yuq42qn.cloudfront.net/index_3.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/WION_Logo.svg/512px-WION_Logo.svg.png',
+        country: 'India',
+        tags: 'news, tv, english, wion',
+        lastcheckok: 1
+    }
+];
+
+const CUSTOM_AIR_STATIONS = [
+    {
         stationuuid: 'custom-air-delhi-fm-gold',
         name: 'AIR Delhi FM Gold',
         url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio005/hlspbaudio005_Auto.m3u8',
@@ -730,7 +940,7 @@ const CUSTOM_NEWS_STATIONS = [
         url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio002/hlspbaudio002_Auto.m3u8',
         favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
         country: 'India',
-        tags: 'news, air, delhi, indraprastha',
+        tags: 'air, delhi, indraprastha',
         lastcheckok: 1
     },
     {
@@ -739,7 +949,7 @@ const CUSTOM_NEWS_STATIONS = [
         url_resolved: 'https://radio.wavespb.com/live/deae7120a205bfff/deae7120a205bfff.m3u8',
         favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
         country: 'India',
-        tags: 'news, akashvani, warangal, regional',
+        tags: 'akashvani, warangal, regional',
         lastcheckok: 1
     },
     {
@@ -748,7 +958,7 @@ const CUSTOM_NEWS_STATIONS = [
         url_resolved: 'https://radio.wavespb.com/live/3bcd83926d6c3cca/3bcd83926d6c3cca.m3u8',
         favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
         country: 'India',
-        tags: 'news, akashvani, anantapur, regional',
+        tags: 'akashvani, anantapur, regional',
         lastcheckok: 1
     },
     {
@@ -757,16 +967,7 @@ const CUSTOM_NEWS_STATIONS = [
         url_resolved: 'https://radio.wavespb.com/live/5d9989b5189a8f4a/5d9989b5189a8f4a.m3u8',
         favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
         country: 'India',
-        tags: 'news, akashvani, nizamabad, regional',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-wion-live-tv',
-        name: 'WION LIVE TV',
-        url_resolved: 'https://d7x8z4yuq42qn.cloudfront.net/index_3.m3u8',
-        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/WION_Logo.svg/512px-WION_Logo.svg.png',
-        country: 'India',
-        tags: 'news, tv, english, wion',
+        tags: 'akashvani, nizamabad, regional',
         lastcheckok: 1
     },
     {
@@ -1025,6 +1226,60 @@ const CUSTOM_DJ_REMIX_STATIONS = [
         favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/1.FM_Logo.svg/512px-1.FM_Logo.svg.png',
         country: 'India',
         tags: 'dj remix, remix, bombaybeats, 1.fm, dance, hits',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-club-mirchi',
+        name: 'Club Mirchi (Bollywood DJ Mix)',
+        url_resolved: 'https://drive.uber.radio/uber/filmymirchi/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-mirchi-hindi.jpg',
+        country: 'India',
+        tags: 'dj remix, remix, dance, party, mix, club mirchi, bollywood',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-radio-city-dance-remix',
+        name: 'Radio City Dance Remix',
+        url_resolved: 'https://streamasiacdn.atc-labs.com/radiocitydance.aac',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-city-hindi.jpg',
+        country: 'India',
+        tags: 'dj remix, remix, dance, edm, party, mix, radio city',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-bollywood-edm-radio',
+        name: 'Bollywood EDM Radio',
+        url_resolved: 'https://drive.uber.radio/uber/bollywoodworkout/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bollywood-hits.jpg',
+        country: 'India',
+        tags: 'dj remix, remix, dance, edm, electronic, party, mix',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-desi-dj-mashup',
+        name: 'Desi DJ Mashup Radio',
+        url_resolved: 'https://s6.yesstreaming.net/proxy/john1237?mp=/live',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bollywood-beyond.jpg',
+        country: 'India',
+        tags: 'dj remix, remix, mashup, dance, party, mix, bass',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-retro-bollywood-dj-remix',
+        name: 'Retro Bollywood DJ Remix',
+        url_resolved: 'https://drive.uber.radio/uber/bollywood90s/icecast.audio',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-mirchi-hindi.jpg',
+        country: 'India',
+        tags: 'dj remix, remix, retro, 90s, dance, party, mix',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-bollywood-party-club-mix',
+        name: 'Bollywood Party Club Mix',
+        url_resolved: 'https://strmreg.1.fm/bombaybeats_mobile_mp3',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/1.FM_Logo.svg/512px-1.FM_Logo.svg.png',
+        country: 'India',
+        tags: 'dj remix, remix, party, club, dance, mix, bollywood',
         lastcheckok: 1
     }
 ];
@@ -1697,7 +1952,7 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
             const resp = await fetch(url).then(r => r.json()).catch(() => []);
             currentStations = [...CUSTOM_HINDI_STATIONS, ...resp];
         } else if (lowerTag === 'classic' || lowerTag === 'old' || lowerTag === 'retro' || lowerQuery.includes('classic') || lowerQuery.includes('old') || lowerQuery.includes('retro')) {
-            const allCustom = [...CUSTOM_HINDI_STATIONS, ...CUSTOM_BANGLA_STATIONS, ...CUSTOM_NEWS_STATIONS, ...CUSTOM_BHAKTI_STATIONS, ...CUSTOM_SINGER_STATIONS, ...CUSTOM_GHAZAL_STATIONS, ...CUSTOM_PUNJABI_STATIONS, ...CUSTOM_DJ_REMIX_STATIONS];
+            const allCustom = [...CUSTOM_HINDI_STATIONS, ...CUSTOM_BANGLA_STATIONS, ...CUSTOM_NEWS_STATIONS, ...CUSTOM_BHAKTI_STATIONS, ...CUSTOM_SINGER_STATIONS, ...CUSTOM_GHAZAL_STATIONS, ...CUSTOM_PUNJABI_STATIONS, ...CUSTOM_DJ_REMIX_STATIONS, ...CUSTOM_AIR_STATIONS];
             const classicCustom = allCustom.filter(s => {
                 if (!s.tags) return false;
                 const t = s.tags.toLowerCase();
@@ -1706,14 +1961,14 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
             const resp = await fetch(url).then(r => r.json()).catch(() => []);
             currentStations = [...classicCustom, ...resp];
         } else if (lowerTag === 'air' || lowerTag === 'all india radio' || lowerTag === 'akashvani' || lowerTag.includes('rainbow') || lowerQuery === 'air' || lowerQuery.includes('all india radio') || lowerQuery.includes('akashvani') || lowerQuery.includes('rainbow')) {
-            const allCustom = [...CUSTOM_HINDI_STATIONS, ...CUSTOM_BANGLA_STATIONS, ...CUSTOM_NEWS_STATIONS, ...CUSTOM_BHAKTI_STATIONS, ...CUSTOM_SINGER_STATIONS, ...CUSTOM_GHAZAL_STATIONS, ...CUSTOM_PUNJABI_STATIONS, ...CUSTOM_DJ_REMIX_STATIONS];
+            const allCustom = [...CUSTOM_HINDI_STATIONS, ...CUSTOM_BANGLA_STATIONS, ...CUSTOM_NEWS_STATIONS, ...CUSTOM_BHAKTI_STATIONS, ...CUSTOM_SINGER_STATIONS, ...CUSTOM_GHAZAL_STATIONS, ...CUSTOM_PUNJABI_STATIONS, ...CUSTOM_DJ_REMIX_STATIONS, ...CUSTOM_AIR_STATIONS];
             const airCustom = allCustom.filter(s => {
                 if (!s.tags) return false;
                 const t = s.tags.toLowerCase();
                 return t.includes('air') || t.includes('all india radio') || t.includes('akashvani') || t.includes('rainbow');
             });
             const resp = await fetch(url).then(r => r.json()).catch(() => []);
-            currentStations = [...airCustom, ...resp];
+            currentStations = [...CUSTOM_AIR_STATIONS, ...airCustom, ...resp];
         } else if (lowerTag === 'bhakti' || lowerTag === 'devotional' || lowerQuery.includes('bhakti')) {
             const resp = await fetch(url).then(r => r.json()).catch(() => []);
             currentStations = [...CUSTOM_BHAKTI_STATIONS, ...resp];
@@ -1746,7 +2001,7 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
             const response = await fetch(url);
             const apiRes = await response.json().catch(() => []);
             if (country === 'India' || currentMode === 'India') {
-                const allCustom = [...CUSTOM_HINDI_STATIONS, ...CUSTOM_BANGLA_STATIONS, ...CUSTOM_NEWS_STATIONS, ...CUSTOM_BHAKTI_STATIONS, ...CUSTOM_SINGER_STATIONS, ...CUSTOM_GHAZAL_STATIONS, ...CUSTOM_PUNJABI_STATIONS, ...CUSTOM_DJ_REMIX_STATIONS];
+                const allCustom = [...CUSTOM_HINDI_STATIONS, ...CUSTOM_BANGLA_STATIONS, ...CUSTOM_NEWS_STATIONS, ...CUSTOM_BHAKTI_STATIONS, ...CUSTOM_SINGER_STATIONS, ...CUSTOM_GHAZAL_STATIONS, ...CUSTOM_PUNJABI_STATIONS, ...CUSTOM_DJ_REMIX_STATIONS, ...CUSTOM_AIR_STATIONS];
                 if (query || tag) {
                     const matchedCustom = allCustom.filter(s => {
                         let matchQ = true;
