@@ -66,12 +66,93 @@
             </div>
         </header>
 
+        <!-- Main Navigation Bar -->
+        <nav class="main-tabs glass" id="main-tabs">
+            <button class="tab-btn action-btn auto-scan-glow" id="smart-auto-scan-btn">
+                <i data-lucide="zap"></i>
+                <span>Auto Scan</span>
+            </button>
+            
+            <button class="tab-btn active" data-tab="discovery">
+                <i data-lucide="compass"></i>
+                <span>Discover</span>
+            </button>
 
+            <button class="tab-btn" data-tab="playlist">
+                <i data-lucide="list-music"></i>
+                <span>Playlist</span>
+                <span id="playlist-count-badge" class="pill-count">0</span>
+            </button>
+            
+            <button class="tab-btn action-btn" id="tab-refresh-btn" title="Reload Stations">
+                <i data-lucide="refresh-cw"></i>
+                <span>Refresh</span>
+            </button>
+            
+            <div class="search-bar main-search-bar">
+                <i data-lucide="search" class="search-input-icon"></i>
+                <input type="text" id="station-search" placeholder="Search station, genre, city..." autocomplete="off">
+                <button id="clear-search-btn" class="icon-btn clear-btn" title="Clear search" style="display:none;">
+                    <i data-lucide="x"></i>
+                </button>
+                <button id="search-btn" class="primary-btn" title="Search Stations">
+                    <span>Search</span>
+                </button>
+            </div>
+        </nav>
 
         <main>
         <div id="discovery-view">
-            <!-- Main Vintage Receiver Deck (Model SX-1970 High Fidelity) -->
-            <section class="hero-section vintage-receiver-section" id="hero-section">
+            <!-- Category Selector Bar -->
+            <nav class="category-nav glass" id="categories-nav">
+                <button id="mode-toggle-btn" class="tab-btn action-btn india-active mode-pill-btn">
+                    <span id="mode-toggle-icon" class="flag-icon">🇮🇳</span>
+                    <span id="mode-toggle-text">India</span>
+                </button>
+                
+                <div class="cats-wrapper" id="categories-bar">
+                    <div class="cat-scroll" id="india-cats">
+                        <button class="cat-btn active" data-tag="">ALL</button>
+                        <button class="cat-btn" data-tag="bollywood">BOLLYWOOD</button>
+                        <button class="cat-btn" data-tag="news">NEWS</button>
+                        <button class="cat-btn" data-tag="bhakti">BHAKTI</button>
+                        <button class="cat-btn" data-tag="dj remix">DJ - REMIX</button>
+                        <button class="cat-btn" data-tag="classic">CLASSIC</button>
+                        <button class="cat-btn" data-tag="bangla">BANGLA</button>
+                        <button class="cat-btn" data-tag="singer">SINGER</button>
+                        <button class="cat-btn" data-tag="gazal">GAZAL</button>
+                        <button class="cat-btn" data-tag="music">MUSIC</button>
+                        <button class="cat-btn" data-tag="air">AIR</button>
+                        <button class="cat-btn" data-tag="bhojpuri">BHOJPURI</button>
+                        <button class="cat-btn" data-tag="punjabi">PUNJABI</button>
+                        <button class="cat-btn" data-tag="regional">REGIONAL</button>
+                    </div>
+                    
+                    <div class="cat-scroll" id="global-cats" style="display: none;">
+                        <button class="cat-btn active" data-tag="">ALL</button>
+                        <button class="cat-btn" data-tag="australia news">AUSTRALIA NEWS</button>
+                        <button class="cat-btn" data-tag="euro news">EURO NEWS</button>
+                        <button class="cat-btn" data-tag="bbc news">BBC NEWS</button>
+                        <button class="cat-btn" data-tag="us news">US NEWS</button>
+                        <button class="cat-btn" data-tag="world news">WORLD NEWS</button>
+                        <button class="cat-btn" data-tag="russian news">RUSSIAN NEWS</button>
+                        <button class="cat-btn" data-tag="pop">POP</button>
+                        <button class="cat-btn" data-tag="rock">ROCK</button>
+                        <button class="cat-btn" data-tag="jazz">JAZZ</button>
+                        <button class="cat-btn" data-tag="classical">CLASSICAL</button>
+                        <button class="cat-btn" data-tag="hip hop">HIP HOP</button>
+                        <button class="cat-btn" data-tag="electronic">ELECTRONIC</button>
+                        <button class="cat-btn" data-tag="ambient">AMBIENT</button>
+                        <button class="cat-btn" data-tag="dance music">DANCE MUSIC</button>
+                        <button class="cat-btn" data-tag="educational">EDUCATIONAL</button>
+                        <button class="cat-btn" data-tag="sports">SPORTS</button>
+                        <button class="cat-btn" data-tag="talk">TALK</button>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Main Cyber Deck / Now Playing Deck -->
+            <section class="hero-section" id="hero-section">
                 <!-- Hero Drag Volume Percentage Orange Circle HUD -->
                 <div id="hero-volume-overlay" class="hero-volume-overlay">
                     <div class="volume-circle-hud">
@@ -80,203 +161,112 @@
                     </div>
                 </div>
 
-                <div class="vintage-receiver-chassis">
-                    <!-- Category Selector Bar (Compact Chassis Header) -->
-                    <nav class="category-nav glass" id="categories-nav">
-                        <button id="mode-toggle-btn" class="tab-btn action-btn india-active mode-pill-btn">
-                            <span id="mode-toggle-icon" class="flag-icon">🇮🇳</span>
-                            <span id="mode-toggle-text">India</span>
+                <div class="now-playing-card glass">
+                    <div class="station-visual">
+                        <div class="station-audio-aura" id="station-audio-aura"></div>
+                        <div class="vinyl-wrapper" id="vinyl-wrapper">
+                            <div class="vinyl-groove"></div>
+                            <img id="current-station-info-img" src="rkd_logo.png" alt="Station Logo" title="Click to save to playlist" loading="eager" fetchpriority="high">
+                            <div class="center-spindle"></div>
+                        </div>
+                        <button id="add-to-playlist-btn" class="fav-heart-btn" title="Save to Playlist">
+                            <i data-lucide="heart" id="fav-heart-icon"></i>
                         </button>
-                        
-                        <div class="cats-wrapper" id="categories-bar">
-                            <div class="cat-scroll" id="india-cats">
-                                <button class="cat-btn active" data-tag="">ALL</button>
-                                <button class="cat-btn" data-tag="bollywood">BOLLYWOOD</button>
-                                <button class="cat-btn" data-tag="news">NEWS</button>
-                                <button class="cat-btn" data-tag="bhakti">BHAKTI</button>
-                                <button class="cat-btn" data-tag="dj remix">DJ - REMIX</button>
-                                <button class="cat-btn" data-tag="classic">CLASSIC</button>
-                                <button class="cat-btn" data-tag="bangla">BANGLA</button>
-                                <button class="cat-btn" data-tag="singer">SINGER</button>
-                                <button class="cat-btn" data-tag="gazal">GAZAL</button>
-                                <button class="cat-btn" data-tag="music">MUSIC</button>
-                                <button class="cat-btn" data-tag="air">AIR</button>
-                                <button class="cat-btn" data-tag="bhojpuri">BHOJPURI</button>
-                                <button class="cat-btn" data-tag="punjabi">PUNJABI</button>
-                                <button class="cat-btn" data-tag="regional">REGIONAL</button>
-                            </div>
-                            
-                            <div class="cat-scroll" id="global-cats" style="display: none;">
-                                <button class="cat-btn active" data-tag="">ALL</button>
-                                <button class="cat-btn" data-tag="australia news">AUSTRALIA NEWS</button>
-                                <button class="cat-btn" data-tag="euro news">EURO NEWS</button>
-                                <button class="cat-btn" data-tag="bbc news">BBC NEWS</button>
-                                <button class="cat-btn" data-tag="us news">US NEWS</button>
-                                <button class="cat-btn" data-tag="world news">WORLD NEWS</button>
-                                <button class="cat-btn" data-tag="russian news">RUSSIAN NEWS</button>
-                                <button class="cat-btn" data-tag="pop">POP</button>
-                                <button class="cat-btn" data-tag="rock">ROCK</button>
-                                <button class="cat-btn" data-tag="jazz">JAZZ</button>
-                                <button class="cat-btn" data-tag="classical">CLASSICAL</button>
-                                <button class="cat-btn" data-tag="hip hop">HIP HOP</button>
-                                <button class="cat-btn" data-tag="electronic">ELECTRONIC</button>
-                                <button class="cat-btn" data-tag="ambient">AMBIENT</button>
-                                <button class="cat-btn" data-tag="dance music">DANCE MUSIC</button>
-                                <button class="cat-btn" data-tag="educational">EDUCATIONAL</button>
-                                <button class="cat-btn" data-tag="sports">SPORTS</button>
-                                <button class="cat-btn" data-tag="talk">TALK</button>
-                            </div>
-                        </div>
-                    </nav>
-
-                    <!-- TOP PANEL: Dark Charcoal Display & Dual VU Meters -->
-                    <div class="top-dark-panel">
-
-                        <!-- Lower Display & Dial Screen -->
-                        <div class="receiver-display-screen">
-                            <div class="display-top-bar">
-                                <div class="vfd-screen">
-                                    <span id="player-status" class="status-badge-vfd">READY</span>
-                                    <span id="current-station-name" class="vfd-text">PLEASE SELECT A STATION</span>
-                                    <span id="current-station-meta" class="vfd-sub-text" style="display:none;"></span>
-                                </div>
-                                <div class="display-right-tools">
-                                    <button id="add-to-playlist-btn" class="fav-heart-btn vintage-heart" title="Save to Playlist">
-                                        <i data-lucide="heart" id="fav-heart-icon"></i>
-                                    </button>
-                                    <div id="stereo-indicator" class="stereo-badge active">
-                                        <span class="dot">•</span> STEREO
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Horizontal FM Tuning Scale -->
-                            <div class="fm-dial-container" id="fm-dial-track">
-                                <div class="dial-scale-lines">
-                                    <div class="dial-needle" id="dial-needle">
-                                        <div class="needle-head"></div>
-                                        <div class="needle-line"></div>
-                                    </div>
-                                    <div class="dial-ticks-bg"></div>
-                                    <div class="dial-numbers">
-                                        <span>88</span>
-                                        <span>90</span>
-                                        <span>92</span>
-                                        <span>94</span>
-                                        <span>96</span>
-                                        <span>98</span>
-                                        <span>100</span>
-                                        <span>102</span>
-                                        <span>104</span>
-                                        <span>106</span>
-                                        <span>108</span>
-                                    </div>
-                                </div>
-                                <div class="dial-footer-row">
-                                    <span class="freq-bound">88 MHz</span>
-                                    <span class="center-title">FM STEREO RECEIVER</span>
-                                    <span class="freq-bound">108 MHz</span>
-                                </div>
-                            </div>
-                        </div>
                     </div>
-
-                    <!-- BOTTOM PANEL: Brushed Silver Aluminum Faceplate -->
-                    <div class="bottom-silver-panel">
-                        <div class="controls-top-row">
-                            <!-- Left: 3 Skeuomorphic Rotary Knobs -->
-                            <div class="rotary-knobs-group">
-                                <!-- Volume Knob -->
-                                <div class="knob-wrapper" id="knob-volume-wrapper">
-                                    <span class="knob-label">VOLUME</span>
-                                    <div class="knob-control" id="knob-volume" data-knob="volume">
-                                        <div class="knob-dial">
-                                            <div class="knob-indicator"></div>
-                                        </div>
-                                    </div>
-                                    <span class="knob-value" id="volume-val-display">10%</span>
-                                </div>
-
-                                <!-- Tuning Knob -->
-                                <div class="knob-wrapper" id="knob-tuning-wrapper">
-                                    <span class="knob-label">TUNING</span>
-                                    <div class="knob-control" id="knob-tuning" data-knob="tuning">
-                                        <div class="knob-dial tuning-dial-style">
-                                            <div class="knob-indicator red-indicator"></div>
-                                        </div>
-                                    </div>
-                                    <span class="knob-value" id="tuning-val-display">88.0 MHz</span>
-                                </div>
-
-                                <!-- Bass Knob -->
-                                <div class="knob-wrapper" id="knob-bass-wrapper">
-                                    <span class="knob-label">BASS</span>
-                                    <div class="knob-control" id="knob-bass" data-knob="bass">
-                                        <div class="knob-dial">
-                                            <div class="knob-indicator"></div>
-                                        </div>
-                                    </div>
-                                    <span class="knob-value" id="bass-val-display">0</span>
-                                </div>
-                            </div>
-
-                            <!-- Right: Receiver Toggles Box -->
-                            <div class="toggles-box">
-                                <div class="box-header-title">RADIO PLAY CONTROLLER</div>
-                                <div class="toggles-buttons-row">
-                                    <button class="receiver-push-btn pwr-btn" id="btn-toggle-pwr" title="Previous Station">
-                                        <i data-lucide="skip-back"></i>
-                                    </button>
-                                    <button class="receiver-push-btn st-btn" id="btn-toggle-st" title="Play / Pause">
-                                        <i data-lucide="play"></i>
-                                    </button>
-                                    <button class="receiver-push-btn mut-btn" id="btn-toggle-mut" title="Next Station">
-                                        <i data-lucide="skip-forward"></i>
-                                    </button>
-                                </div>
-                            </div>
+                    
+                    <div class="station-details">
+                        <div class="lcd-meta-row">
+                            <span class="status-badge" id="player-status">Ready</span>
                         </div>
-
-                        <!-- Presets Box -->
-                        <div class="presets-box">
-                            <div class="box-header-title">PRESETS</div>
-                            <div class="presets-buttons-row">
-                                <button class="preset-btn" data-preset="autoscan" id="preset-btn-autoscan" title="Auto Scan Stations">AUTO SCAN</button>
-                                <button class="preset-btn active" data-preset="discover" id="preset-btn-discover" title="Discover Stations">DISCOVER</button>
-                                <button class="preset-btn" data-preset="playlist" id="preset-btn-playlist" title="My Playlist">PLAYLIST</button>
-                                <button class="preset-btn" data-preset="refresh" id="preset-btn-refresh" title="Refresh Station List">REFRESH</button>
-                            </div>
-                        </div>
-
-                        <!-- Station List Carousel (Scroll Left to Right / Right to Left) -->
-                        <div class="chassis-stations-box">
-                            <div class="chassis-stations-header">
-                                <span class="box-header-title">LIVE RADIO STATIONS</span>
-                                <span id="results-count" class="results-badge">0 stations found</span>
-                            </div>
-                            
-                            <div id="stations-grid" class="stations-list stations-horizontal-scroll">
-                                <!-- Stations injected here -->
-                            </div>
-                            
-                            <div class="loader-container" id="main-loader" style="display: none;">
-                                <div class="loader-cyber">
-                                    <div class="spinner"></div>
-                                    <span>Scanning Frequencies...</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Hidden Station Info Img to satisfy legacy JS handlers -->
-                        <img id="current-station-info-img" src="rkd_logo.png" style="display:none;" alt="Station Logo">
-
-                        <!-- Footer Model Plate Text -->
-                        <div class="chassis-footer-row">
-                            <span class="model-name">MODEL SX-1970 HIGH FIDELITY</span>
-                            <span class="drag-hint">DRAG KNOBS UP/DOWN TO ALIGN</span>
+                        
+                        <h1 id="current-station-name">Choose a Station</h1>
+                        <p id="current-station-meta">Select a station to start broadcasting</p>
+                        
+                        <div id="queue-text-info">
+                            <span class="queue-text-item next-text-item" id="queue-next-item">
+                                <span class="queue-label">NEXT:</span>
+                                <span class="queue-name" id="queue-next-name">--</span>
+                            </span>
+                            <span class="queue-text-item prev-text-item" id="queue-prev-item" style="display: none;">
+                                <span class="queue-label">PREV:</span>
+                                <span class="queue-name" id="queue-prev-name">--</span>
+                            </span>
                         </div>
                     </div>
                 </div>
+
+                <!-- Equalizer & Master Audio Control Strip -->
+                <div class="eq-controls-row">
+                    <button id="eq-hd-btn" class="control-btn fx-btn" title="Toggle HD Sound & EQ Enhancement">
+                        <span class="fx-led"></span>
+                        <span>HD / EQ</span>
+                    </button>
+                    
+                    <button id="dj-boost-btn" class="control-btn fx-btn" title="Toggle DJ Beats & Dynamic Bass Boost">
+                        <span class="fx-led"></span>
+                        <span>DJ Boost</span>
+                    </button>
+                    
+                    <button id="3d-surround-btn" class="control-btn fx-btn" title="Toggle 3D Surround Spatial Audio">
+                        <span class="fx-led"></span>
+                        <span>3D Surround</span>
+                    </button>
+                    
+                    <div class="vol-boost-check" title="Toggle Volume Boost">
+                        <input type="checkbox" id="vol-boost-check-input">
+                        <label for="vol-boost-check-input">Vol Boost</label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Discovered Stations Grid & Quick Playlist -->
+            <section class="content-grid" id="discovery-grid">
+                <div class="stations-column">
+                    <div class="section-header">
+                        <div class="section-title-group">
+                            <h2>Discovered Stations</h2>
+                            <span id="results-count" class="results-badge">0 stations found</span>
+                        </div>
+                        
+                        <div class="section-tools">
+                            <div class="view-mode-toggle desktop-only">
+                                <button id="grid-view-btn" class="view-btn active" title="Grid View">
+                                    <i data-lucide="grid"></i>
+                                </button>
+                                <button id="list-view-btn" class="view-btn" title="List View">
+                                    <i data-lucide="list"></i>
+                                </button>
+                            </div>
+
+                            <button class="icon-btn collapse-toggle-btn" onclick="toggleBothSections(this)" title="Toggle View Sections">
+                                <i data-lucide="chevron-down"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="stations-grid" class="stations-list grid-layout">
+                        <!-- Stations will be injected here -->
+                    </div>
+                    
+                    <div class="loader-container" id="main-loader" style="display: none;">
+                        <div class="loader-cyber">
+                            <div class="spinner"></div>
+                            <span>Scanning Frequencies...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Desktop Sidebar Playlist -->
+                <aside class="playlist-column desktop-playlist">
+                    <div class="section-header">
+                        <h2>Quick Favorites</h2>
+                        <span class="playlist-pill-info" id="quick-fav-count">0 items</span>
+                    </div>
+                    
+                    <div id="quick-playlist-list" class="stations-list">
+                        <!-- Playlist items will be injected here -->
+                    </div>
+                </aside>
             </section>
         </div>
 
@@ -293,6 +283,22 @@
         </div>
     </main>
 
+        <!-- Fixed Bottom Floating Deck Controls -->
+        <footer class="player-controls glass">
+            <div class="main-controls">
+                <button id="prev-btn" class="control-btn nav-ctrl-btn" title="Previous Station">
+                    <i data-lucide="skip-back"></i>
+                </button>
+                
+                <button id="play-pause-btn" class="control-btn play-btn" title="Play/Pause">
+                    <i data-lucide="play" id="play-icon"></i>
+                </button>
+                
+                <button id="next-btn" class="control-btn nav-ctrl-btn" title="Next Station">
+                    <i data-lucide="skip-forward"></i>
+                </button>
+            </div>
+        </footer>
 
         <!-- Toast Notifications Container -->
         <div id="toast-container" class="toast-container"></div>
