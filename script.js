@@ -1,3 +1,105 @@
+
+// ==========================================================================
+// RKD FM | HIGH-DEFINITION DYNAMIC SVG LOGO ENGINE
+// ==========================================================================
+const BRAND_SVG_LOGOS = {
+    'air': `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="30" fill="%230b192c"/><circle cx="100" cy="90" r="65" fill="none" stroke="%23f59e0b" stroke-width="4" opacity="0.6"/><circle cx="100" cy="90" r="45" fill="none" stroke="%2300f3ff" stroke-width="3" opacity="0.8"/><circle cx="100" cy="90" r="25" fill="%23f59e0b"/><polygon points="100,45 90,75 110,75" fill="%23ffffff"/><text x="100" y="162" font-family="sans-serif" font-weight="900" font-size="16" fill="%23ffffff" text-anchor="middle" letter-spacing="1">AKASHVANI</text><text x="100" y="178" font-family="sans-serif" font-weight="700" font-size="12" fill="%2300f3ff" text-anchor="middle">ALL INDIA RADIO</text></svg>`,
+    'mirchi': `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="30" fill="%231a050b"/><path d="M100 35 C120 70, 150 90, 130 135 C115 165, 85 165, 70 135 C50 90, 80 70, 100 35 Z" fill="%23ef4444"/><path d="M100 20 C105 30, 95 35, 90 40" stroke="%2322c55e" stroke-width="6" fill="none" stroke-linecap="round"/><text x="100" y="168" font-family="sans-serif" font-weight="900" font-size="18" fill="%23facc15" text-anchor="middle">RADIO MIRCHI</text></svg>`,
+    'redfm': `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="30" fill="%230f0f0f"/><rect x="25" y="45" width="150" height="75" rx="12" fill="%23dc2626"/><text x="100" y="98" font-family="sans-serif" font-weight="900" font-size="34" fill="%23ffffff" text-anchor="middle">93.5</text><text x="100" y="152" font-family="sans-serif" font-weight="900" font-size="20" fill="%23ef4444" text-anchor="middle">RED FM</text><text x="100" y="172" font-family="sans-serif" font-weight="700" font-size="11" fill="%23facc15" text-anchor="middle">BAJATE RAHO!</text></svg>`,
+    'radiocity': `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="30" fill="%231e1b4b"/><path d="M40 120 L40 90 L60 90 L60 120 L80 120 L80 70 L100 70 L100 120 L120 120 L120 80 L140 80 L140 120 L160 120 L160 100 L160 120 Z" fill="%2306b6d4" opacity="0.6"/><circle cx="100" cy="65" r="22" fill="%23ec4899"/><text x="100" y="158" font-family="sans-serif" font-weight="900" font-size="20" fill="%23ffffff" text-anchor="middle">RADIO CITY</text></svg>`,
+    'bigfm': `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="30" fill="%230f172a"/><circle cx="100" cy="85" r="50" fill="%23f97316"/><text x="100" y="80" font-family="sans-serif" font-weight="900" font-size="22" fill="%23ffffff" text-anchor="middle">92.7</text><text x="100" y="105" font-family="sans-serif" font-weight="900" font-size="26" fill="%23ffffff" text-anchor="middle">BIG</text><text x="100" y="162" font-family="sans-serif" font-weight="900" font-size="20" fill="%233b82f6" text-anchor="middle">FM RADIO</text></svg>`,
+    'vividhbharati': `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="30" fill="%231c1917"/><circle cx="100" cy="80" r="45" fill="%2378350f" stroke="%23f59e0b" stroke-width="4"/><rect x="88" y="55" width="24" height="40" rx="12" fill="%23f59e0b"/><path d="M75 80 A25 25 0 0 0 125 80" fill="none" stroke="%23ffffff" stroke-width="4"/><line x1="100" y1="105" x2="100" y2="130" stroke="%23ffffff" stroke-width="5"/><text x="100" y="160" font-family="sans-serif" font-weight="900" font-size="14" fill="%23f59e0b" text-anchor="middle">VIVIDH BHARATI</text></svg>`,
+    'bbc': `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="30" fill="%23000000"/><rect x="35" y="70" width="40" height="40" fill="%23dc2626"/><rect x="80" y="70" width="40" height="40" fill="%23dc2626"/><rect x="125" y="70" width="40" height="40" fill="%23dc2626"/><text x="55" y="98" font-family="sans-serif" font-weight="900" font-size="26" fill="%23ffffff" text-anchor="middle">B</text><text x="100" y="98" font-family="sans-serif" font-weight="900" font-size="26" fill="%23ffffff" text-anchor="middle">B</text><text x="145" y="98" font-family="sans-serif" font-weight="900" font-size="26" fill="%23ffffff" text-anchor="middle">C</text><text x="100" y="150" font-family="sans-serif" font-weight="800" font-size="16" fill="%23ffffff" text-anchor="middle">WORLD NEWS</text></svg>`,
+    'arijit': `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="30" fill="%232e1065"/><circle cx="100" cy="80" r="45" fill="%23581c87" stroke="%23ec4899" stroke-width="3"/><path d="M85 65 Q100 45 115 65 Q100 85 85 65 Z" fill="%23facc15"/><text x="100" y="152" font-family="sans-serif" font-weight="900" font-size="18" fill="%23ffffff" text-anchor="middle">ARIJIT SINGH</text><text x="100" y="172" font-family="sans-serif" font-weight="700" font-size="12" fill="%23ec4899" text-anchor="middle">ROMANTIC HITS</text></svg>`,
+    'kishore': `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="30" fill="%23134e4a"/><circle cx="100" cy="80" r="48" fill="%230f766e" stroke="%232dd4bf" stroke-width="3"/><circle cx="100" cy="80" r="15" fill="%23134e4a"/><text x="100" y="152" font-family="sans-serif" font-weight="900" font-size="16" fill="%232dd4bf" text-anchor="middle">KISHORE KUMAR</text><text x="100" y="172" font-family="sans-serif" font-weight="700" font-size="12" fill="%23ffffff" text-anchor="middle">GOLDEN HITS</text></svg>`,
+    'lata': `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="30" fill="%23450a0a"/><circle cx="100" cy="80" r="48" fill="%2378350f" stroke="%23f59e0b" stroke-width="3"/><path d="M85 60 C100 50 115 70 100 100" fill="none" stroke="%23f59e0b" stroke-width="4"/><text x="100" y="152" font-family="sans-serif" font-weight="900" font-size="15" fill="%23f59e0b" text-anchor="middle">LATA MANGESHKAR</text><text x="100" y="172" font-family="sans-serif" font-weight="700" font-size="11" fill="%23ffffff" text-anchor="middle">NIGHTINGALE OF INDIA</text></svg>`,
+    'rafi': `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="30" fill="%23064e3b"/><circle cx="100" cy="80" r="48" fill="%23047857" stroke="%2334d399" stroke-width="3"/><path d="M80 70 L90 50 L100 65 L110 50 L120 70 Z" fill="%23fbbf24"/><text x="100" y="152" font-family="sans-serif" font-weight="900" font-size="15" fill="%2334d399" text-anchor="middle">MOHAMMED RAFI</text><text x="100" y="172" font-family="sans-serif" font-weight="700" font-size="11" fill="%23fbbf24" text-anchor="middle">IMMORTAL CLASSICS</text></svg>`,
+    'asha': `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="30" fill="%23701a75"/><circle cx="100" cy="80" r="48" fill="%2386198f" stroke="%23f0abfc" stroke-width="3"/><text x="100" y="152" font-family="sans-serif" font-weight="900" font-size="16" fill="%23f0abfc" text-anchor="middle">ASHA BHOSLE</text><text x="100" y="172" font-family="sans-serif" font-weight="700" font-size="11" fill="%23ffffff" text-anchor="middle">RETRO MAGIC</text></svg>`,
+    'alka': `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="30" fill="%23831843"/><circle cx="100" cy="80" r="48" fill="%239d174d" stroke="%23f472b6" stroke-width="3"/><text x="100" y="152" font-family="sans-serif" font-weight="900" font-size="16" fill="%23f472b6" text-anchor="middle">ALKA YAGNIK</text><text x="100" y="172" font-family="sans-serif" font-weight="700" font-size="11" fill="%23ffffff" text-anchor="middle">90s MELODIES</text></svg>`,
+    'sonu': `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="30" fill="%231e3a8a"/><circle cx="100" cy="80" r="48" fill="%231d4ed8" stroke="%2360a5fa" stroke-width="3"/><text x="100" y="152" font-family="sans-serif" font-weight="900" font-size="16" fill="%2360a5fa" text-anchor="middle">SONU NIGAM</text><text x="100" y="172" font-family="sans-serif" font-weight="700" font-size="11" fill="%23ffffff" text-anchor="middle">VOICE OF BOLLYWOOD</text></svg>`,
+    'mukesh': `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="30" fill="%23450a0a"/><circle cx="100" cy="80" r="48" fill="%23991b1b" stroke="%23fca5a5" stroke-width="3"/><text x="100" y="152" font-family="sans-serif" font-weight="900" font-size="18" fill="%23fca5a5" text-anchor="middle">MUKESH</text><text x="100" y="172" font-family="sans-serif" font-weight="700" font-size="11" fill="%23ffffff" text-anchor="middle">GOLDEN VOICE</text></svg>`,
+    'sanu': `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="30" fill="%2378350f"/><circle cx="100" cy="80" r="48" fill="%23b45309" stroke="%23fde047" stroke-width="3"/><text x="100" y="152" font-family="sans-serif" font-weight="900" font-size="16" fill="%23fde047" text-anchor="middle">KUMAR SANU</text><text x="100" y="172" font-family="sans-serif" font-weight="700" font-size="11" fill="%23ffffff" text-anchor="middle">KING OF MELODY</text></svg>`,
+    'udit': `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="30" fill="%23854d0e"/><circle cx="100" cy="80" r="48" fill="%23a16207" stroke="%23fef08a" stroke-width="3"/><text x="100" y="152" font-family="sans-serif" font-weight="900" font-size="15" fill="%23fef08a" text-anchor="middle">UDIT NARAYAN</text><text x="100" y="172" font-family="sans-serif" font-weight="700" font-size="11" fill="%23ffffff" text-anchor="middle">ROMANTIC CLASSICS</text></svg>`,
+    'shreya': `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="30" fill="%23581c87"/><circle cx="100" cy="80" r="48" fill="%237e22ce" stroke="%23e9d5ff" stroke-width="3"/><text x="100" y="152" font-family="sans-serif" font-weight="900" font-size="14" fill="%23e9d5ff" text-anchor="middle">SHREYA GHOSHAL</text><text x="100" y="172" font-family="sans-serif" font-weight="700" font-size="11" fill="%23ffffff" text-anchor="middle">MELODIOUS QUEEN</text></svg>`,
+    'bhakti': `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="30" fill="%2378350f"/><circle cx="100" cy="80" r="48" fill="%239a3412" stroke="%23fde047" stroke-width="3"/><text x="100" y="92" font-family="sans-serif" font-weight="900" font-size="42" fill="%23fde047" text-anchor="middle">ॐ</text><text x="100" y="156" font-family="sans-serif" font-weight="900" font-size="18" fill="%23fde047" text-anchor="middle">BHAKTI RADIO</text><text x="100" y="174" font-family="sans-serif" font-weight="700" font-size="11" fill="%23ffffff" text-anchor="middle">DEVOTIONAL & MANTRAS</text></svg>`,
+    'gazal': `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="30" fill="%231e1b4b"/><circle cx="100" cy="80" r="48" fill="%23312e81" stroke="%23a5b4fc" stroke-width="3"/><text x="100" y="154" font-family="sans-serif" font-weight="900" font-size="18" fill="%23a5b4fc" text-anchor="middle">GAZAL MEHFIL</text><text x="100" y="174" font-family="sans-serif" font-weight="700" font-size="11" fill="%23ffffff" text-anchor="middle">POETRY & CLASSICS</text></svg>`,
+    'remix': `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="30" fill="%2309090b"/><circle cx="100" cy="80" r="48" fill="%2318181b" stroke="%2306b6d4" stroke-width="3"/><path d="M65 80 A35 35 0 0 1 135 80 M60 70 L60 90 M140 70 L140 90" stroke="%23ec4899" stroke-width="5" fill="none"/><text x="100" y="154" font-family="sans-serif" font-weight="900" font-size="18" fill="%2306b6d4" text-anchor="middle">DJ REMIX</text><text x="100" y="174" font-family="sans-serif" font-weight="700" font-size="11" fill="%23ec4899" text-anchor="middle">PARTY & DANCE MIX</text></svg>`,
+    'punjabi': `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="30" fill="%23713f12"/><circle cx="100" cy="80" r="48" fill="%23854d0e" stroke="%23facc15" stroke-width="3"/><text x="100" y="154" font-family="sans-serif" font-weight="900" font-size="18" fill="%23facc15" text-anchor="middle">PUNJABI HITS</text><text x="100" y="174" font-family="sans-serif" font-weight="700" font-size="11" fill="%23ffffff" text-anchor="middle">BHANGRA & FOLK</text></svg>`,
+    'bangla': `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="30" fill="%23450a0a"/><circle cx="100" cy="80" r="48" fill="%2378350f" stroke="%23f59e0b" stroke-width="3"/><text x="100" y="154" font-family="sans-serif" font-weight="900" font-size="18" fill="%23f59e0b" text-anchor="middle">BANGLA RADIO</text><text x="100" y="174" font-family="sans-serif" font-weight="700" font-size="11" fill="%23ffffff" text-anchor="middle">KOLKATA & RABINDRA</text></svg>`,
+    'bhojpuri': `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="30" fill="%2378350f"/><circle cx="100" cy="80" r="48" fill="%239a3412" stroke="%23fde047" stroke-width="3"/><text x="100" y="154" font-family="sans-serif" font-weight="900" font-size="18" fill="%23fde047" text-anchor="middle">BHOJPURI FM</text><text x="100" y="174" font-family="sans-serif" font-weight="700" font-size="11" fill="%23ffffff" text-anchor="middle">SUPERHIT GAANE</text></svg>`,
+    'regional': `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="30" fill="%230f766e"/><circle cx="100" cy="80" r="48" fill="%23115e59" stroke="%232dd4bf" stroke-width="3"/><text x="100" y="154" font-family="sans-serif" font-weight="900" font-size="17" fill="%232dd4bf" text-anchor="middle">REGIONAL RADIO</text><text x="100" y="174" font-family="sans-serif" font-weight="700" font-size="11" fill="%23ffffff" text-anchor="middle">INDIA LOCAL STATIONS</text></svg>`,
+    'music': `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="30" fill="%231e1b4b"/><circle cx="100" cy="80" r="48" fill="%23312e81" stroke="%2306b6d4" stroke-width="3"/><text x="100" y="95" font-family="sans-serif" font-weight="900" font-size="38" fill="%2306b6d4" text-anchor="middle">🎼</text><text x="100" y="154" font-family="sans-serif" font-weight="900" font-size="18" fill="%2306b6d4" text-anchor="middle">PURE MUSIC</text><text x="100" y="174" font-family="sans-serif" font-weight="700" font-size="11" fill="%23a855f7" text-anchor="middle">INSTRUMENTAL & RAGA</text></svg>`,
+    'news': `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="30" fill="%231e293b"/><circle cx="100" cy="80" r="48" fill="%23334155" stroke="%2338bdf8" stroke-width="3"/><text x="100" y="95" font-family="sans-serif" font-weight="900" font-size="36" fill="%2338bdf8" text-anchor="middle">🎙️</text><text x="100" y="154" font-family="sans-serif" font-weight="900" font-size="18" fill="%2338bdf8" text-anchor="middle">NEWS RADIO</text><text x="100" y="174" font-family="sans-serif" font-weight="700" font-size="11" fill="%23ffffff" text-anchor="middle">LIVE HEADLINES 24/7</text></svg>`,
+    'pop': `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="30" fill="%23831843"/><circle cx="100" cy="80" r="48" fill="%239d174d" stroke="%23f472b6" stroke-width="3"/><text x="100" y="154" font-family="sans-serif" font-weight="900" font-size="18" fill="%23f472b6" text-anchor="middle">POP HITS</text><text x="100" y="174" font-family="sans-serif" font-weight="700" font-size="11" fill="%23ffffff" text-anchor="middle">TOP 40 & CHARTS</text></svg>`,
+    'rock': `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="30" fill="%2318181b"/><circle cx="100" cy="80" r="48" fill="%2327272a" stroke="%23ef4444" stroke-width="3"/><text x="100" y="95" font-family="sans-serif" font-weight="900" font-size="36" fill="%23ef4444" text-anchor="middle">🎸</text><text x="100" y="154" font-family="sans-serif" font-weight="900" font-size="18" fill="%23ef4444" text-anchor="middle">ROCK RADIO</text><text x="100" y="174" font-family="sans-serif" font-weight="700" font-size="11" fill="%23ffffff" text-anchor="middle">CLASSIC & HARD ROCK</text></svg>`,
+    'jazz': `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="30" fill="%23451a03"/><circle cx="100" cy="80" r="48" fill="%2378350f" stroke="%23fbbf24" stroke-width="3"/><text x="100" y="95" font-family="sans-serif" font-weight="900" font-size="36" fill="%23fbbf24" text-anchor="middle">🎷</text><text x="100" y="154" font-family="sans-serif" font-weight="900" font-size="18" fill="%23fbbf24" text-anchor="middle">JAZZ LOUNGE</text><text x="100" y="174" font-family="sans-serif" font-weight="700" font-size="11" fill="%23ffffff" text-anchor="middle">SMOOTH JAZZ & BLUES</text></svg>`,
+    'classical': `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="30" fill="%23022c22"/><circle cx="100" cy="80" r="48" fill="%23064e3b" stroke="%2334d399" stroke-width="3"/><text x="100" y="95" font-family="sans-serif" font-weight="900" font-size="36" fill="%2334d399" text-anchor="middle">🎻</text><text x="100" y="154" font-family="sans-serif" font-weight="900" font-size="18" fill="%2334d399" text-anchor="middle">CLASSICAL</text><text x="100" y="174" font-family="sans-serif" font-weight="700" font-size="11" fill="%23ffffff" text-anchor="middle">SYMPHONY & CONCERTO</text></svg>`,
+    'default': `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="30" fill="%230e121d"/><circle cx="100" cy="80" r="50" fill="%23182032" stroke="%236366f1" stroke-width="4"/><path d="M75 80 A25 25 0 0 1 125 80" fill="none" stroke="%2306b6d4" stroke-width="4"/><text x="100" y="156" font-family="sans-serif" font-weight="900" font-size="18" fill="%236366f1" text-anchor="middle">RKD FM</text><text x="100" y="174" font-family="sans-serif" font-weight="700" font-size="11" fill="%2306b6d4" text-anchor="middle">CYBER RADIO DECK</text></svg>`
+};
+
+function getCategoryOrNameLogo(name = '', tags = '') {
+    const n = (name || '').toLowerCase();
+    const t = (tags || '').toLowerCase();
+
+    if (n.includes('air') || n.includes('akashvani') || n.includes('vividh') || n.includes('rainbow') || t.includes('air') || t.includes('akashvani')) return BRAND_SVG_LOGOS.air;
+    if (n.includes('mirchi') || t.includes('mirchi')) return BRAND_SVG_LOGOS.mirchi;
+    if (n.includes('red fm') || n.includes('93.5') || t.includes('red fm')) return BRAND_SVG_LOGOS.redfm;
+    if (n.includes('city') || t.includes('radiocity')) return BRAND_SVG_LOGOS.radiocity;
+    if (n.includes('big fm') || n.includes('92.7') || t.includes('big fm')) return BRAND_SVG_LOGOS.bigfm;
+    if (n.includes('vividh') || t.includes('vividh')) return BRAND_SVG_LOGOS.vividhbharati;
+    if (n.includes('bbc') || t.includes('bbc')) return BRAND_SVG_LOGOS.bbc;
+    
+    // Singers
+    if (n.includes('arijit') || t.includes('arijit')) return BRAND_SVG_LOGOS.arijit;
+    if (n.includes('kishore') || t.includes('kishore')) return BRAND_SVG_LOGOS.kishore;
+    if (n.includes('lata') || t.includes('lata')) return BRAND_SVG_LOGOS.lata;
+    if (n.includes('rafi') || t.includes('rafi')) return BRAND_SVG_LOGOS.rafi;
+    if (n.includes('asha') || t.includes('asha')) return BRAND_SVG_LOGOS.asha;
+    if (n.includes('alka') || t.includes('alka')) return BRAND_SVG_LOGOS.alka;
+    if (n.includes('sonu') || t.includes('sonu')) return BRAND_SVG_LOGOS.sonu;
+    if (n.includes('mukesh') || t.includes('mukesh')) return BRAND_SVG_LOGOS.mukesh;
+    if (n.includes('sanu') || t.includes('sanu')) return BRAND_SVG_LOGOS.sanu;
+    if (n.includes('udit') || t.includes('udit')) return BRAND_SVG_LOGOS.udit;
+    if (n.includes('shreya') || t.includes('shreya')) return BRAND_SVG_LOGOS.shreya;
+
+    // Categories
+    if (n.includes('bhakti') || t.includes('bhakti') || t.includes('devotional') || n.includes('shiva') || n.includes('hanuman') || n.includes('krishna') || n.includes('mantra')) return BRAND_SVG_LOGOS.bhakti;
+    if (n.includes('gazal') || n.includes('ghazal') || t.includes('gazal') || t.includes('ghazal')) return BRAND_SVG_LOGOS.gazal;
+    if (n.includes('remix') || n.includes('dj') || t.includes('remix') || t.includes('dj')) return BRAND_SVG_LOGOS.remix;
+    if (n.includes('punjabi') || t.includes('punjabi')) return BRAND_SVG_LOGOS.punjabi;
+    if (n.includes('bangla') || n.includes('bengali') || t.includes('bangla')) return BRAND_SVG_LOGOS.bangla;
+    if (n.includes('bhojpuri') || t.includes('bhojpuri')) return BRAND_SVG_LOGOS.bhojpuri;
+    if (n.includes('regional') || t.includes('regional') || n.includes('marathi') || n.includes('gujarati') || n.includes('tamil') || n.includes('telugu') || n.includes('kannada')) return BRAND_SVG_LOGOS.regional;
+    if (n.includes('instrumental') || n.includes('sitar') || n.includes('flute') || n.includes('raga') || t.includes('music')) return BRAND_SVG_LOGOS.music;
+    if (n.includes('news') || t.includes('news') || n.includes('republic') || n.includes('zee') || n.includes('wion') || n.includes('dd')) return BRAND_SVG_LOGOS.news;
+    if (n.includes('pop') || t.includes('pop')) return BRAND_SVG_LOGOS.pop;
+    if (n.includes('rock') || t.includes('rock')) return BRAND_SVG_LOGOS.rock;
+    if (n.includes('jazz') || t.includes('jazz')) return BRAND_SVG_LOGOS.jazz;
+    if (n.includes('classical') || t.includes('classical')) return BRAND_SVG_LOGOS.classical;
+
+    return BRAND_SVG_LOGOS.default;
+}
+
+function getStationLogo(station) {
+    if (!station) return BRAND_SVG_LOGOS.default;
+    const fav = station.favicon;
+    if (fav && typeof fav === 'string' && fav.trim() !== '' && !fav.includes('onlineradiohub.com') && (fav.startsWith('http://') || fav.startsWith('https://') || fav.startsWith('data:image/'))) {
+        return fav.trim();
+    }
+    return getCategoryOrNameLogo(station.name, station.tags);
+}
+
+function handleLogoError(imgElement, name = '', tags = '') {
+    if (!imgElement) return;
+    imgElement.onerror = null;
+    imgElement.src = getCategoryOrNameLogo(name, tags);
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 // ==========================================================================
 // RKD FM | CYBER RADIO DECK ENGINE
 // ==========================================================================
@@ -2099,246 +2201,53 @@ function renderStations() {
         return;
     }
 
+    const isGrid = stationsGrid.classList.contains('grid-layout');
     stationsGrid.innerHTML = currentStations.map((station, index) => {
-        const isFav = currentPlaylist.some(s => s.stationuuid === station.stationuuid);
-        const nameUpper = (station.name || '').toUpperCase();
-        return `
-            <div class="station-item ${currentStationIndex === index && currentSource === 'search' ? 'active' : ''}" onclick="playStation(${index}, 'search', this)">
-                <img src="${station.favicon || DEFAULT_LOGO}" class="list-img" loading="eager" onerror="this.src='${DEFAULT_LOGO}';">
-                <div class="item-info">
-                    <h4>${nameUpper}</h4>
-                    <p>${station.country || 'Global'} • ${station.tags ? station.tags.split(',')[0] : 'FM'}</p>
-                </div>
-                <div class="item-actions">
-                    <button class="icon-btn" onclick="event.stopPropagation(); togglePlaylistById('${station.stationuuid}')" title="${isFav ? 'Remove Favorite' : 'Add Favorite'}">
-                        <i data-lucide="${isFav ? 'heart' : 'plus-circle'}" style="${isFav ? 'color: var(--accent-color)' : ''}"></i>
-                    </button>
-                </div>
-            </div>
-        `;
-    }).join('');
-    updateQueueInfo();
-    lucide.createIcons();
-}
+        const isFav = favorites.some(f => f.stationuuid === station.stationuuid);
+        const isPlaying = currentStation && currentStation.stationuuid === station.stationuuid;
+        const logoSrc = getStationLogo(station);
+        const stName = escapeHtml(station.name || 'Unknown Station');
+        const stTags = escapeHtml(station.tags || '');
 
-function renderPlaylist() {
-    const isFavEmpty = currentPlaylist.length === 0;
-    const playlistHTML = isFavEmpty
-        ? `<div class="empty-state"><i data-lucide="list-music"></i><p>No favorite stations saved</p></div>`
-        : currentPlaylist.map((station, index) => {
-            const nameUpper = (station.name || '').toUpperCase();
+        if (isGrid) {
             return `
-            <div class="station-item" onclick="playStation(${index}, 'playlist', this)">
-                <img src="${station.favicon || DEFAULT_LOGO}" class="list-img" loading="eager" onerror="this.src='${DEFAULT_LOGO}';">
-                <div class="item-info">
-                    <h4>${nameUpper}</h4>
-                    <p>${station.country || 'Custom Station'}</p>
-                </div>
-                <div class="item-actions">
-                    <button class="icon-btn" onclick="event.stopPropagation(); removeFromPlaylist(${index})">
-                        <i data-lucide="trash-2" style="color: var(--accent-color)"></i>
+                <div class="station-card ${isPlaying ? 'playing' : ''}" onclick="playStation(${index}, 'search')">
+                    <div class="card-img-wrapper">
+                        <img src="${logoSrc}" class="card-img" loading="eager" onerror="handleLogoError(this, '${stName}', '${stTags}')">
+                        <div class="card-play-overlay">
+                            <i data-lucide="${isPlaying ? 'pause' : 'play'}"></i>
+                        </div>
+                    </div>
+                    <div class="card-info">
+                        <h4 class="card-title">${stName}</h4>
+                        <p class="card-tags">${stTags}</p>
+                    </div>
+                    <button class="fav-heart-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite('${station.stationuuid}')">
+                        <i data-lucide="heart"></i>
                     </button>
                 </div>
-            </div>
-        `;
-        }).join('');
-
-    if (quickPlaylistList) quickPlaylistList.innerHTML = playlistHTML;
-    if (fullPlaylistList) fullPlaylistList.innerHTML = playlistHTML;
-    if (playlistCountBadge) playlistCountBadge.textContent = currentPlaylist.length;
-    if (quickFavCount) quickFavCount.textContent = `${currentPlaylist.length} items`;
-
-    updateQueueInfo();
-    lucide.createIcons();
-}
-
-function switchView(target) {
-    mainTabs.forEach(tab => {
-        tab.classList.toggle('active', tab.dataset.tab === target);
-    });
-    Object.keys(views).forEach(key => {
-        if (views[key]) views[key].style.display = key === target ? 'block' : 'none';
-    });
-}
-
-// Playback Engine - Instant Super Fast Radio Playback
-function playStation(index, source = 'search', element = null) {
-    ensureAudioContextResumed();
-    currentSource = source;
-    const list = source === 'search' ? currentStations : currentPlaylist;
-    const station = list[index];
-    if (!station) return;
-
-    currentStationIndex = index;
-    updatePlayerUI(station);
-
-    const streamUrl = station.url_resolved || station.url;
-    if (!streamUrl) return;
-
-    // Clear existing play check timeout if any
-    if (playCheckTimeout) {
-        clearTimeout(playCheckTimeout);
-        playCheckTimeout = null;
-    }
-
-    // Set 4.5 second auto-skip timeout if station does not start playing
-    playCheckTimeout = setTimeout(() => {
-        if (audioPlayer.paused || audioPlayer.currentTime === 0 || audioPlayer.readyState < 3) {
-            console.warn('Station did not play within 4.5 seconds. Auto-skipping to next station...');
-            if (playerStatus) playerStatus.textContent = 'Stream Timeout - Playing Next...';
-            playNext();
+            `;
+        } else {
+            return `
+                <div class="station-item ${isPlaying ? 'playing' : ''}" onclick="playStation(${index}, 'search')">
+                    <img src="${logoSrc}" class="list-img" loading="eager" onerror="handleLogoError(this, '${stName}', '${stTags}')">
+                    <div class="list-info">
+                        <h4>${stName}</h4>
+                        <p>${stTags}</p>
+                    </div>
+                    <button class="fav-heart-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite('${station.stationuuid}')">
+                        <i data-lucide="heart"></i>
+                    </button>
+                </div>
+            `;
         }
-    }, 4500);
+    }).join('');
 
-    // Instant status and visual feedback
-    if (playerStatus) playerStatus.textContent = 'Connecting...';
-    if (nowPlayingCard) nowPlayingCard.classList.add('playing');
-    if (playPauseBtn) {
-        playPauseBtn.innerHTML = '<i data-lucide="pause" id="play-icon"></i>';
-        if (window.lucide) lucide.createIcons();
-    }
-
-    // Configure fast audio player attributes
-    audioPlayer.preload = 'auto';
-    audioPlayer.autoplay = true;
-
-    // Destroy existing HLS instance if any
-    if (hlsInstance) {
-        hlsInstance.destroy();
-        hlsInstance = null;
-    }
-
-    // Fast HLS Stream (.m3u8) Playback Optimization
-    if (streamUrl.includes('.m3u8') && typeof Hls !== 'undefined' && Hls.isSupported()) {
-        hlsInstance = new Hls({
-            enableWorker: true,
-            lowLatencyMode: true,
-            backBufferLength: 10,
-            maxBufferLength: 3,
-            maxMaxBufferLength: 6,
-            liveSyncDurationCount: 2,
-            liveMaxLatencyDurationCount: 4,
-            startFragPrefetch: true
-        });
-        hlsInstance.loadSource(streamUrl);
-        hlsInstance.attachMedia(audioPlayer);
-        hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-            audioPlayer.play().catch(e => console.warn('Autoplay error:', e));
-        });
-        hlsInstance.on(Hls.Events.ERROR, (event, data) => {
-            if (data.fatal) {
-                switch (data.type) {
-                    case Hls.ErrorTypes.NETWORK_ERROR:
-                        hlsInstance.startLoad();
-                        break;
-                    case Hls.ErrorTypes.MEDIA_ERROR:
-                        hlsInstance.recoverMediaError();
-                        break;
-                    default:
-                        hlsInstance.destroy();
-                        hlsInstance = null;
-                        audioPlayer.src = streamUrl;
-                        audioPlayer.play().catch(e => console.warn('Direct fallback error:', e));
-                        break;
-                }
-            }
-        });
-    } else {
-        audioPlayer.src = streamUrl;
-        audioPlayer.play().catch(e => {
-            console.warn('Autoplay blocked:', e);
-            if (playerStatus) playerStatus.textContent = 'Click Play to Listen';
-        });
-    }
-
-    const items = document.querySelectorAll('.station-item');
-    items.forEach(item => item.classList.remove('active'));
-    if (element) element.classList.add('active');
-}
-
-
-function updateQueueInfo() {
-    const queuePrevItem = document.getElementById('queue-prev-item');
-    const queueNextItem = document.getElementById('queue-next-item');
-    const queuePrevName = document.getElementById('queue-prev-name');
-    const queueNextName = document.getElementById('queue-next-name');
-
-    const list = currentSource === 'search' ? currentStations : currentPlaylist;
-    if (!list || list.length === 0) {
-        if (queuePrevName) queuePrevName.textContent = '--';
-        if (queueNextName) queueNextName.textContent = '--';
-        return;
-    }
-
-    const idx = (currentStationIndex >= 0 && currentStationIndex < list.length) ? currentStationIndex : 0;
-    const prevIndex = (idx - 1 + list.length) % list.length;
-    const nextIndex = (idx + 1) % list.length;
-
-    const prevStation = list[prevIndex];
-    const nextStation = list[nextIndex];
-
-    if (queuePrevName) queuePrevName.textContent = prevStation ? prevStation.name.toUpperCase() : '--';
-    if (queueNextName) queueNextName.textContent = nextStation ? nextStation.name.toUpperCase() : '--';
-
-    // Reset rotation state: start with NEXT showing first
-    showingNextInQueue = true;
-    if (queueNextItem && queuePrevItem) {
-        queueNextItem.style.display = 'inline-flex';
-        queuePrevItem.style.display = 'none';
-    }
-
-    // Set 3-second alternating toggle interval
-    if (queueTickerInterval) clearInterval(queueTickerInterval);
-    queueTickerInterval = setInterval(() => {
-        showingNextInQueue = !showingNextInQueue;
-        if (queueNextItem && queuePrevItem) {
-            if (showingNextInQueue) {
-                queueNextItem.style.display = 'inline-flex';
-                queuePrevItem.style.display = 'none';
-            } else {
-                queueNextItem.style.display = 'none';
-                queuePrevItem.style.display = 'inline-flex';
-            }
-        }
-    }, 3000);
-}
-
-function updatePlayerUI(station) {
-    const name = (station.name || 'Unknown Station').toUpperCase();
-    const country = station.country || 'Global';
-    const tags = station.tags ? station.tags.split(',').slice(0, 2).join(', ') : 'FM Radio';
-    const img = station.favicon || DEFAULT_LOGO;
-
-    if (currentStationName) currentStationName.textContent = name;
-    if (currentStationMeta) currentStationMeta.textContent = `${country} • ${tags}`;
-    if (currentStationImg) {
-        currentStationImg.src = img;
-        currentStationImg.onerror = () => { currentStationImg.src = DEFAULT_LOGO; };
-    }
-
-    const isFav = currentPlaylist.some(s => s.stationuuid === station.stationuuid);
-    if (favHeartIcon) {
-        favHeartIcon.setAttribute('data-lucide', isFav ? 'heart' : 'heart-off');
-        if (addToPlaylistBtn) {
-            addToPlaylistBtn.style.color = isFav ? 'var(--accent-color)' : '#fff';
-        }
-    }
-    updateQueueInfo();
-    lucide.createIcons();
-}
-
-function togglePlay() {
-    ensureAudioContextResumed();
-    if (audioPlayer.paused) {
-        if (!audioPlayer.src && currentStations.length > 0) {
-            playStation(0, 'search');
-        } else if (audioPlayer.src) {
-            audioPlayer.play().catch(e => console.warn(e));
-        }
-    } else {
-        audioPlayer.pause();
+    if (window.lucide) {
+        lucide.createIcons();
     }
 }
+
 
 function playNext() {
     const list = currentSource === 'search' ? currentStations : currentPlaylist;

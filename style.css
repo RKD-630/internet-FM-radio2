@@ -470,14 +470,14 @@ header {
     height: 46px;
     width: auto;
     border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 243, 255, 0.25);
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.35);
     object-fit: contain;
     transition: var(--transition-fast);
 }
 
 .header-logo-img:hover {
     transform: scale(1.05);
-    box-shadow: 0 6px 20px rgba(0, 243, 255, 0.45);
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
 }
 
 .logo-text-inner {
