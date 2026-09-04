@@ -1621,14 +1621,19 @@ h1#current-station-name {
 }
 
 .station-item.active {
-    background: rgba(99, 102, 241, 0.12);
-    border-color: var(--primary-color);
-    box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+    background: rgba(6, 182, 212, 0.16) !important;
+    border-color: var(--cyan-accent) !important;
+    box-shadow: 0 0 25px rgba(6, 182, 212, 0.35), inset 0 0 15px rgba(6, 182, 212, 0.12) !important;
 }
 
 .station-item.active::after {
-    opacity: 1;
-    background: var(--cyan-accent);
+    opacity: 1 !important;
+    background: var(--cyan-accent) !important;
+    box-shadow: 0 0 10px var(--cyan-accent) !important;
+}
+
+.station-item.active .item-info h4 {
+    color: var(--cyan-accent);
 }
 
 .list-img {
@@ -2216,4 +2221,62 @@ body.is-fullscreen:has(.now-playing-card.playing) .player-controls {
 .station-title {
     text-transform: uppercase !important;
     letter-spacing: 0.5px;
+}
+
+/* ==========================================================================
+   Playlist Reordering & Drag-and-Drop Visual Feedback
+   ========================================================================== */
+.station-item.reorderable {
+    cursor: grab;
+    transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.station-item.reorderable:active {
+    cursor: grabbing;
+}
+
+.drag-handle {
+    color: var(--text-muted);
+    cursor: grab;
+    margin-right: 0.5rem;
+    flex-shrink: 0;
+    font-size: 1.1rem;
+    transition: color var(--transition-fast);
+}
+
+.station-item:hover .drag-handle {
+    color: var(--cyan-accent);
+}
+
+.station-item.is-dragging {
+    opacity: 0.4;
+    border: 2px dashed var(--cyan-accent) !important;
+    background: rgba(6, 182, 212, 0.1) !important;
+}
+
+.station-item.drag-over-top {
+    border-top: 3px solid var(--cyan-accent) !important;
+    box-shadow: 0 -8px 20px rgba(6, 182, 212, 0.45) !important;
+}
+
+.station-item.drag-over-bottom {
+    border-bottom: 3px solid var(--cyan-accent) !important;
+    box-shadow: 0 8px 20px rgba(6, 182, 212, 0.45) !important;
+}
+
+.reorder-btn {
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.5rem;
+    color: var(--text-secondary);
+    transition: var(--transition-fast);
+}
+
+.reorder-btn:hover:not(:disabled) {
+    color: var(--cyan-accent);
+    background: rgba(6, 182, 212, 0.15);
+}
+
+.reorder-btn:disabled {
+    opacity: 0.25;
+    cursor: not-allowed;
 }

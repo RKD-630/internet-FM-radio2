@@ -60,11 +60,11 @@
                             <span id="theme-label" class="quick-menu-value">Dark</span>
                         </button>
 
-                        <!-- Playlist Delete Toggle -->
-                        <button id="playlist-delete-toggle" class="quick-menu-item" title="Toggle Station Deletion in Playlist">
+                        <!-- Playlist Edit / Delete Toggle -->
+                        <button id="playlist-delete-toggle" class="quick-menu-item" title="Toggle Station Reordering & Deletion in Playlist">
                             <div class="quick-menu-item-left">
                                 <i data-lucide="trash-2" id="playlist-delete-icon"></i>
-                                <span>Playlist Delete</span>
+                                <span>Playlist Reorder & Delete</span>
                             </div>
                             <span id="playlist-delete-label" class="quick-menu-value">ON</span>
                         </button>
@@ -136,55 +136,6 @@
         </nav>
 
         <main>
-        <div id="discovery-view">
-            <!-- Category Selector Bar -->
-            <nav class="category-nav glass" id="categories-nav">
-                <button id="mode-toggle-btn" class="tab-btn action-btn india-active mode-pill-btn">
-                    <span id="mode-toggle-icon" class="flag-icon">🇮🇳</span>
-                    <span id="mode-toggle-text">India</span>
-                </button>
-                
-                <div class="cats-wrapper" id="categories-bar">
-                    <div class="cat-scroll" id="india-cats">
-                        <button class="cat-btn active" data-tag="">ALL</button>
-                        <button class="cat-btn" data-tag="bollywood">BOLLYWOOD</button>
-                        <button class="cat-btn" data-tag="news">NEWS</button>
-                        <button class="cat-btn" data-tag="bhakti">BHAKTI</button>
-                        <button class="cat-btn" data-tag="dj remix">DJ - REMIX</button>
-                        <button class="cat-btn" data-tag="classic">CLASSIC</button>
-                        <button class="cat-btn" data-tag="bangla">BANGLA</button>
-                        <button class="cat-btn" data-tag="singer">SINGER</button>
-                        <button class="cat-btn" data-tag="gazal">GAZAL</button>
-                        <button class="cat-btn" data-tag="music">MUSIC</button>
-                        <button class="cat-btn" data-tag="air">AIR</button>
-                        <button class="cat-btn" data-tag="bhojpuri">BHOJPURI</button>
-                        <button class="cat-btn" data-tag="punjabi">PUNJABI</button>
-                        <button class="cat-btn" data-tag="regional">REGIONAL</button>
-                    </div>
-                    
-                    <div class="cat-scroll" id="global-cats" style="display: none;">
-                        <button class="cat-btn active" data-tag="">ALL</button>
-                        <button class="cat-btn" data-tag="australia news">AUSTRALIA NEWS</button>
-                        <button class="cat-btn" data-tag="euro news">EURO NEWS</button>
-                        <button class="cat-btn" data-tag="bbc news">BBC NEWS</button>
-                        <button class="cat-btn" data-tag="us news">US NEWS</button>
-                        <button class="cat-btn" data-tag="world news">WORLD NEWS</button>
-                        <button class="cat-btn" data-tag="russian news">RUSSIAN NEWS</button>
-                        <button class="cat-btn" data-tag="pop">POP</button>
-                        <button class="cat-btn" data-tag="rock">ROCK</button>
-                        <button class="cat-btn" data-tag="jazz">JAZZ</button>
-                        <button class="cat-btn" data-tag="classical">CLASSICAL</button>
-                        <button class="cat-btn" data-tag="hip hop">HIP HOP</button>
-                        <button class="cat-btn" data-tag="electronic">ELECTRONIC</button>
-                        <button class="cat-btn" data-tag="ambient">AMBIENT</button>
-                        <button class="cat-btn" data-tag="dance music">DANCE MUSIC</button>
-                        <button class="cat-btn" data-tag="educational">EDUCATIONAL</button>
-                        <button class="cat-btn" data-tag="sports">SPORTS</button>
-                        <button class="cat-btn" data-tag="talk">TALK</button>
-                    </div>
-                </div>
-            </nav>
-
             <!-- Main Cyber Deck / Now Playing Deck -->
             <section class="hero-section" id="hero-section">
                 <!-- Hero Drag Volume Percentage Orange Circle HUD -->
@@ -252,6 +203,55 @@
                     </div>
                 </div>
             </section>
+
+        <div id="discovery-view">
+            <!-- Category Selector Bar -->
+            <nav class="category-nav glass" id="categories-nav">
+                <button id="mode-toggle-btn" class="tab-btn action-btn india-active mode-pill-btn">
+                    <span id="mode-toggle-icon" class="flag-icon">🇮🇳</span>
+                    <span id="mode-toggle-text">India</span>
+                </button>
+                
+                <div class="cats-wrapper" id="categories-bar">
+                    <div class="cat-scroll" id="india-cats">
+                        <button class="cat-btn active" data-tag="">ALL</button>
+                        <button class="cat-btn" data-tag="bollywood">BOLLYWOOD</button>
+                        <button class="cat-btn" data-tag="news">NEWS</button>
+                        <button class="cat-btn" data-tag="bhakti">BHAKTI</button>
+                        <button class="cat-btn" data-tag="dj remix">DJ - REMIX</button>
+                        <button class="cat-btn" data-tag="classic">CLASSIC</button>
+                        <button class="cat-btn" data-tag="bangla">BANGLA</button>
+                        <button class="cat-btn" data-tag="singer">SINGER</button>
+                        <button class="cat-btn" data-tag="gazal">GAZAL</button>
+                        <button class="cat-btn" data-tag="music">MUSIC</button>
+                        <button class="cat-btn" data-tag="air">AIR</button>
+                        <button class="cat-btn" data-tag="bhojpuri">BHOJPURI</button>
+                        <button class="cat-btn" data-tag="punjabi">PUNJABI</button>
+                        <button class="cat-btn" data-tag="regional">REGIONAL</button>
+                    </div>
+                    
+                    <div class="cat-scroll" id="global-cats" style="display: none;">
+                        <button class="cat-btn active" data-tag="">ALL</button>
+                        <button class="cat-btn" data-tag="australia news">AUSTRALIA NEWS</button>
+                        <button class="cat-btn" data-tag="euro news">EURO NEWS</button>
+                        <button class="cat-btn" data-tag="bbc news">BBC NEWS</button>
+                        <button class="cat-btn" data-tag="us news">US NEWS</button>
+                        <button class="cat-btn" data-tag="world news">WORLD NEWS</button>
+                        <button class="cat-btn" data-tag="russian news">RUSSIAN NEWS</button>
+                        <button class="cat-btn" data-tag="pop">POP</button>
+                        <button class="cat-btn" data-tag="rock">ROCK</button>
+                        <button class="cat-btn" data-tag="jazz">JAZZ</button>
+                        <button class="cat-btn" data-tag="classical">CLASSICAL</button>
+                        <button class="cat-btn" data-tag="hip hop">HIP HOP</button>
+                        <button class="cat-btn" data-tag="electronic">ELECTRONIC</button>
+                        <button class="cat-btn" data-tag="ambient">AMBIENT</button>
+                        <button class="cat-btn" data-tag="dance music">DANCE MUSIC</button>
+                        <button class="cat-btn" data-tag="educational">EDUCATIONAL</button>
+                        <button class="cat-btn" data-tag="sports">SPORTS</button>
+                        <button class="cat-btn" data-tag="talk">TALK</button>
+                    </div>
+                </div>
+            </nav>
 
             <!-- Discovered Stations Grid & Quick Playlist -->
             <section class="content-grid" id="discovery-grid">

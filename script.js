@@ -2021,6 +2021,49 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
     }
 }
 
+// Active Station Tracking & List Selection Highlighting
+function getActiveStation() {
+    const list = currentSource === 'search' ? currentStations : currentPlaylist;
+    return list[currentStationIndex] || null;
+}
+
+function isStationActive(station, index, source) {
+    const activeStation = getActiveStation();
+    if (!activeStation || !station) return false;
+
+    if (source === currentSource && index === currentStationIndex) return true;
+    if (station.stationuuid && activeStation.stationuuid && station.stationuuid === activeStation.stationuuid) return true;
+    if (station.url_resolved && activeStation.url_resolved && station.url_resolved === activeStation.url_resolved) return true;
+    if (station.name && activeStation.name && station.name.toUpperCase() === activeStation.name.toUpperCase()) return true;
+    return false;
+}
+
+function highlightActiveStation() {
+    const activeStation = getActiveStation();
+    const items = document.querySelectorAll('.station-item');
+    items.forEach(item => {
+        const itemSource = item.getAttribute('data-source');
+        const itemIndex = parseInt(item.getAttribute('data-index'), 10);
+        const itemUuid = item.getAttribute('data-uuid');
+        const itemUrl = item.getAttribute('data-url');
+        const itemName = item.getAttribute('data-name');
+
+        let isActive = false;
+        if (activeStation) {
+            if (itemSource === currentSource && itemIndex === currentStationIndex) {
+                isActive = true;
+            } else if (itemUuid && activeStation.stationuuid && itemUuid === activeStation.stationuuid) {
+                isActive = true;
+            } else if (itemUrl && activeStation.url_resolved && itemUrl === activeStation.url_resolved) {
+                isActive = true;
+            } else if (itemName && activeStation.name && itemName.toUpperCase() === activeStation.name.toUpperCase()) {
+                isActive = true;
+            }
+        }
+        item.classList.toggle('active', isActive);
+    });
+}
+
 // Render Stations Grid
 function renderStations() {
     if (currentStations.length === 0) {
@@ -2031,8 +2074,9 @@ function renderStations() {
     stationsGrid.innerHTML = currentStations.map((station, index) => {
         const isFav = currentPlaylist.some(s => s.stationuuid === station.stationuuid);
         const nameUpper = (station.name || '').toUpperCase();
+        const isActive = isStationActive(station, index, 'search');
         return `
-            <div class="station-item ${currentStationIndex === index && currentSource === 'search' ? 'active' : ''}" onclick="playStation(${index}, 'search', this)">
+            <div class="station-item ${isActive ? 'active' : ''}" data-source="search" data-index="${index}" data-uuid="${station.stationuuid || ''}" data-url="${station.url_resolved || station.url || ''}" data-name="${(station.name || '').replace(/"/g, '&quot;')}" onclick="playStation(${index}, 'search', this)">
                 <img src="${station.favicon || DEFAULT_LOGO}" class="list-img" loading="eager" onerror="this.src='${DEFAULT_LOGO}';">
                 <div class="item-info">
                     <h4>${nameUpper}</h4>
@@ -2047,7 +2091,102 @@ function renderStations() {
         `;
     }).join('');
     updateQueueInfo();
+    highlightActiveStation();
     lucide.createIcons();
+}
+
+// Playlist Reorder Drag & Drop Engine
+let draggedPlaylistIndex = null;
+
+function reorderPlaylist(fromIndex, toIndex) {
+    if (!isPlaylistDeleteAllowed) {
+        showToast('Playlist edit/reorder is OFF in Deck Settings', 'lock');
+        return;
+    }
+    if (fromIndex === toIndex || fromIndex < 0 || fromIndex >= currentPlaylist.length || toIndex < 0 || toIndex >= currentPlaylist.length) {
+        return;
+    }
+
+    // Keep track of active station UUID if currently playing from playlist
+    let activeUuid = null;
+    if (currentSource === 'playlist' && currentPlaylist[currentStationIndex]) {
+        activeUuid = currentPlaylist[currentStationIndex].stationuuid;
+    }
+
+    const movedItem = currentPlaylist.splice(fromIndex, 1)[0];
+    currentPlaylist.splice(toIndex, 0, movedItem);
+
+    localStorage.setItem('fm_playlist', JSON.stringify(currentPlaylist));
+
+    if (currentSource === 'playlist' && activeUuid) {
+        const newIndex = currentPlaylist.findIndex(s => s.stationuuid === activeUuid);
+        if (newIndex > -1) {
+            currentStationIndex = newIndex;
+        }
+    }
+
+    renderPlaylist();
+    updateQueueInfo();
+}
+
+function movePlaylistItem(index, direction) {
+    if (!isPlaylistDeleteAllowed) {
+        showToast('Playlist edit/reorder is OFF in Deck Settings', 'lock');
+        return;
+    }
+    reorderPlaylist(index, index + direction);
+}
+
+function handlePlaylistDragStart(e, index) {
+    if (!isPlaylistDeleteAllowed) {
+        e.preventDefault();
+        return;
+    }
+    draggedPlaylistIndex = index;
+    if (e.dataTransfer) {
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', index.toString());
+    }
+    e.currentTarget.classList.add('is-dragging');
+}
+
+function handlePlaylistDragOver(e, index) {
+    if (!isPlaylistDeleteAllowed || draggedPlaylistIndex === null) return;
+    e.preventDefault();
+    if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+
+    const item = e.currentTarget;
+    const rect = item.getBoundingClientRect();
+    const midY = rect.top + rect.height / 2;
+
+    item.classList.remove('drag-over-top', 'drag-over-bottom');
+    if (e.clientY < midY) {
+        item.classList.add('drag-over-top');
+    } else {
+        item.classList.add('drag-over-bottom');
+    }
+}
+
+function handlePlaylistDragLeave(e) {
+    e.currentTarget.classList.remove('drag-over-top', 'drag-over-bottom');
+}
+
+function handlePlaylistDrop(e, targetIndex) {
+    e.preventDefault();
+    e.stopPropagation();
+    e.currentTarget.classList.remove('drag-over-top', 'drag-over-bottom');
+
+    if (draggedPlaylistIndex !== null && draggedPlaylistIndex !== targetIndex) {
+        reorderPlaylist(draggedPlaylistIndex, targetIndex);
+    }
+    draggedPlaylistIndex = null;
+}
+
+function handlePlaylistDragEnd(e) {
+    draggedPlaylistIndex = null;
+    document.querySelectorAll('.station-item').forEach(el => {
+        el.classList.remove('is-dragging', 'drag-over-top', 'drag-over-bottom');
+    });
 }
 
 function renderPlaylist() {
@@ -2056,8 +2195,28 @@ function renderPlaylist() {
         ? `<div class="empty-state"><i data-lucide="list-music"></i><p>No favorite stations saved</p></div>`
         : currentPlaylist.map((station, index) => {
             const nameUpper = (station.name || '').toUpperCase();
+            const isActive = isStationActive(station, index, 'playlist');
             return `
-            <div class="station-item" onclick="playStation(${index}, 'playlist', this)">
+            <div class="station-item ${isActive ? 'active' : ''} ${isPlaylistDeleteAllowed ? 'reorderable' : ''}"
+                draggable="${isPlaylistDeleteAllowed ? 'true' : 'false'}"
+                data-source="playlist"
+                data-index="${index}"
+                data-uuid="${station.stationuuid || ''}"
+                data-url="${station.url_resolved || station.url || ''}"
+                data-name="${(station.name || '').replace(/"/g, '&quot;')}"
+                ${isPlaylistDeleteAllowed ? `
+                ondragstart="handlePlaylistDragStart(event, ${index})"
+                ondragover="handlePlaylistDragOver(event, ${index})"
+                ondragleave="handlePlaylistDragLeave(event)"
+                ondrop="handlePlaylistDrop(event, ${index})"
+                ondragend="handlePlaylistDragEnd(event)"
+                ` : ''}
+                onclick="playStation(${index}, 'playlist', this)">
+                
+                ${isPlaylistDeleteAllowed ? `
+                <i data-lucide="grip-vertical" class="drag-handle" title="Drag to move station up/down"></i>
+                ` : ''}
+
                 <img src="${station.favicon || DEFAULT_LOGO}" class="list-img" loading="eager" onerror="this.src='${DEFAULT_LOGO}';">
                 <div class="item-info">
                     <h4>${nameUpper}</h4>
@@ -2065,11 +2224,17 @@ function renderPlaylist() {
                 </div>
                 <div class="item-actions">
                     ${isPlaylistDeleteAllowed ? `
+                    <button class="icon-btn reorder-btn" ${index === 0 ? 'disabled' : ''} onclick="event.stopPropagation(); movePlaylistItem(${index}, -1)" title="Move Up">
+                        <i data-lucide="chevron-up"></i>
+                    </button>
+                    <button class="icon-btn reorder-btn" ${index === currentPlaylist.length - 1 ? 'disabled' : ''} onclick="event.stopPropagation(); movePlaylistItem(${index}, 1)" title="Move Down">
+                        <i data-lucide="chevron-down"></i>
+                    </button>
                     <button class="icon-btn" onclick="event.stopPropagation(); removeFromPlaylist(${index})" title="Delete Station">
                         <i data-lucide="trash-2" style="color: var(--accent-color)"></i>
                     </button>
                     ` : `
-                    <button class="icon-btn" style="opacity: 0.4; cursor: not-allowed;" onclick="event.stopPropagation(); showToast('Playlist delete is OFF in Deck Settings', 'lock')" title="Deletion Locked in Deck Settings">
+                    <button class="icon-btn" style="opacity: 0.4; cursor: not-allowed;" onclick="event.stopPropagation(); showToast('Playlist edit/reorder is OFF in Deck Settings', 'lock')" title="Editing Locked in Deck Settings">
                         <i data-lucide="lock" style="color: var(--text-muted)"></i>
                     </button>
                     `}
@@ -2084,6 +2249,7 @@ function renderPlaylist() {
     if (quickFavCount) quickFavCount.textContent = `${currentPlaylist.length} items`;
 
     updateQueueInfo();
+    highlightActiveStation();
     lucide.createIcons();
 }
 
@@ -2094,6 +2260,7 @@ function switchView(target) {
     Object.keys(views).forEach(key => {
         if (views[key]) views[key].style.display = key === target ? 'block' : 'none';
     });
+    highlightActiveStation();
 }
 
 // Playback Engine - Instant Super Fast Radio Playback
@@ -2186,9 +2353,7 @@ function playStation(index, source = 'search', element = null) {
         });
     }
 
-    const items = document.querySelectorAll('.station-item');
-    items.forEach(item => item.classList.remove('active'));
-    if (element) element.classList.add('active');
+    highlightActiveStation();
 }
 
 
@@ -2259,19 +2424,45 @@ function updatePlayerUI(station) {
         }
     }
     updateQueueInfo();
+    highlightActiveStation();
     lucide.createIcons();
+}
+
+function stopRadioStream() {
+    if (playCheckTimeout) {
+        clearTimeout(playCheckTimeout);
+        playCheckTimeout = null;
+    }
+    if (hlsInstance) {
+        hlsInstance.destroy();
+        hlsInstance = null;
+    }
+    audioPlayer.pause();
+    audioPlayer.removeAttribute('src');
+    audioPlayer.load();
+
+    if (nowPlayingCard) nowPlayingCard.classList.remove('playing');
+    if (playPauseBtn) {
+        playPauseBtn.innerHTML = '<i data-lucide="play" id="play-icon"></i>';
+        if (window.lucide) lucide.createIcons();
+    }
+    if (playerStatus) playerStatus.textContent = 'Stopped';
+    releaseWakeLock();
+    if (keepAliveAudio) keepAliveAudio.pause();
 }
 
 function togglePlay() {
     ensureAudioContextResumed();
-    if (audioPlayer.paused) {
-        if (!audioPlayer.src && currentStations.length > 0) {
-            playStation(0, 'search');
-        } else if (audioPlayer.src) {
-            audioPlayer.play().catch(e => console.warn(e));
-        }
+    const isPlaying = !audioPlayer.paused && audioPlayer.src && audioPlayer.readyState > 0;
+
+    if (isPlaying) {
+        stopRadioStream();
+        showToast('Radio Stream Stopped', 'square');
     } else {
-        audioPlayer.pause();
+        const list = currentSource === 'search' ? currentStations : currentPlaylist;
+        if (list.length > 0) {
+            playStation(currentStationIndex, currentSource);
+        }
     }
 }
 
@@ -2453,10 +2644,10 @@ function setSleepTimer(minutes) {
     showToast(`Sleep Timer set to ${minutes} min`, 'clock');
 
     sleepTimerId = setTimeout(() => {
-        audioPlayer.pause();
+        stopRadioStream();
         if (timerBadge) timerBadge.style.display = 'none';
         if (sleepTimerSelect) sleepTimerSelect.value = 0;
-        showToast('Radio paused by Sleep Timer', 'moon');
+        showToast('Radio stream stopped by Sleep Timer', 'moon');
     }, minutes * 60 * 1000);
 }
 
