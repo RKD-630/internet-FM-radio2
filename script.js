@@ -1343,10 +1343,17 @@ const favHeartIcon = document.getElementById('fav-heart-icon');
 const resultsCount = document.getElementById('results-count');
 const mainLoader = document.getElementById('main-loader');
 const nowPlayingCard = document.querySelector('.now-playing-card');
+const quickControlsToggle = document.getElementById('quick-controls-toggle');
+const quickControlsMenu = document.getElementById('quick-controls-menu');
 const fullscreenBtn = document.getElementById('fullscreen-btn');
+const fullscreenLabel = document.getElementById('fullscreen-label');
 const tabRefreshBtn = document.getElementById('tab-refresh-btn');
 const themeToggle = document.getElementById('theme-toggle');
 const themeIcon = document.getElementById('theme-icon');
+const themeLabel = document.getElementById('theme-label');
+const playlistDeleteToggle = document.getElementById('playlist-delete-toggle');
+const playlistDeleteLabel = document.getElementById('playlist-delete-label');
+const playlistDeleteIcon = document.getElementById('playlist-delete-icon');
 const eqHdBtn = document.getElementById('eq-hd-btn');
 const djBoostBtn = document.getElementById('dj-boost-btn');
 const surround3dBtn = document.getElementById('3d-surround-btn');
@@ -1363,7 +1370,7 @@ const fullPlaylistList = document.getElementById('full-playlist-list');
 const playlistCountBadge = document.getElementById('playlist-count-badge');
 const quickFavCount = document.getElementById('quick-fav-count');
 
-const sleepTimerBtn = document.getElementById('sleep-timer-btn');
+const sleepTimerSelect = document.getElementById('sleep-timer-select');
 const sleepTimerMenu = document.getElementById('sleep-timer-menu');
 const timerBadge = document.getElementById('timer-badge');
 const gridViewBtn = document.getElementById('grid-view-btn');
@@ -1513,6 +1520,7 @@ function init() {
     setupStationAudioAura();
     setupHeroVolumeDrag();
     fetchStations('', 'India');
+    updatePlaylistDeleteUI();
     renderPlaylist();
     updateVolume(30);
     loadTheme();
@@ -1641,12 +1649,15 @@ function setupEventListeners() {
     const handleFSChange = () => {
         const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
         const fsIcon = document.getElementById('fullscreen-icon');
+        const fsLabel = document.getElementById('fullscreen-label');
         if (isFS) {
             document.body.classList.add('is-fullscreen');
             if (fsIcon) fsIcon.setAttribute('data-lucide', 'minimize');
+            if (fsLabel) fsLabel.textContent = 'On';
         } else {
             document.body.classList.remove('is-fullscreen');
             if (fsIcon) fsIcon.setAttribute('data-lucide', 'maximize');
+            if (fsLabel) fsLabel.textContent = 'Off';
         }
         if (window.lucide) lucide.createIcons();
     };
@@ -1666,6 +1677,24 @@ function setupEventListeners() {
 
     if (fullscreenBtn) {
         fullscreenBtn.addEventListener('click', toggleFullscreen);
+    }
+
+    // Quick Controls Dropdown Toggle Menu
+    if (quickControlsToggle && quickControlsMenu) {
+        quickControlsToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            quickControlsMenu.style.display = quickControlsMenu.style.display === 'none' ? 'flex' : 'none';
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.quick-controls-wrapper')) {
+                quickControlsMenu.style.display = 'none';
+            }
+        });
+
+        quickControlsMenu.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
     }
 
     // Double click window / hero section to toggle fullscreen
@@ -1696,7 +1725,14 @@ function setupEventListeners() {
     }
 
     // Theme Toggle
-    themeToggle.addEventListener('click', toggleTheme);
+    if (themeToggle) {
+        themeToggle.addEventListener('click', toggleTheme);
+    }
+
+    // Playlist Delete Toggle
+    if (playlistDeleteToggle) {
+        playlistDeleteToggle.addEventListener('click', togglePlaylistDeleteMode);
+    }
 
     // Playback Controls
     playPauseBtn.addEventListener('click', togglePlay);
@@ -1717,14 +1753,15 @@ function setupEventListeners() {
     if (volBoostCheck) volBoostCheck.addEventListener('change', toggleVolBoost);
     if (smartAutoScanBtn) smartAutoScanBtn.addEventListener('click', toggleSmartAutoScan);
 
-    // Sleep Timer
-    if (sleepTimerBtn && sleepTimerMenu) {
-        sleepTimerBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            sleepTimerMenu.style.display = sleepTimerMenu.style.display === 'none' ? 'flex' : 'none';
+    // Sleep Timer Select
+    if (sleepTimerSelect) {
+        sleepTimerSelect.addEventListener('change', (e) => {
+            const mins = parseInt(e.target.value);
+            setSleepTimer(mins);
         });
-        document.addEventListener('click', () => { sleepTimerMenu.style.display = 'none'; });
+    }
 
+    if (sleepTimerMenu) {
         const timerOpts = sleepTimerMenu.querySelectorAll('.timer-opt');
         timerOpts.forEach(opt => {
             opt.addEventListener('click', () => {
@@ -2027,9 +2064,15 @@ function renderPlaylist() {
                     <p>${station.country || 'Custom Station'}</p>
                 </div>
                 <div class="item-actions">
-                    <button class="icon-btn" onclick="event.stopPropagation(); removeFromPlaylist(${index})">
+                    ${isPlaylistDeleteAllowed ? `
+                    <button class="icon-btn" onclick="event.stopPropagation(); removeFromPlaylist(${index})" title="Delete Station">
                         <i data-lucide="trash-2" style="color: var(--accent-color)"></i>
                     </button>
+                    ` : `
+                    <button class="icon-btn" style="opacity: 0.4; cursor: not-allowed;" onclick="event.stopPropagation(); showToast('Playlist delete is OFF in Deck Settings', 'lock')" title="Deletion Locked in Deck Settings">
+                        <i data-lucide="lock" style="color: var(--text-muted)"></i>
+                    </button>
+                    `}
                 </div>
             </div>
         `;
@@ -2276,7 +2319,31 @@ function togglePlaylistById(uuid) {
     if (station) togglePlaylistStation(station);
 }
 
+let isPlaylistDeleteAllowed = localStorage.getItem('fm_allow_playlist_delete') !== 'false';
+
+function updatePlaylistDeleteUI() {
+    if (playlistDeleteLabel) {
+        playlistDeleteLabel.textContent = isPlaylistDeleteAllowed ? 'ON' : 'OFF';
+    }
+    if (playlistDeleteIcon) {
+        playlistDeleteIcon.setAttribute('data-lucide', isPlaylistDeleteAllowed ? 'trash-2' : 'lock');
+        lucide.createIcons();
+    }
+}
+
+function togglePlaylistDeleteMode() {
+    isPlaylistDeleteAllowed = !isPlaylistDeleteAllowed;
+    localStorage.setItem('fm_allow_playlist_delete', isPlaylistDeleteAllowed);
+    updatePlaylistDeleteUI();
+    renderPlaylist();
+    showToast(isPlaylistDeleteAllowed ? 'Playlist Delete Enabled' : 'Playlist Delete Locked', isPlaylistDeleteAllowed ? 'trash-2' : 'lock');
+}
+
 function removeFromPlaylist(index) {
+    if (!isPlaylistDeleteAllowed) {
+        showToast('Playlist delete is OFF in Deck Settings', 'lock');
+        return;
+    }
     currentPlaylist.splice(index, 1);
     localStorage.setItem('fm_playlist', JSON.stringify(currentPlaylist));
     renderPlaylist();
@@ -2302,6 +2369,9 @@ function setTheme(theme) {
     if (themeIcon) {
         themeIcon.setAttribute('data-lucide', theme === 'light' ? 'sun' : 'moon');
         lucide.createIcons();
+    }
+    if (themeLabel) {
+        themeLabel.textContent = theme === 'light' ? 'Light' : 'Dark';
     }
 }
 
@@ -2370,18 +2440,22 @@ function playSmartScanStation() {
 // Sleep Timer Logic
 function setSleepTimer(minutes) {
     if (sleepTimerId) clearTimeout(sleepTimerId);
+    if (sleepTimerSelect) sleepTimerSelect.value = minutes;
     if (minutes === 0) {
-        timerBadge.style.display = 'none';
+        if (timerBadge) timerBadge.style.display = 'none';
         showToast('Sleep Timer Off', 'clock');
         return;
     }
-    timerBadge.style.display = 'block';
-    timerBadge.textContent = `${minutes}m`;
+    if (timerBadge) {
+        timerBadge.style.display = 'block';
+        timerBadge.textContent = `${minutes}m`;
+    }
     showToast(`Sleep Timer set to ${minutes} min`, 'clock');
 
     sleepTimerId = setTimeout(() => {
         audioPlayer.pause();
-        timerBadge.style.display = 'none';
+        if (timerBadge) timerBadge.style.display = 'none';
+        if (sleepTimerSelect) sleepTimerSelect.value = 0;
         showToast('Radio paused by Sleep Timer', 'moon');
     }, minutes * 60 * 1000);
 }

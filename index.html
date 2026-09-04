@@ -40,29 +40,63 @@
 
 
             <div class="header-controls">
-                <!-- Sleep Timer Button -->
-                <div class="sleep-timer-wrapper">
-                    <button id="sleep-timer-btn" class="icon-btn theme-btn" title="Sleep Timer">
-                        <i data-lucide="clock"></i>
+                <div class="quick-controls-wrapper">
+                    <button id="quick-controls-toggle" class="icon-btn theme-btn" title="Quick Controls & Settings">
+                        <i data-lucide="sliders-horizontal" id="quick-controls-icon"></i>
                         <span id="timer-badge" class="timer-badge" style="display: none;">OFF</span>
                     </button>
-                    <div id="sleep-timer-menu" class="sleep-timer-menu glass" style="display: none;">
-                        <span class="menu-title">Sleep Timer</span>
-                        <button data-minutes="0" class="timer-opt active">Off</button>
-                        <button data-minutes="15" class="timer-opt">15 Min</button>
-                        <button data-minutes="30" class="timer-opt">30 Min</button>
-                        <button data-minutes="45" class="timer-opt">45 Min</button>
-                        <button data-minutes="60" class="timer-opt">60 Min</button>
+                    
+                    <div id="quick-controls-menu" class="quick-controls-menu glass" style="display: none;">
+                        <div class="quick-menu-header">
+                            <span>Deck Settings</span>
+                        </div>
+
+                        <!-- Theme Toggle -->
+                        <button id="theme-toggle" class="quick-menu-item" title="Toggle Light/Dark Theme">
+                            <div class="quick-menu-item-left">
+                                <i data-lucide="moon" id="theme-icon"></i>
+                                <span>Theme</span>
+                            </div>
+                            <span id="theme-label" class="quick-menu-value">Dark</span>
+                        </button>
+
+                        <!-- Playlist Delete Toggle -->
+                        <button id="playlist-delete-toggle" class="quick-menu-item" title="Toggle Station Deletion in Playlist">
+                            <div class="quick-menu-item-left">
+                                <i data-lucide="trash-2" id="playlist-delete-icon"></i>
+                                <span>Playlist Delete</span>
+                            </div>
+                            <span id="playlist-delete-label" class="quick-menu-value">ON</span>
+                        </button>
+
+                        <!-- Fullscreen Toggle -->
+                        <button id="fullscreen-btn" class="quick-menu-item" title="Toggle Fullscreen">
+                            <div class="quick-menu-item-left">
+                                <i data-lucide="maximize" id="fullscreen-icon"></i>
+                                <span>Fullscreen</span>
+                            </div>
+                            <span id="fullscreen-label" class="quick-menu-value">Off</span>
+                        </button>
+
+                        <!-- Sleep Timer Dropdown List Row -->
+                        <div class="quick-menu-item sleep-timer-row">
+                            <div class="quick-menu-item-left">
+                                <i data-lucide="clock"></i>
+                                <span>Sleep Timer</span>
+                            </div>
+                            <select id="sleep-timer-select" class="quick-menu-select" title="Select Sleep Timer Duration">
+                                <option value="0" selected>Off</option>
+                                <option value="5">05 Min</option>
+                                <option value="10">10 Min</option>
+                                <option value="15">15 Min</option>
+                                <option value="20">20 Min</option>
+                                <option value="30">30 Min</option>
+                                <option value="45">45 Min</option>
+                                <option value="60">60 Min</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-
-                <button id="fullscreen-btn" class="icon-btn theme-btn" title="Toggle Fullscreen">
-                    <i data-lucide="maximize" id="fullscreen-icon"></i>
-                </button>
-                
-                <button id="theme-toggle" class="icon-btn theme-btn" title="Toggle Light/Dark Theme">
-                    <i data-lucide="moon" id="theme-icon"></i>
-                </button>
             </div>
         </header>
 
