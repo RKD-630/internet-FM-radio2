@@ -40,13 +40,13 @@
 
 
             <div class="header-controls">
-                <!-- Font Size Selector Option in Header Controls -->
-                <div class="header-font-control" title="Application Font Size (Normal / Min / Min- / Minext)">
+                <!-- Font Size Selector Option in Header Controls (Hidden as requested) -->
+                <div class="header-font-control" style="display: none;" title="Application Font Size (Normal / Min / Min- / Minext)">
                     <i data-lucide="type" class="header-font-icon"></i>
                     <select id="header-font-size-select" class="header-font-select font-size-select" title="Application Font Size: Normal / Min / Min- / Minext" aria-label="Change Application Font Size">
-                        <option value="normal" selected>Normal</option>
+                        <option value="normal">Normal</option>
                         <option value="min">Min</option>
-                        <option value="min-">Min-</option>
+                        <option value="min-" selected>Min-</option>
                         <option value="minext">Minext</option>
                     </select>
                 </div>
@@ -78,9 +78,9 @@
                                 <span>Font Size</span>
                             </div>
                             <select id="font-size-select" class="quick-menu-select font-size-select" title="Application Font Size: Normal / Min / Min- / Minext" aria-label="Application Font Size">
-                                <option value="normal" selected>Normal</option>
+                                <option value="normal">Normal</option>
                                 <option value="min">Min</option>
-                                <option value="min-">Min-</option>
+                                <option value="min-" selected>Min-</option>
                                 <option value="minext">Minext</option>
                             </select>
                         </div>

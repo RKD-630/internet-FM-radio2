@@ -230,7 +230,7 @@ body.is-fullscreen[data-theme="light"]:has(.now-playing-card.playing) .eq-contro
 
 /* Base Styles */
 html {
-    font-size: 100%;
+    font-size: 70%; /* Default application font size is Min- (70%) */
     transition: font-size 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -570,21 +570,9 @@ header {
     gap: 0.75rem;
 }
 
-/* Header Direct Font Size Control Pill */
+/* Header Direct Font Size Control Pill (Hidden from header as requested) */
 .header-font-control {
-    display: flex;
-    align-items: center;
-    gap: 0.45rem;
-    height: 44px;
-    padding: 0 0.85rem 0 0.95rem;
-    background: var(--glass-card);
-    border: 1px solid var(--glass-border);
-    border-radius: 22px;
-    color: var(--text-primary);
-    transition: var(--transition-fast);
-    position: relative;
-    box-sizing: border-box;
-    user-select: none;
+    display: none !important;
 }
 
 .header-font-control:hover {

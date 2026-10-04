@@ -2591,18 +2591,18 @@ const FONT_SCALES = {
 };
 
 function normalizeFontSize(val) {
-    if (!val) return 'normal';
+    if (!val) return 'min-';
     const clean = String(val).trim().toLowerCase();
     if (clean === 'normal') return 'normal';
     if (clean === 'min') return 'min';
     if (clean === 'min-' || clean === 'min-minus' || clean === 'minminus') return 'min-';
     if (clean === 'minext' || clean === 'min-ext') return 'minext';
-    return 'normal';
+    return 'min-';
 }
 
 function setAppFontSize(size, notify = false) {
     const normalized = normalizeFontSize(size);
-    const config = FONT_SCALES[normalized] || FONT_SCALES['normal'];
+    const config = FONT_SCALES[normalized] || FONT_SCALES['min-'];
 
     document.documentElement.setAttribute('data-font-size', normalized);
     document.body.setAttribute('data-font-size', normalized);
@@ -2621,7 +2621,7 @@ function setAppFontSize(size, notify = false) {
 }
 
 function loadFontSize() {
-    const saved = localStorage.getItem('fm_font_size') || 'normal';
+    const saved = localStorage.getItem('fm_font_size') || 'min-';
     setAppFontSize(saved, false);
 }
 
