@@ -229,6 +229,31 @@ body.is-fullscreen[data-theme="light"]:has(.now-playing-card.playing) .eq-contro
 }
 
 /* Base Styles */
+html {
+    font-size: 100%;
+    transition: font-size 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html[data-font-size="normal"],
+body[data-font-size="normal"] {
+    font-size: 100%;
+}
+
+html[data-font-size="min"],
+body[data-font-size="min"] {
+    font-size: 85%;
+}
+
+html[data-font-size="min-"],
+body[data-font-size="min-"] {
+    font-size: 70%;
+}
+
+html[data-font-size="minext"],
+body[data-font-size="minext"] {
+    font-size: 55%;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -545,6 +570,61 @@ header {
     gap: 0.75rem;
 }
 
+/* Header Direct Font Size Control Pill */
+.header-font-control {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    height: 44px;
+    padding: 0 0.85rem 0 0.95rem;
+    background: var(--glass-card);
+    border: 1px solid var(--glass-border);
+    border-radius: 22px;
+    color: var(--text-primary);
+    transition: var(--transition-fast);
+    position: relative;
+    box-sizing: border-box;
+    user-select: none;
+}
+
+.header-font-control:hover {
+    background: var(--card-hover);
+    border-color: var(--primary-color);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+.header-font-control i {
+    width: 17px;
+    height: 17px;
+    color: var(--cyan-accent);
+    flex-shrink: 0;
+}
+
+.header-font-select {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    padding-right: 1.25rem;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2300f3ff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right center;
+}
+
+.header-font-select option {
+    background: #0f172a;
+    color: #f8fafc;
+    font-weight: 700;
+    padding: 6px 10px;
+}
+
 .icon-btn {
     width: 44px;
     height: 44px;
@@ -594,7 +674,7 @@ header {
     position: absolute;
     top: 54px;
     right: 0;
-    width: 235px;
+    width: 250px;
     padding: 0.85rem;
     display: flex;
     flex-direction: column;
@@ -832,6 +912,32 @@ header {
     background: #6366f1 !important;
     color: #ffffff !important;
     box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4) !important;
+}
+
+[data-theme="light"] .header-font-control {
+    background: #ffffff !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    color: #0f172a !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+}
+
+[data-theme="light"] .header-font-control:hover {
+    background: #f8fafc !important;
+    border-color: var(--primary-color) !important;
+}
+
+[data-theme="light"] .header-font-control i {
+    color: #6366f1 !important;
+}
+
+[data-theme="light"] .header-font-select {
+    color: #0f172a !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236366f1' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+}
+
+[data-theme="light"] .header-font-select option {
+    background: #ffffff !important;
+    color: #0f172a !important;
 }
 
 /* ==========================================================================

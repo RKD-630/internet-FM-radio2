@@ -1371,6 +1371,8 @@ const playlistCountBadge = document.getElementById('playlist-count-badge');
 const quickFavCount = document.getElementById('quick-fav-count');
 
 const sleepTimerSelect = document.getElementById('sleep-timer-select');
+const headerFontSizeSelect = document.getElementById('header-font-size-select');
+const fontSizeSelect = document.getElementById('font-size-select');
 const sleepTimerMenu = document.getElementById('sleep-timer-menu');
 const timerBadge = document.getElementById('timer-badge');
 const gridViewBtn = document.getElementById('grid-view-btn');
@@ -1524,6 +1526,7 @@ function init() {
     renderPlaylist();
     updateVolume(30);
     loadTheme();
+    loadFontSize();
     setupStatusObserver();
 }
 
@@ -1760,6 +1763,14 @@ function setupEventListeners() {
             setSleepTimer(mins);
         });
     }
+
+    // Application Font Size Selectors (Header Controls & Deck Settings Menu)
+    const fontSizeSelects = document.querySelectorAll('.font-size-select');
+    fontSizeSelects.forEach(select => {
+        select.addEventListener('change', (e) => {
+            setAppFontSize(e.target.value, true);
+        });
+    });
 
     if (sleepTimerMenu) {
         const timerOpts = sleepTimerMenu.querySelectorAll('.timer-opt');
@@ -2568,6 +2579,50 @@ function setTheme(theme) {
 
 function loadTheme() {
     setTheme(localStorage.getItem('fm_theme') || 'dark');
+}
+
+// Application Font Size Control (Normal / Min / Min- / Minext)
+// Each level decreases the application font by 15%
+const FONT_SCALES = {
+    'normal': { scale: '100%', label: 'Normal (100%)' },
+    'min': { scale: '85%', label: 'Min (-15%)' },
+    'min-': { scale: '70%', label: 'Min- (-30%)' },
+    'minext': { scale: '55%', label: 'Minext (-45%)' }
+};
+
+function normalizeFontSize(val) {
+    if (!val) return 'normal';
+    const clean = String(val).trim().toLowerCase();
+    if (clean === 'normal') return 'normal';
+    if (clean === 'min') return 'min';
+    if (clean === 'min-' || clean === 'min-minus' || clean === 'minminus') return 'min-';
+    if (clean === 'minext' || clean === 'min-ext') return 'minext';
+    return 'normal';
+}
+
+function setAppFontSize(size, notify = false) {
+    const normalized = normalizeFontSize(size);
+    const config = FONT_SCALES[normalized] || FONT_SCALES['normal'];
+
+    document.documentElement.setAttribute('data-font-size', normalized);
+    document.body.setAttribute('data-font-size', normalized);
+    document.documentElement.style.fontSize = config.scale;
+
+    localStorage.setItem('fm_font_size', normalized);
+
+    const selects = document.querySelectorAll('.font-size-select');
+    selects.forEach(sel => {
+        sel.value = normalized;
+    });
+
+    if (notify && typeof showToast === 'function') {
+        showToast(`Font Size: ${config.label}`, 'type');
+    }
+}
+
+function loadFontSize() {
+    const saved = localStorage.getItem('fm_font_size') || 'normal';
+    setAppFontSize(saved, false);
 }
 
 // FX Toggles with Sound Effect Boost Pipeline

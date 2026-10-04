@@ -40,6 +40,17 @@
 
 
             <div class="header-controls">
+                <!-- Font Size Selector Option in Header Controls -->
+                <div class="header-font-control" title="Application Font Size (Normal / Min / Min- / Minext)">
+                    <i data-lucide="type" class="header-font-icon"></i>
+                    <select id="header-font-size-select" class="header-font-select font-size-select" title="Application Font Size: Normal / Min / Min- / Minext" aria-label="Change Application Font Size">
+                        <option value="normal" selected>Normal</option>
+                        <option value="min">Min</option>
+                        <option value="min-">Min-</option>
+                        <option value="minext">Minext</option>
+                    </select>
+                </div>
+
                 <div class="quick-controls-wrapper">
                     <button id="quick-controls-toggle" class="icon-btn theme-btn" title="Quick Controls & Settings">
                         <i data-lucide="sliders-horizontal" id="quick-controls-icon"></i>
@@ -59,6 +70,20 @@
                             </div>
                             <span id="theme-label" class="quick-menu-value">Dark</span>
                         </button>
+
+                        <!-- Font Size Option Row -->
+                        <div class="quick-menu-item font-size-row" title="Select Application Font Size">
+                            <div class="quick-menu-item-left">
+                                <i data-lucide="type"></i>
+                                <span>Font Size</span>
+                            </div>
+                            <select id="font-size-select" class="quick-menu-select font-size-select" title="Application Font Size: Normal / Min / Min- / Minext" aria-label="Application Font Size">
+                                <option value="normal" selected>Normal</option>
+                                <option value="min">Min</option>
+                                <option value="min-">Min-</option>
+                                <option value="minext">Minext</option>
+                            </select>
+                        </div>
 
                         <!-- Playlist Edit / Delete Toggle -->
                         <button id="playlist-delete-toggle" class="quick-menu-item" title="Toggle Station Reordering & Deletion in Playlist">
