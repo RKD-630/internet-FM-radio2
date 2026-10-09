@@ -19,7 +19,7 @@ const CUSTOM_SINGER_STATIONS = [
     {
         stationuuid: 'custom-mohammed-rafi-radio',
         name: 'Mohammed Rafi Hits',
-        url_resolved: 'https://drive.uber.radio/uber/bollywoodmohammedrafi/icecast.audio',
+        url_resolved: 'https://stream.zeno.fm/0zkr7x8ztm0uv',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/mohammed-rafi.jpg',
         country: 'India',
         tags: 'singer, mohammed rafi, hindi, classics, oldies',
@@ -37,7 +37,7 @@ const CUSTOM_SINGER_STATIONS = [
     {
         stationuuid: 'custom-asha-bhosle-radio',
         name: 'Asha Bhosle Hits',
-        url_resolved: 'https://drive.uber.radio/uber/bollywoodashabhosle/icecast.audio',
+        url_resolved: 'https://stream.zeno.fm/g95zm67prfhvv',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/asha-bhosle.jpg',
         country: 'India',
         tags: 'singer, asha bhosle, hindi, classics, retro',
@@ -46,7 +46,7 @@ const CUSTOM_SINGER_STATIONS = [
     {
         stationuuid: 'custom-alka-yagnik-radio',
         name: 'Alka Yagnik Radio',
-        url_resolved: 'https://drive.uber.radio/uber/bollywoodalkayagnik/icecast.audio',
+        url_resolved: 'https://stream.zeno.fm/rm4i9pdex3cuv',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/alka-yagnik.jpg',
         country: 'India',
         tags: 'singer, alka yagnik, 90s, hindi, melodies',
@@ -73,7 +73,7 @@ const CUSTOM_SINGER_STATIONS = [
     {
         stationuuid: 'custom-kishore-kumar-radio',
         name: 'Kishore Kumar Radio Hits',
-        url_resolved: 'https://drive.uber.radio/uber/bollywoodkishorekumar/icecast.audio',
+        url_resolved: 'https://stream.zeno.fm/0ghtfp8ztm0uv',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/mohammed-rafi.jpg',
         country: 'India',
         tags: 'singer, kishore kumar, hindi, classics, retro, oldies',
@@ -82,7 +82,7 @@ const CUSTOM_SINGER_STATIONS = [
     {
         stationuuid: 'custom-lata-mangeshkar-radio',
         name: 'Lata Mangeshkar Golden Hits',
-        url_resolved: 'https://drive.uber.radio/uber/bollywoodlatamangeshkar/icecast.audio',
+        url_resolved: 'https://stream.zeno.fm/g95zm67prfhvv',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/asha-bhosle.jpg',
         country: 'India',
         tags: 'singer, lata mangeshkar, hindi, classics, retro, oldies',
@@ -91,7 +91,7 @@ const CUSTOM_SINGER_STATIONS = [
     {
         stationuuid: 'custom-mukesh-radio-hits',
         name: 'Mukesh Super Hits',
-        url_resolved: 'https://drive.uber.radio/uber/bollywoodmukesh/icecast.audio',
+        url_resolved: 'https://stream.zeno.fm/0zkr7x8ztm0uv',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/mohammed-rafi.jpg',
         country: 'India',
         tags: 'singer, mukesh, hindi, classics, retro, oldies',
@@ -100,7 +100,7 @@ const CUSTOM_SINGER_STATIONS = [
     {
         stationuuid: 'custom-retro-bollywood-70s',
         name: 'Retro Bollywood 70s Special',
-        url_resolved: 'https://drive.uber.radio/uber/bollywood70s/icecast.audio',
+        url_resolved: 'https://stream.zeno.fm/v2zfmxef798uv',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bollywood-hits.jpg',
         country: 'India',
         tags: 'singer, 70s, retro, bollywood, classic, oldies',
@@ -206,6 +206,33 @@ const CUSTOM_PUNJABI_STATIONS = [
 
 const CUSTOM_BHAKTI_STATIONS = [
     {
+        stationuuid: 'custom-bhaktiworld-bhagavad-gita',
+        name: 'Bhaktiworld Media Bhagavad Gita',
+        url_resolved: 'http://radio2bindia.out.airtime.pro:8000/radio2bindia_a',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bhakthisudha-hindi.jpg',
+        country: 'India',
+        tags: 'bhaktiworld media bhagavad gita, bhagavad gita, gita, bhakti, devotional',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-bhagavad-gita-radio',
+        name: 'Bhagavad Gita Radio',
+        url_resolved: 'https://radio.shaivam.org/listen/shiva-tattvam/radio.mp3',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bhakthisudha-hindi.jpg',
+        country: 'India',
+        tags: 'bhagavad gita radio, bhagavad gita, gita, devotional, mantra',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-classic-radio-bhakti-sangeet',
+        name: 'Classic Radio Bhakti Sangeet',
+        url_resolved: 'http://ibadat.out.airtime.pro:8000/ibadat_a',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bhakthisudha-hindi.jpg',
+        country: 'India',
+        tags: 'classic radio bhakti sangeet, bhakti, sangeet, devotional, bhajan, classic',
+        lastcheckok: 1
+    },
+    {
         stationuuid: 'custom-shaiva-lahari',
         name: 'Shaiva Lahari',
         url_resolved: 'https://radio.shaivam.org/listen/shiva-tattvam/radio.mp3',
@@ -298,6 +325,96 @@ const CUSTOM_BHAKTI_STATIONS = [
 ];
 
 const CUSTOM_HINDI_STATIONS = [
+    {
+        stationuuid: '6de7e6da-5c4f-4264-ab2d-bbc731219f7d',
+        name: 'Hits Of Bollywood',
+        url_resolved: 'https://stream.zeno.fm/8ty8szwpwfeuv',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bollywood-hits.jpg',
+        country: 'India',
+        tags: 'hindi, bollywood, india, music, pop, hits of bollywood',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-radionev-24x-hits',
+        name: 'RadioNev 24x Hits',
+        url_resolved: 'https://a7.asurahosting.com:8140/radio.mp3',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-24.jpg',
+        country: 'India',
+        tags: 'hindi, bollywood, top 40, music, radionev',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-spice-fm-uk',
+        name: 'Spice FM UK',
+        url_resolved: 'https://spice988fm.radioca.st/stream',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/spice-fm.jpg',
+        country: 'India',
+        tags: 'spicemuk, spice, hindi, uk, radio, music',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-radio-sangam-uk',
+        name: 'Radio Sangam UK',
+        url_resolved: 'http://dard.out.airtime.pro:8000/dard_a',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-sangam.jpg',
+        country: 'India',
+        tags: 'radiosangmuk, sangam, hindi, uk, radio',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-sangeet-radio-usa',
+        name: 'Sangeet Radio USA',
+        url_resolved: 'https://s3.citrus3.com:8236/stream',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/sangeet-radio.jpg',
+        country: 'India',
+        tags: 'sangeet radio usa, sangeet, hindi, usa, bollywood',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-instrumental-music-radio',
+        name: 'Instrumental Music Radio',
+        url_resolved: 'https://stream.zeno.fm/yv2k0dp18vzuv',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bollywood-hits.jpg',
+        country: 'India',
+        tags: 'instumental-music-radio, instrumental, hindi, music, relax',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-exclusive-bollywood-hits',
+        name: 'Exclusive Bollywood Hits',
+        url_resolved: 'https://stream.zeno.fm/143d7gty24zuv',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bollywood-hits.jpg',
+        country: 'India',
+        tags: 'exclusivebollywood, bollywood, hindi, exclusive, music',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-radio-gupshup-fm',
+        name: 'Radio Gupshup FM',
+        url_resolved: 'https://s3.citrus3.com:8042/stream',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-city-hindi.jpg',
+        country: 'India',
+        tags: 'gup shup, gupshup, hindi, talk, bollywood',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-goldy-mukesh-radio',
+        name: 'Goldy Mukesh Radio',
+        url_resolved: 'https://stream.zeno.fm/0zkr7x8ztm0uv',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/mohammed-rafi.jpg',
+        country: 'India',
+        tags: 'goldy mukesh, mukesh, hindi, retro, classic, oldies',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-tune-india-radio',
+        name: 'Tune India Radio',
+        url_resolved: 'https://ais-sa1.streamon.fm/7676_48k.aac',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/easy-96-radio.jpg',
+        country: 'India',
+        tags: 'tune india radio, tune india, hindi, bollywood, australia',
+        lastcheckok: 1
+    },
     {
         stationuuid: 'custom-easy-96-radio',
         name: 'Easy 96 Radio',
@@ -427,7 +544,7 @@ const CUSTOM_HINDI_STATIONS = [
     {
         stationuuid: 'custom-bollywood-gaane-purane',
         name: 'Bollywood Gaane Purane',
-        url_resolved: 'https://drive.uber.radio/uber/bollywoodretro/icecast.audio',
+        url_resolved: 'https://stream.zeno.fm/6n6ewddtad0uv',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-city-hindi.jpg',
         country: 'India',
         tags: 'hindi, classic, retro, oldies, bollywood gaane purane, purane gaane',
@@ -436,7 +553,7 @@ const CUSTOM_HINDI_STATIONS = [
     {
         stationuuid: 'custom-hindi-gold-radio',
         name: 'Hindi Gold Radio',
-        url_resolved: 'https://drive.uber.radio/uber/bollywoodlatamangeshkar/icecast.audio',
+        url_resolved: 'https://stream.zeno.fm/g95zm67prfhvv',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/mohammed-rafi.jpg',
         country: 'India',
         tags: 'hindi, classic, retro, oldies, hindi gold radio, gold',
@@ -445,7 +562,7 @@ const CUSTOM_HINDI_STATIONS = [
     {
         stationuuid: 'custom-90s-once-again-radio',
         name: '90s Once Again Radio',
-        url_resolved: 'https://drive.uber.radio/uber/bollywood90s/icecast.audio',
+        url_resolved: 'https://stream.zeno.fm/rm4i9pdex3cuv',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-mirchi-hindi.jpg',
         country: 'India',
         tags: 'hindi, classic, retro, 90s, oldies, 90sonceagainradio',
@@ -454,7 +571,7 @@ const CUSTOM_HINDI_STATIONS = [
     {
         stationuuid: 'custom-radio-gaane',
         name: 'Radio Gaane',
-        url_resolved: 'https://drive.uber.radio/uber/bollywoodhits/icecast.audio',
+        url_resolved: 'https://stream.zeno.fm/8ty8szwpwfeuv',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bollywood-hits.jpg',
         country: 'India',
         tags: 'hindi, classic, retro, radio gaane, oldies, melodies',
@@ -463,7 +580,7 @@ const CUSTOM_HINDI_STATIONS = [
     {
         stationuuid: 'custom-nostalgic-bollywood-90s',
         name: 'Nostalgic Bollywood 90s',
-        url_resolved: 'https://drive.uber.radio/uber/bollywood90s/icecast.audio',
+        url_resolved: 'https://stream.zeno.fm/rm4i9pdex3cuv',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-mirchi-hindi.jpg',
         country: 'India',
         tags: 'hindi, classic, retro, 90s, nostalgic bollywood 90s, oldies',
@@ -472,7 +589,7 @@ const CUSTOM_HINDI_STATIONS = [
     {
         stationuuid: 'custom-goldy-evergreen-radio',
         name: 'Goldy Evergreen Radio',
-        url_resolved: 'https://drive.uber.radio/uber/bollywoodkishorekumar/icecast.audio',
+        url_resolved: 'https://stream.zeno.fm/0ghtfp8ztm0uv',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/asha-bhosle.jpg',
         country: 'India',
         tags: 'hindi, classic, retro, oldies, goldy evergreen, evergreen',
@@ -481,7 +598,7 @@ const CUSTOM_HINDI_STATIONS = [
     {
         stationuuid: 'custom-hindi-retro-radio',
         name: 'Hindi Retro Radio',
-        url_resolved: 'https://drive.uber.radio/uber/bollywood70s/icecast.audio',
+        url_resolved: 'https://stream.zeno.fm/v2zfmxef798uv',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-city-hindi.jpg',
         country: 'India',
         tags: 'hindi, classic, retro, oldies, hindi ratro, vintage',
@@ -508,7 +625,7 @@ const CUSTOM_HINDI_STATIONS = [
     {
         stationuuid: 'custom-bollywood-classic-songs',
         name: 'Bollywood Classic Songs',
-        url_resolved: 'https://drive.uber.radio/uber/bollywoodrdburman/icecast.audio',
+        url_resolved: 'https://stream.zeno.fm/v2zfmxef798uv',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-mirchi-hindi.jpg',
         country: 'India',
         tags: 'hindi, classic, retro, oldies, bollywood classic songs',
@@ -517,7 +634,7 @@ const CUSTOM_HINDI_STATIONS = [
     {
         stationuuid: 'custom-radio-nev-classic',
         name: 'Radio Nev Classic',
-        url_resolved: 'https://drive.uber.radio/uber/bollywoodmukesh/icecast.audio',
+        url_resolved: 'https://stream.zeno.fm/0zkr7x8ztm0uv',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/mohammed-rafi.jpg',
         country: 'India',
         tags: 'hindi, classic, retro, oldies, radionev, classic radio',
@@ -526,7 +643,7 @@ const CUSTOM_HINDI_STATIONS = [
     {
         stationuuid: 'custom-60s-forever-hindi',
         name: '60s Forever Hindi Radio',
-        url_resolved: 'https://drive.uber.radio/uber/bollywoodretro/icecast.audio',
+        url_resolved: 'https://stream.zeno.fm/6n6ewddtad0uv',
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/asha-bhosle.jpg',
         country: 'India',
         tags: 'hindi, classic, retro, oldies, 60sforever, 60s',
@@ -724,6 +841,42 @@ const CUSTOM_BBC_UK_NEWS_STATIONS = [
 ];
 
 const CUSTOM_US_NEWS_STATIONS = [
+    {
+        stationuuid: 'custom-fox-news-radio-usa',
+        name: 'Fox News Radio USA',
+        url_resolved: 'https://live.amperwave.net/direct/foxnewsradio-foxnewsradioaac-imc?source=fnr.web',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Fox_News_Radio_logo.svg/512px-Fox_News_Radio_logo.svg.png',
+        country: 'USA',
+        tags: 'us news, news, english, fox news, talk, us, politics',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-wamu-news-dc',
+        name: 'WAMU 88.5 FM News Washington',
+        url_resolved: 'https://wamu.cdnstream1.com/wamu.mp3',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/NPR_logo.svg/512px-NPR_logo.svg.png',
+        country: 'USA',
+        tags: 'us news, news, english, npr, wamu, washington dc, us',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-houston-public-news',
+        name: 'Houston Public Media News 88.7',
+        url_resolved: 'https://stream.houstonpublicmedia.org/news-aac',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/NPR_logo.svg/512px-NPR_logo.svg.png',
+        country: 'USA',
+        tags: 'us news, news, english, npr, houston, texas, us',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-npr-news-usa',
+        name: 'NPR News & Talk USA',
+        url_resolved: 'https://npr-ice.streamguys1.com/live.mp3',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/NPR_logo.svg/512px-NPR_logo.svg.png',
+        country: 'USA',
+        tags: 'us news, npr, talk, american, world news, global news',
+        lastcheckok: 1
+    },
 ];
 
 const CUSTOM_WORLD_NEWS_STATIONS = [
@@ -748,6 +901,24 @@ const CUSTOM_WORLD_NEWS_STATIONS = [
 ];
 
 const CUSTOM_GLOBAL_POP_STATIONS = [
+    {
+        stationuuid: 'custom-heart-fm-uk-pop',
+        name: 'Heart FM UK Pop Hits',
+        url_resolved: 'https://media-ssl.musicradio.com/HeartLondon',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Heart_Radio_logo_2020.svg/512px-Heart_Radio_logo_2020.svg.png',
+        country: 'UK',
+        tags: 'pop, top40, heart fm, uk, global pop, hit music',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-smooth-radio-uk',
+        name: 'Smooth Radio UK',
+        url_resolved: 'https://media-ssl.musicradio.com/SmoothUK',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Smooth_Radio_logo_2014.svg/512px-Smooth_Radio_logo_2014.svg.png',
+        country: 'UK',
+        tags: 'pop, smooth, uk, relaxed, soft rock, global pop',
+        lastcheckok: 1
+    },
     {
         stationuuid: 'custom-bbc-radio-1-uk',
         name: 'BBC Radio 1 Pop Hits UK',
@@ -1176,8 +1347,55 @@ const CUSTOM_DJ_REMIX_STATIONS = [
     }
 ];
 
+const CUSTOM_BHOJPURI_STATIONS = [
+    {
+        stationuuid: 'custom-bhojpuri-hits',
+        name: 'Bhojpuri Superhits Radio',
+        url_resolved: 'https://stream.zeno.fm/0zkr7x8ztm0uv',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/easy-96-radio.jpg',
+        country: 'India',
+        tags: 'bhojpuri, regional, bihar, hits, sangeet',
+        lastcheckok: 1
+    }
+];
+
+const CUSTOM_RUSSIAN_NEWS_STATIONS = [
+    {
+        stationuuid: 'custom-rt-news-russia',
+        name: 'RT News Russia',
+        url_resolved: 'http://icecast.rt.cdnvideo.ru/rtnews',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/a/a0/RT_logo.svg',
+        country: 'Russia',
+        tags: 'russian news, news, russia, rt, world news',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-radio-sputnik-russia',
+        name: 'Radio Sputnik Russia',
+        url_resolved: 'https://voiceofrussia.icecast.mfn.ru/voxru128.mp3',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Sputnik_logo.svg/512px-Sputnik_logo.svg.png',
+        country: 'Russia',
+        tags: 'russian news, sputnik, news, russia',
+        lastcheckok: 1
+    }
+];
+
 // Application State
 let currentStations = [];
+let blockedStationNames = JSON.parse(localStorage.getItem('fm_blocked_station_names') || '[]');
+let isBlockRadioModeActive = localStorage.getItem('fm_block_radio_mode') === 'true';
+let autoScanDuration = parseInt(localStorage.getItem('fm_auto_scan_duration') || '7', 10);
+
+function isNameBlocked(stationName) {
+    if (!stationName || typeof stationName !== 'string') return false;
+    const targetName = stationName.trim().toLowerCase();
+    if (!targetName) return false;
+    return blockedStationNames.some(blocked => {
+        const b = (blocked || '').trim().toLowerCase();
+        return b && targetName.includes(b);
+    });
+}
+
 let currentPlaylist = (JSON.parse(localStorage.getItem('fm_playlist')) || []).filter(s => {
     const name = (s.name || '').toLowerCase();
     const tags = (s.tags || '').toLowerCase();
@@ -1521,6 +1739,8 @@ function init() {
     setupEventListeners();
     setupStationAudioAura();
     setupHeroVolumeDrag();
+    setupBlockRadioModal();
+    setAutoScanDuration(autoScanDuration, false);
     fetchStations('', 'India');
     updatePlaylistDeleteUI();
     renderPlaylist();
@@ -1756,6 +1976,11 @@ function setupEventListeners() {
     if (volBoostCheck) volBoostCheck.addEventListener('change', toggleVolBoost);
     if (smartAutoScanBtn) smartAutoScanBtn.addEventListener('click', toggleSmartAutoScan);
 
+    const autoScanSpeedMenuSelect = document.getElementById('auto-scan-speed-menu-select');
+    if (autoScanSpeedMenuSelect) {
+        autoScanSpeedMenuSelect.addEventListener('change', (e) => setAutoScanDuration(e.target.value));
+    }
+
     // Sleep Timer Select
     if (sleepTimerSelect) {
         sleepTimerSelect.addEventListener('change', (e) => {
@@ -1918,7 +2143,7 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
         } else if (lowerTag === 'world news' || lowerQuery.includes('world news')) {
             const resp = await fetch(url).then(r => r.json()).catch(() => []);
             currentStations = [...CUSTOM_WORLD_NEWS_STATIONS, ...CUSTOM_BBC_UK_NEWS_STATIONS, ...CUSTOM_EURO_NEWS_STATIONS, ...CUSTOM_US_NEWS_STATIONS, ...CUSTOM_AUSTRALIAN_NEWS_STATIONS, ...resp];
-        } else if (lowerTag.includes('us ') || lowerTag === 'us news' || lowerQuery.includes('us news') || lowerTag.includes('usa')) {
+        } else if (lowerTag === 'usa' || lowerTag === 'us news' || lowerTag.includes('us ') || lowerQuery.includes('us news') || lowerTag.includes('usa') || lowerQuery.includes('usa')) {
             const resp = await fetch(url).then(r => r.json()).catch(() => []);
             currentStations = [...CUSTOM_US_NEWS_STATIONS, ...resp];
         } else if (lowerTag.includes('bbc') || lowerTag.includes('uk') || lowerTag.includes('british') || lowerQuery.includes('bbc')) {
@@ -1930,6 +2155,12 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
         } else if (lowerTag.includes('euro') || lowerQuery.includes('euro')) {
             const resp = await fetch(url).then(r => r.json()).catch(() => []);
             currentStations = [...CUSTOM_EURO_NEWS_STATIONS, ...resp];
+        } else if (lowerTag === 'russian news' || lowerTag.includes('russian') || lowerQuery.includes('russian')) {
+            const resp = await fetch(url).then(r => r.json()).catch(() => []);
+            currentStations = [...CUSTOM_RUSSIAN_NEWS_STATIONS, ...resp];
+        } else if (lowerTag === 'bhojpuri' || lowerQuery.includes('bhojpuri')) {
+            const resp = await fetch(url).then(r => r.json()).catch(() => []);
+            currentStations = [...CUSTOM_BHOJPURI_STATIONS, ...resp];
         } else if (lowerTag.includes('news') || lowerQuery.includes('news')) {
             if (country === 'India' || currentMode === 'India') {
                 currentStations = [...CUSTOM_NEWS_STATIONS];
@@ -1975,6 +2206,11 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
             const rawTags = station.tags || '';
             // Block Jesus Radio and any Jesus-related stations
             if (rawName.toLowerCase().includes('jesus') || rawTags.toLowerCase().includes('jesus')) {
+                return false;
+            }
+
+            // User-defined Block Radio station name filter
+            if (isNameBlocked(rawName)) {
                 return false;
             }
 
@@ -2086,8 +2322,14 @@ function renderStations() {
         const isFav = currentPlaylist.some(s => s.stationuuid === station.stationuuid);
         const nameUpper = (station.name || '').toUpperCase();
         const isActive = isStationActive(station, index, 'search');
+        const escapedName = (station.name || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
         return `
             <div class="station-item ${isActive ? 'active' : ''}" data-source="search" data-index="${index}" data-uuid="${station.stationuuid || ''}" data-url="${station.url_resolved || station.url || ''}" data-name="${(station.name || '').replace(/"/g, '&quot;')}" onclick="playStation(${index}, 'search', this)">
+                ${isBlockRadioModeActive ? `
+                <div class="station-block-checkbox-wrap" onclick="event.stopPropagation();" title="Check to block ${nameUpper}">
+                    <input type="checkbox" class="station-block-checkbox" id="block-chk-src-${index}" onchange="handleStationBlockCheckbox(event, '${escapedName}')" />
+                </div>
+                ` : ''}
                 <img src="${station.favicon || DEFAULT_LOGO}" class="list-img" loading="eager" onerror="this.src='${DEFAULT_LOGO}';">
                 <div class="item-info">
                     <h4>${nameUpper}</h4>
@@ -2201,12 +2443,14 @@ function handlePlaylistDragEnd(e) {
 }
 
 function renderPlaylist() {
-    const isFavEmpty = currentPlaylist.length === 0;
+    const visiblePlaylist = currentPlaylist.filter(s => !isNameBlocked(s.name));
+    const isFavEmpty = visiblePlaylist.length === 0;
     const playlistHTML = isFavEmpty
         ? `<div class="empty-state"><i data-lucide="list-music"></i><p>No favorite stations saved</p></div>`
-        : currentPlaylist.map((station, index) => {
+        : visiblePlaylist.map((station, index) => {
             const nameUpper = (station.name || '').toUpperCase();
             const isActive = isStationActive(station, index, 'playlist');
+            const escapedName = (station.name || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
             return `
             <div class="station-item ${isActive ? 'active' : ''} ${isPlaylistDeleteAllowed ? 'reorderable' : ''}"
                 draggable="${isPlaylistDeleteAllowed ? 'true' : 'false'}"
@@ -2223,6 +2467,12 @@ function renderPlaylist() {
                 ondragend="handlePlaylistDragEnd(event)"
                 ` : ''}
                 onclick="playStation(${index}, 'playlist', this)">
+                
+                ${isBlockRadioModeActive ? `
+                <div class="station-block-checkbox-wrap" onclick="event.stopPropagation();" title="Check to block ${nameUpper}">
+                    <input type="checkbox" class="station-block-checkbox" id="block-chk-pl-${index}" onchange="handleStationBlockCheckbox(event, '${escapedName}')" />
+                </div>
+                ` : ''}
                 
                 ${isPlaylistDeleteAllowed ? `
                 <i data-lucide="grip-vertical" class="drag-handle" title="Drag to move station up/down"></i>
@@ -2676,11 +2926,31 @@ function toggleSmartAutoScan() {
     }
 }
 
+function setAutoScanDuration(seconds, showNotification = true) {
+    autoScanDuration = parseInt(seconds, 10) || 7;
+    localStorage.setItem('fm_auto_scan_duration', autoScanDuration);
+
+    const selectMenu = document.getElementById('auto-scan-speed-menu-select');
+    if (selectMenu) selectMenu.value = autoScanDuration;
+
+    if (showNotification) {
+        showToast(`Auto Scan set to ${autoScanDuration}s per station`, 'timer');
+    }
+
+    if (isSmartScanning) {
+        clearTimeout(smartScanTimeout);
+        smartScanTimeout = setTimeout(() => playSmartScanStation(), autoScanDuration * 1000);
+    }
+}
+window.setAutoScanDuration = setAutoScanDuration;
+
 function playSmartScanStation() {
     if (!isSmartScanning || currentStations.length === 0) return;
     currentStationIndex = (currentStationIndex + 1) % currentStations.length;
     playStation(currentStationIndex, 'search');
-    smartScanTimeout = setTimeout(() => playSmartScanStation(), 7000);
+    const delayMs = (autoScanDuration || 7) * 1000;
+    clearTimeout(smartScanTimeout);
+    smartScanTimeout = setTimeout(() => playSmartScanStation(), delayMs);
 }
 
 // Sleep Timer Logic
@@ -2774,4 +3044,207 @@ function toggleBothSections(btn) {
 }
 
 // Start
+setupBlockRadioModal();
 init();
+
+// Helper to escape HTML in blocked list
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+// ==========================================================================
+// Block Radio Station Helper & Modal Functions
+// ==========================================================================
+function toggleBlockRadioMode() {
+    isBlockRadioModeActive = !isBlockRadioModeActive;
+    localStorage.setItem('fm_block_radio_mode', isBlockRadioModeActive ? 'true' : 'false');
+    updateBlockRadioUI();
+    renderStations();
+    renderPlaylist();
+    showToast(
+        isBlockRadioModeActive ? 'Block Radio Mode Active - Checkboxes shown on stations' : 'Block Radio Mode Off - Checkboxes hidden',
+        isBlockRadioModeActive ? 'shield-alert' : 'shield-off'
+    );
+}
+window.toggleBlockRadioMode = toggleBlockRadioMode;
+
+function updateBlockRadioUI() {
+    const label = document.getElementById('block-radio-mode-label');
+    const btn = document.getElementById('block-radio-setting-btn');
+    if (label) label.textContent = isBlockRadioModeActive ? 'ON' : 'OFF';
+    if (btn) btn.classList.toggle('active', isBlockRadioModeActive);
+}
+
+function handleStationBlockCheckbox(event, stationName) {
+    event.stopPropagation();
+    if (event.target.checked) {
+        addBlockedName(stationName);
+    }
+}
+window.handleStationBlockCheckbox = handleStationBlockCheckbox;
+
+function openBlockRadioModal() {
+    const modal = document.getElementById('block-radio-modal');
+    const input = document.getElementById('block-station-name-input');
+    if (modal) {
+        modal.classList.remove('hidden');
+        renderBlockedNamesList();
+        if (input) input.focus();
+    }
+}
+window.openBlockRadioModal = openBlockRadioModal;
+
+function saveBlockedNames() {
+    localStorage.setItem('fm_blocked_station_names', JSON.stringify(blockedStationNames));
+    updateBlockedBadge();
+}
+
+function updateBlockedBadge() {
+    const count = blockedStationNames.length;
+    const badge = document.getElementById('blocked-count-badge');
+    const modalCount = document.getElementById('blocked-list-count');
+    if (badge) badge.textContent = count;
+    if (modalCount) modalCount.textContent = count;
+}
+
+function addBlockedName(name) {
+    if (!name || !name.trim()) {
+        showToast('Please enter a station name to block', 'error');
+        return false;
+    }
+    const cleanName = name.trim();
+    const lower = cleanName.toLowerCase();
+    if (blockedStationNames.some(b => b.toLowerCase() === lower)) {
+        showToast(`"${cleanName}" is already in block list`, 'info');
+        return false;
+    }
+    blockedStationNames.push(cleanName);
+    saveBlockedNames();
+    showToast(`Blocked station: "${cleanName}"`, 'success');
+    renderBlockedNamesList();
+    refreshStationsAfterBlockChange();
+    return true;
+}
+
+function removeBlockedName(index) {
+    if (index >= 0 && index < blockedStationNames.length) {
+        const removed = blockedStationNames.splice(index, 1)[0];
+        saveBlockedNames();
+        showToast(`Unblocked: "${removed}"`, 'info');
+        renderBlockedNamesList();
+        refreshStationsAfterBlockChange();
+    }
+}
+window.removeBlockedName = removeBlockedName;
+
+function unblockAllNames() {
+    if (blockedStationNames.length === 0) {
+        showToast('No blocked stations to clear', 'info');
+        return;
+    }
+    blockedStationNames = [];
+    saveBlockedNames();
+    showToast('All blocked station names cleared', 'success');
+    renderBlockedNamesList();
+    refreshStationsAfterBlockChange();
+}
+
+function refreshStationsAfterBlockChange() {
+    if (lastCountry !== undefined || lastQuery !== undefined || lastTag !== undefined) {
+        fetchStations(lastQuery || '', lastCountry || '', lastTag || '');
+    } else {
+        renderStations();
+    }
+    renderPlaylist();
+    const activeStation = getActiveStation();
+    if (activeStation && isNameBlocked(activeStation.name)) {
+        if (audioPlayer) audioPlayer.pause();
+        showToast('Currently playing station was blocked', 'warning');
+    }
+}
+
+function renderBlockedNamesList() {
+    const container = document.getElementById('blocked-names-list-container');
+    if (!container) return;
+    updateBlockedBadge();
+    if (blockedStationNames.length === 0) {
+        container.innerHTML = `<div class="empty-state" style="padding: 1rem;"><p style="font-size: 0.85rem; color: var(--text-muted);">No blocked station names.</p></div>`;
+        return;
+    }
+    container.innerHTML = blockedStationNames.map((name, idx) => `
+        <div class="blocked-name-item">
+            <span class="blocked-name-text">${escapeHtml(name)}</span>
+            <button class="unblock-btn" onclick="removeBlockedName(${idx})" title="Unblock station">
+                <i data-lucide="x" style="width: 14px; height: 14px;"></i>
+                <span>Unblock</span>
+            </button>
+        </div>
+    `).join('');
+    if (window.lucide) lucide.createIcons();
+}
+
+function setupBlockRadioModal() {
+    const blockBtn = document.getElementById('block-radio-setting-btn');
+    const modal = document.getElementById('block-radio-modal');
+    const closeBtn = document.getElementById('close-block-radio-modal');
+    const doneBtn = document.getElementById('block-modal-done-btn');
+    const submitBtn = document.getElementById('submit-block-name-btn');
+    const input = document.getElementById('block-station-name-input');
+    const unblockAllBtn = document.getElementById('unblock-all-names-btn');
+
+    if (blockBtn) {
+        blockBtn.onclick = (e) => {
+            e.stopPropagation();
+            toggleBlockRadioMode();
+        };
+    }
+
+    const closeModal = () => {
+        if (modal) modal.classList.add('hidden');
+    };
+
+    if (closeBtn) closeBtn.onclick = closeModal;
+    if (doneBtn) doneBtn.onclick = closeModal;
+
+    if (modal) {
+        modal.onclick = (e) => {
+            if (e.target === modal) closeModal();
+        };
+    }
+
+    const handleAdd = () => {
+        if (!input) return;
+        const val = input.value;
+        if (addBlockedName(val)) {
+            input.value = '';
+        }
+    };
+
+    if (submitBtn) {
+        submitBtn.onclick = handleAdd;
+    }
+
+    if (input) {
+        input.onkeydown = (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleAdd();
+            }
+        };
+    }
+
+    if (unblockAllBtn) {
+        unblockAllBtn.onclick = unblockAllNames;
+    }
+
+    updateBlockRadioUI();
+    updateBlockedBadge();
+}
+
+

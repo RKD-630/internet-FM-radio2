@@ -1,5 +1,195 @@
 [
   {
+    "stationuuid": "custom-smooth-radio-uk",
+    "name": "Smooth Radio UK",
+    "url_resolved": "https://media-ssl.musicradio.com/SmoothUK",
+    "favicon": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Smooth_Radio_logo_2014.svg/512px-Smooth_Radio_logo_2014.svg.png",
+    "country": "UK",
+    "countrycode": "GB",
+    "tags": "pop, smooth, uk, relaxed, soft rock, global pop",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "custom-heart-fm-uk-pop",
+    "name": "Heart FM UK Pop Hits",
+    "url_resolved": "https://media-ssl.musicradio.com/HeartLondon",
+    "favicon": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Heart_Radio_logo_2020.svg/512px-Heart_Radio_logo_2020.svg.png",
+    "country": "UK",
+    "countrycode": "GB",
+    "tags": "pop, top40, heart fm, uk, global pop, hit music",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "custom-npr-news-usa",
+    "name": "NPR News & Talk USA",
+    "url_resolved": "https://npr-ice.streamguys1.com/live.mp3",
+    "favicon": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/NPR_logo.svg/512px-NPR_logo.svg.png",
+    "country": "USA",
+    "countrycode": "US",
+    "tags": "us news, npr, talk, american, world news, global news",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "custom-houston-public-news",
+    "name": "Houston Public Media News 88.7",
+    "url_resolved": "https://stream.houstonpublicmedia.org/news-aac",
+    "favicon": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/NPR_logo.svg/512px-NPR_logo.svg.png",
+    "country": "USA",
+    "countrycode": "US",
+    "tags": "us news, news, english, npr, houston, texas, us",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "custom-wamu-news-dc",
+    "name": "WAMU 88.5 FM News Washington",
+    "url_resolved": "https://wamu.cdnstream1.com/wamu.mp3",
+    "favicon": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/NPR_logo.svg/512px-NPR_logo.svg.png",
+    "country": "USA",
+    "countrycode": "US",
+    "tags": "us news, news, english, npr, wamu, washington dc, us",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "custom-fox-news-radio-usa",
+    "name": "Fox News Radio USA",
+    "url_resolved": "https://live.amperwave.net/direct/foxnewsradio-foxnewsradioaac-imc?source=fnr.web",
+    "favicon": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Fox_News_Radio_logo.svg/512px-Fox_News_Radio_logo.svg.png",
+    "country": "USA",
+    "countrycode": "US",
+    "tags": "us news, news, english, fox news, talk, us, politics",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "custom-classic-radio-bhakti-sangeet",
+    "name": "Classic Radio Bhakti Sangeet",
+    "url_resolved": "http://ibadat.out.airtime.pro:8000/ibadat_a",
+    "favicon": "https://onlineradiohub.com/wp-content/uploads/2023/06/bhakthisudha-hindi.jpg",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "classic radio bhakti sangeet, bhakti, sangeet, devotional, bhajan, classic",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "custom-tune-india-radio",
+    "name": "Tune India Radio",
+    "url_resolved": "https://ais-sa1.streamon.fm/7676_48k.aac",
+    "favicon": "https://onlineradiohub.com/wp-content/uploads/2023/06/easy-96-radio.jpg",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "tune india radio, tune india, hindi, bollywood, australia",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "custom-bhagavad-gita-radio",
+    "name": "Bhagavad Gita Radio",
+    "url_resolved": "https://radio.shaivam.org/listen/shiva-tattvam/radio.mp3",
+    "favicon": "https://onlineradiohub.com/wp-content/uploads/2023/06/bhakthisudha-hindi.jpg",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "bhagavad gita radio, bhagavad gita, gita, devotional, mantra",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "custom-bhaktiworld-bhagavad-gita",
+    "name": "Bhaktiworld Media Bhagavad Gita",
+    "url_resolved": "http://radio2bindia.out.airtime.pro:8000/radio2bindia_a",
+    "favicon": "https://onlineradiohub.com/wp-content/uploads/2023/06/bhakthisudha-hindi.jpg",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "bhaktiworld media bhagavad gita, bhagavad gita, gita, bhakti, devotional",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "custom-goldy-mukesh-radio",
+    "name": "Goldy Mukesh Radio",
+    "url_resolved": "https://stream.zeno.fm/0zkr7x8ztm0uv",
+    "favicon": "https://onlineradiohub.com/wp-content/uploads/2023/06/mohammed-rafi.jpg",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "goldy mukesh, mukesh, hindi, retro, classic, oldies",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "custom-radio-gupshup-fm",
+    "name": "Radio Gupshup FM",
+    "url_resolved": "https://s3.citrus3.com:8042/stream",
+    "favicon": "https://onlineradiohub.com/wp-content/uploads/2023/06/radio-city-hindi.jpg",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "gup shup, gupshup, hindi, talk, bollywood",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "custom-exclusive-bollywood-hits",
+    "name": "Exclusive Bollywood Hits",
+    "url_resolved": "https://stream.zeno.fm/143d7gty24zuv",
+    "favicon": "https://onlineradiohub.com/wp-content/uploads/2023/06/bollywood-hits.jpg",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "exclusivebollywood, bollywood, hindi, exclusive, music",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "custom-instrumental-music-radio",
+    "name": "Instrumental Music Radio",
+    "url_resolved": "https://stream.zeno.fm/yv2k0dp18vzuv",
+    "favicon": "https://onlineradiohub.com/wp-content/uploads/2023/06/bollywood-hits.jpg",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "instumental-music-radio, instrumental, hindi, music, relax",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "custom-sangeet-radio-usa",
+    "name": "Sangeet Radio USA",
+    "url_resolved": "https://s3.citrus3.com:8236/stream",
+    "favicon": "https://onlineradiohub.com/wp-content/uploads/2023/06/sangeet-radio.jpg",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "sangeet radio usa, sangeet, hindi, usa, bollywood",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "custom-radio-sangam-uk",
+    "name": "Radio Sangam UK",
+    "url_resolved": "http://dard.out.airtime.pro:8000/dard_a",
+    "favicon": "https://onlineradiohub.com/wp-content/uploads/2023/06/radio-sangam.jpg",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "radiosangmuk, sangam, hindi, uk, radio",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "custom-spice-fm-uk",
+    "name": "Spice FM UK",
+    "url_resolved": "https://spice988fm.radioca.st/stream",
+    "favicon": "https://onlineradiohub.com/wp-content/uploads/2023/06/spice-fm.jpg",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "spicemuk, spice, hindi, uk, radio, music",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "custom-radionev-24x-hits",
+    "name": "RadioNev 24x Hits",
+    "url_resolved": "https://a7.asurahosting.com:8140/radio.mp3",
+    "favicon": "https://onlineradiohub.com/wp-content/uploads/2023/06/radio-24.jpg",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "hindi, bollywood, top 40, music, radionev",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "6de7e6da-5c4f-4264-ab2d-bbc731219f7d",
+    "name": "Hits Of Bollywood",
+    "url_resolved": "https://stream.zeno.fm/8ty8szwpwfeuv",
+    "favicon": "https://onlineradiohub.com/wp-content/uploads/2023/06/bollywood-hits.jpg",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "bollywood, hindi, india, music, pop, hits of bollywood",
+    "lastcheckok": 1
+  },
+  {
     "stationuuid": "cdd3b5a0-47f6-46d5-8209-b78e8b10ff6e",
     "name": "Radio Mirchi Hindi",
     "url_resolved": "https://eu8.fastcast4u.com/proxy/clyedupq/stream",
@@ -230,16 +420,6 @@
     "lastcheckok": 1
   },
   {
-    "stationuuid": "8e30841f-01e0-4e5a-90a7-fd629f26beb5",
-    "name": "Pew Hits Desi",
-    "url_resolved": "https://pewhits.duckdns.org/stream/pewhitsdesi",
-    "favicon": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png",
-    "country": "India",
-    "countrycode": "IN",
-    "tags": "bollywood",
-    "lastcheckok": 1
-  },
-  {
     "stationuuid": "f493846c-22b0-44fb-a932-ee4e990043ea",
     "name": "Fever 104 FM",
     "url_resolved": "https://radio.canstream.co.uk:8115/live.mp3",
@@ -260,16 +440,6 @@
     "lastcheckok": 1
   },
   {
-    "stationuuid": "d596b27c-c0bd-4d2b-8bff-420eaede4ee7",
-    "name": "Bhakti World - Krishna",
-    "url_resolved": "http://millenniumhits.out.airtime.pro:8000/millenniumhits_a",
-    "favicon": "null",
-    "country": "India",
-    "countrycode": "IN",
-    "tags": "bhakti sangeet",
-    "lastcheckok": 1
-  },
-  {
     "stationuuid": "ad039e32-7ead-4ce8-ad33-07025f4a5082",
     "name": "Bhakti World Media - Shiva",
     "url_resolved": "http://hot.out.airtime.pro:8000/hot_a",
@@ -277,26 +447,6 @@
     "country": "India",
     "countrycode": "IN",
     "tags": "bhakti sangeet",
-    "lastcheckok": 1
-  },
-  {
-    "stationuuid": "902ea231-d537-4dc8-8708-6819418086d0",
-    "name": "Vivid Bharti",
-    "url_resolved": "https://air.pc.cdn.bitgravity.com/air/live/pbaudio001/playlist.m3u8",
-    "favicon": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png",
-    "country": "India",
-    "countrycode": "IN",
-    "tags": "classical",
-    "lastcheckok": 1
-  },
-  {
-    "stationuuid": "0e5dfcc8-99e2-4fed-a232-7f4bf23ba3c3",
-    "name": "Mirchi Love",
-    "url_resolved": "https://drive.uber.radio/uber/bollywoodlove/icecast.audio",
-    "favicon": "http://mirchi.in/favicon-196x196.png",
-    "country": "India",
-    "countrycode": "IN",
-    "tags": "india,love,mirchi,pop,romantic",
     "lastcheckok": 1
   },
   {

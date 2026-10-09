@@ -103,6 +103,20 @@
                             <span id="fullscreen-label" class="quick-menu-value">Off</span>
                         </button>
 
+                        <!-- Block Radio Button -->
+                        <button id="block-radio-setting-btn" class="quick-menu-item" title="Toggle Block Radio Checkboxes in Station List">
+                            <div class="quick-menu-item-left">
+                                <i data-lucide="shield-alert" id="block-radio-icon"></i>
+                                <span>Block Radio</span>
+                            </div>
+                            <div class="quick-menu-item-right" style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span id="block-radio-mode-label" class="quick-menu-value">OFF</span>
+                                <span id="open-block-list-modal-btn" class="quick-menu-icon-btn" title="Manage Block List" onclick="event.stopPropagation(); openBlockRadioModal();">
+                                    <i data-lucide="list" style="width: 15px; height: 15px;"></i>
+                                </span>
+                            </div>
+                        </button>
+
                         <!-- Sleep Timer Dropdown List Row -->
                         <div class="quick-menu-item sleep-timer-row">
                             <div class="quick-menu-item-left">
@@ -120,6 +134,20 @@
                                 <option value="60">60 Min</option>
                             </select>
                         </div>
+
+                        <!-- Auto Scan Speed Settings Row -->
+                        <div class="quick-menu-item auto-scan-timer-row">
+                            <div class="quick-menu-item-left">
+                                <i data-lucide="timer"></i>
+                                <span>Auto Scan Speed</span>
+                            </div>
+                            <select id="auto-scan-speed-menu-select" class="quick-menu-select" title="Select Auto Scan Duration per Station">
+                                <option value="7" selected>07 Sec</option>
+                                <option value="12">12 Sec</option>
+                                <option value="18">18 Sec</option>
+                                <option value="25">25 Sec</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -127,7 +155,7 @@
 
         <!-- Main Navigation Bar -->
         <nav class="main-tabs glass" id="main-tabs">
-            <button class="tab-btn action-btn auto-scan-glow" id="smart-auto-scan-btn">
+            <button class="tab-btn action-btn auto-scan-glow" id="smart-auto-scan-btn" title="Start/Stop Auto Scan">
                 <i data-lucide="zap"></i>
                 <span>Auto Scan</span>
             </button>
@@ -260,7 +288,7 @@
                         <button class="cat-btn" data-tag="australia news">AUSTRALIA NEWS</button>
                         <button class="cat-btn" data-tag="euro news">EURO NEWS</button>
                         <button class="cat-btn" data-tag="bbc news">BBC NEWS</button>
-                        <button class="cat-btn" data-tag="us news">US NEWS</button>
+                        <button class="cat-btn" data-tag="usa">USA</button>
                         <button class="cat-btn" data-tag="world news">WORLD NEWS</button>
                         <button class="cat-btn" data-tag="russian news">RUSSIAN NEWS</button>
                         <button class="cat-btn" data-tag="pop">POP</button>
@@ -366,6 +394,44 @@
         <audio id="audio-player" autoplay preload="auto" crossorigin="anonymous"></audio>
         <!-- Keep-Alive Audio for Background Playback -->
         <audio id="keep-alive-audio" loop preload="auto" src="data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA"></audio>
+    </div>
+
+    <!-- Block Radio Modal -->
+    <div id="block-radio-modal" class="modal-overlay hidden">
+        <div class="modal-content glass">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <i data-lucide="shield-alert" class="modal-title-icon"></i>
+                    <h3>Block Radio Station</h3>
+                </div>
+                <button id="close-block-radio-modal" class="close-btn" title="Close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-description">Enter station name to block. Blocked stations will not show in any category or search list.</p>
+                <div class="block-input-group">
+                    <input type="text" id="block-station-name-input" placeholder="Enter station name..." autocomplete="off" />
+                    <button id="submit-block-name-btn" class="action-btn block-submit-btn">
+                        <i data-lucide="plus"></i>
+                        <span>Block</span>
+                    </button>
+                </div>
+                <div class="blocked-stations-section">
+                    <div class="blocked-section-header">
+                        <h4>Blocked Station Names (<span id="blocked-list-count">0</span>)</h4>
+                    </div>
+                    <div id="blocked-names-list-container" class="blocked-names-list">
+                        <!-- Rendered blocked names list -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="unblock-all-names-btn" class="action-btn danger-btn" title="Unblock All Stations">
+                    <i data-lucide="rotate-ccw"></i>
+                    <span>Unblock All</span>
+                </button>
+                <button id="block-modal-done-btn" class="primary-btn">Done</button>
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>
