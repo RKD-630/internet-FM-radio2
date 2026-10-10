@@ -2113,7 +2113,7 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
         } else if (lowerTag === 'singer' || lowerQuery.includes('singer')) {
             const resp = await fetch(url).then(r => r.json()).catch(() => []);
             currentStations = [...CUSTOM_SINGER_STATIONS, ...resp];
-        } else if (lowerTag === 'hindi' || lowerQuery === 'hindi') {
+        } else if (lowerTag === 'hindi' || lowerTag === 'bollywood' || lowerQuery.includes('hindi') || lowerQuery.includes('bollywood')) {
             const resp = await fetch(url).then(r => r.json()).catch(() => []);
             currentStations = [...CUSTOM_HINDI_STATIONS, ...resp];
         } else if (lowerTag === 'classic' || lowerTag === 'old' || lowerTag === 'retro' || lowerQuery.includes('classic') || lowerQuery.includes('old') || lowerQuery.includes('retro')) {
@@ -2804,7 +2804,7 @@ function removeFromPlaylist(index) {
 
 function updateActiveCat(label) {
     catButtons.forEach(btn => {
-        btn.classList.toggle('active', btn.textContent === label);
+        btn.classList.toggle('active', btn.textContent.trim().toUpperCase() === label.trim().toUpperCase());
     });
 }
 
