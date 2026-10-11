@@ -148,8 +148,10 @@
     }
 }
 
-[data-theme="light"] .vinyl-groove {
-    border-color: rgba(0, 0, 0, 0.08) !important;
+[data-theme="light"] .list-img {
+    background: #ffffff !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
 }
 
 /* White/Light Theme Station Queue Colors */

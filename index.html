@@ -19,6 +19,14 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <script>
+        (function() {
+            var savedTheme = localStorage.getItem('fm_theme');
+            if (savedTheme === 'light') {
+                document.body.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
     <div class="app-container">
         <!-- Dynamic Background Lights -->
         <div class="blob blob-1"></div>
@@ -204,7 +212,7 @@
                         <div class="station-audio-aura" id="station-audio-aura"></div>
                         <div class="vinyl-wrapper" id="vinyl-wrapper">
                             <div class="vinyl-groove"></div>
-                            <img id="current-station-info-img" src="rkd_logo.png" alt="Station Logo" title="Click to save to playlist" loading="eager" fetchpriority="high">
+                            <img id="current-station-info-img" src="rkd_logo.png" alt="Station Logo" title="Click to save to playlist" loading="eager" fetchpriority="high" onerror="this.onerror=null; this.src=(document.body && document.body.getAttribute('data-theme')==='light' ? 'rkd_white_logo.png' : 'rkd_logo.png');">
                             <div class="center-spindle"></div>
                         </div>
                         <button id="add-to-playlist-btn" class="fav-heart-btn" title="Save to Playlist">
