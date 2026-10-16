@@ -1275,11 +1275,37 @@ header {
     inset: -12px;
     border-radius: 1.75rem;
     background: radial-gradient(circle, var(--cyan-accent) 0%, var(--accent-color) 50%, var(--primary-color) 100%);
-    opacity: 0.25;
-    filter: blur(18px);
+    opacity: 0.2;
+    filter: blur(16px);
     z-index: 0;
     pointer-events: none;
-    transition: opacity 0.12s ease, transform 0.12s ease, filter 0.12s ease;
+    transform: scale(0.96);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.now-playing-card.playing .station-audio-aura {
+    opacity: 0.65;
+    transform: scale(1.02);
+    filter: blur(20px);
+    animation: station-aura-glow 5s ease-in-out infinite alternate;
+}
+
+@keyframes station-aura-glow {
+    0% {
+        opacity: 0.5;
+        transform: scale(1.0);
+        filter: blur(18px) hue-rotate(0deg);
+    }
+    50% {
+        opacity: 0.72;
+        transform: scale(1.03);
+        filter: blur(24px) hue-rotate(180deg);
+    }
+    100% {
+        opacity: 0.52;
+        transform: scale(1.01);
+        filter: blur(20px) hue-rotate(360deg);
+    }
 }
 
 .vinyl-wrapper {
@@ -1329,6 +1355,8 @@ header {
     box-sizing: border-box;
     z-index: 1;
     border: 2px solid rgba(255, 255, 255, 0.15);
+    backface-visibility: hidden;
+    transform: translateZ(0);
 }
 
 .center-spindle {
