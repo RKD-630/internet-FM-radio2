@@ -2,15 +2,53 @@
 // RKD FM | CYBER RADIO DECK ENGINE
 // ==========================================================================
 
-// API Configurations
+// API Configurations & Multi-Server Failover Engine
 const API_ENDPOINTS = [
     'https://de1.api.radio-browser.info/json',
     'https://at1.api.radio-browser.info/json',
     'https://nl1.api.radio-browser.info/json',
-    'https://fr1.api.radio-browser.info/json'
+    'https://fr1.api.radio-browser.info/json',
+    'https://all.api.radio-browser.info/json'
 ];
 let currentApiIndex = 0;
 let API_BASE = API_ENDPOINTS[currentApiIndex];
+
+async function fetchFromRadioBrowser(pathAndQuery) {
+    for (let attempt = 0; attempt < API_ENDPOINTS.length; attempt++) {
+        const base = API_ENDPOINTS[(currentApiIndex + attempt) % API_ENDPOINTS.length];
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 4500);
+            const response = await fetch(`${base}${pathAndQuery}`, {
+                signal: controller.signal,
+                headers: { 'User-Agent': 'RKD-FM-Radio/2.0' }
+            });
+            clearTimeout(timeoutId);
+            if (response.ok) {
+                currentApiIndex = (currentApiIndex + attempt) % API_ENDPOINTS.length;
+                API_BASE = API_ENDPOINTS[currentApiIndex];
+                const data = await response.json();
+                if (Array.isArray(data) && data.length > 0) {
+                    return data;
+                }
+            }
+        } catch (e) {
+            console.warn(`Radio API failover from ${base}:`, e.message || e);
+        }
+    }
+
+    // Graceful offline fallback to verified stations cache
+    try {
+        const localResp = await fetch('verified_stations.json');
+        if (localResp.ok) {
+            const localData = await localResp.json();
+            return Array.isArray(localData) ? localData : [];
+        }
+    } catch (e) {
+        console.warn('Local verified stations note:', e);
+    }
+    return [];
+}
 
 const DEFAULT_LIMIT = 200;
 const DEFAULT_LOGO_DARK = 'rkd_logo.png';
@@ -29,6 +67,80 @@ function isDefaultLogo(url) {
 
 let DEFAULT_LOGO = DEFAULT_LOGO_DARK;
 const LOGO_TIMEOUT_MS = 3500; // 3 to 4 seconds logo fallback timeout
+
+// Top Priority Stations Pinned to the Very Top of India Category:
+// 1. VIVIDH BHARATI AIR
+// 2. MY CLUB REMIX
+// 3. INDIANLINKRADIO
+// 4. VIVIDH BHARATI MUMBAI
+// 5. CLASSIC RADIO BHAKTI SANGEET
+// 6. BOLLYWOOD GAANE PURANE
+// 7. RADIO MIRCHI LUCKNOW
+const TOP_INDIA_STATIONS = [
+    {
+        stationuuid: 'top-vividh-bharati-air',
+        name: 'Vividh Bharati AIR',
+        url_resolved: 'https://air.pc.cdn.bitgravity.com/air/live/pbaudio001/playlist.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'vividh bharati air, air, akashvani, vividh bharati, hindi, entertainment, retro',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'top-my-club-remix',
+        name: 'MY CLUB REMIX',
+        url_resolved: 'https://stream.zeno.fm/u7eee0hyzp8uv',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bollywood-hits.jpg',
+        country: 'India',
+        tags: 'my club remix, bollywood, club, dj remix, hindi bollywood, hindi songs, dance, party',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'top-indianlinkradio',
+        name: 'INDIANLINKRADIO',
+        url_resolved: 'https://indianlink1.radioca.st/;',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-24.jpg',
+        country: 'India',
+        tags: 'indianlinkradio, indian link radio, hindi, bollywood, news, music, hits',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'top-vividh-bharati-mumbai',
+        name: 'Vividh Bharati Mumbai',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio011/hlspbaudio011_Auto.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'vividh bharati mumbai, air, akashvani, mumbai, hindi, entertainment, retro',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'top-classic-radio-bhakti-sangeet',
+        name: 'Classic Radio Bhakti Sangeet',
+        url_resolved: 'http://ibadat.out.airtime.pro:8000/ibadat_a',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bhakthisudha-hindi.jpg',
+        country: 'India',
+        tags: 'classic radio bhakti sangeet, bhakti, sangeet, devotional, bhajan, classic',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'top-bollywood-gaane-purane',
+        name: 'Bollywood Gaane Purane',
+        url_resolved: 'https://stream.zeno.fm/f0up7u120k0uv',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/purane-gaane.jpg',
+        country: 'India',
+        tags: 'bollywood gaane purane, hindi, classic, retro, oldies, purane gaane',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'top-radio-mirchi-lucknow',
+        name: 'Radio Mirchi Lucknow',
+        url_resolved: 'https://stream-284.surfernetwork.com/wgaznsmt92quv',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-mirchi-hindi.jpg',
+        country: 'India',
+        tags: 'radio mirchi lucknow, mirchi, lucknow, hindi, bollywood, hits, top 40',
+        lastcheckok: 1
+    }
+];
 
 const CUSTOM_SINGER_STATIONS = [
     {
@@ -1718,6 +1830,8 @@ function applyAudioFXSettings() {
 
     if (masterGainNode && audioCtx) {
         masterGainNode.gain.setTargetAtTime(targetGain, currTime, 0.05);
+        // Set direct HTML5 audio volume to 1.0 to prevent double-attenuation / low volume squashing
+        audioPlayer.volume = 1.0;
     } else {
         // Fallback for HTML5 audio volume
         audioPlayer.volume = Math.min(1.0, isVolBoostEnabled ? Math.min(1.0, baseGain * 1.8) : baseGain);
@@ -1954,8 +2068,9 @@ function init() {
     loadTheme();
     fetchStations('', 'India', '', true);
     updatePlaylistDeleteUI();
-    renderPlaylist();
-    updateVolume(30);
+    const savedVol = localStorage.getItem('fm_volume');
+    const initialVol = savedVol !== null ? parseInt(savedVol, 10) : 85;
+    updateVolume(initialVol);
     loadFontSize();
     setupStatusObserver();
 }
@@ -2240,6 +2355,11 @@ function setupEventListeners() {
 
     // Audio Event Handlers
     audioPlayer.onplay = () => {
+        if (playCheckTimeout) {
+            clearTimeout(playCheckTimeout);
+            playCheckTimeout = null;
+        }
+        consecutiveErrors = 0;
         ensureAudioContextResumed();
         applyAudioFXSettings();
         playPauseBtn.innerHTML = '<i data-lucide="pause" id="play-icon"></i>';
@@ -2260,6 +2380,13 @@ function setupEventListeners() {
         playerStatus.textContent = 'Playing';
     };
 
+    audioPlayer.ontimeupdate = () => {
+        if (playCheckTimeout && (!audioPlayer.paused || audioPlayer.currentTime > 0)) {
+            clearTimeout(playCheckTimeout);
+            playCheckTimeout = null;
+        }
+    };
+
     audioPlayer.onpause = () => {
         if (playCheckTimeout) {
             clearTimeout(playCheckTimeout);
@@ -2278,6 +2405,18 @@ function setupEventListeners() {
             clearTimeout(playCheckTimeout);
             playCheckTimeout = null;
         }
+
+        // If error occurred with crossorigin="anonymous", retry directly without crossorigin
+        if (audioPlayer.hasAttribute('crossorigin') && audioPlayer.src) {
+            const failedSrc = audioPlayer.src;
+            console.warn('Audio error with CORS, retrying directly without CORS for stream:', failedSrc);
+            audioPlayer.removeAttribute('crossorigin');
+            audioPlayer.src = failedSrc;
+            audioPlayer.load();
+            audioPlayer.play().catch(err => console.warn('Direct stream retry note:', err));
+            return;
+        }
+
         consecutiveErrors++;
         if (consecutiveErrors < 8) {
             playerStatus.textContent = 'Stream Error - Auto reconnecting...';
@@ -2320,7 +2459,15 @@ function applyLogoWithTimeout(imgElement, srcUrl, stationObj = null) {
     if (!srcUrl || isDefaultLogo(srcUrl)) {
         imgElement.onerror = null;
         imgElement.onload = null;
-        imgElement.src = getDefaultLogo();
+        const def = getDefaultLogo();
+        if (imgElement.getAttribute('src') !== def) {
+            imgElement.src = def;
+        }
+        return;
+    }
+
+    // Prevent graphic picture from blinking/flickering if already loaded and displaying this exact URL
+    if (imgElement.getAttribute('src') === srcUrl && imgElement.complete && imgElement.naturalWidth > 0) {
         return;
     }
 
@@ -2442,8 +2589,87 @@ function attachUserInteractionAutoResume() {
     document.addEventListener('touchstart', resumeOnGesture, { once: true });
 }
 
-// Fetch Stations
+// ==========================================================================
+// India Category Station Ordering & Classification Engine
+// Tier 1: All Hindi Radio Stations
+// Tier 2: All Hindi Devotion
+// Tier 3: Bangla Radio Stations
+// Tier 4: All Regional Radio Stations
+// ==========================================================================
+function getIndiaStationCategoryRank(station) {
+    if (!station) return 4;
+    const name = (station.name || '').toLowerCase();
+    const tags = (station.tags || '').toLowerCase();
+    const combined = `${name} ${tags}`;
 
+    // 1. Check for Bangla/Bengali (Rank 3)
+    const isBangla = combined.includes('bangla') || combined.includes('bengali') || combined.includes('kolkata') || 
+                     combined.includes('rabindra') || combined.includes('siliguri') || combined.includes('bengal');
+
+    // 2. Check for Regional Indian Languages (Rank 4)
+    const isRegional = combined.includes('punjabi') || combined.includes('panjabi') || combined.includes('bhojpuri') ||
+                       combined.includes('tamil') || combined.includes('telugu') || combined.includes('kannada') ||
+                       combined.includes('malayalam') || combined.includes('marathi') || combined.includes('gujarati') ||
+                       combined.includes('odia') || combined.includes('oriya') || combined.includes('assamese') ||
+                       combined.includes('rajasthani') || combined.includes('haryanvi') || combined.includes('konkani') ||
+                       combined.includes('sindhi') || combined.includes('kashmiri') || combined.includes('chennai') ||
+                       combined.includes('bengaluru') || combined.includes('bangalore') || combined.includes('hyderabad') ||
+                       combined.includes('kerala') || combined.includes('pune') || combined.includes('bihar') ||
+                       combined.includes('punjab') || combined.includes('gujarat') || combined.includes('regional');
+
+    // 3. Check for Hindi Devotion (Rank 2)
+    const isDevotion = combined.includes('bhakti') || combined.includes('devotion') || combined.includes('devotional') ||
+                       combined.includes('bhajan') || combined.includes('aarti') || combined.includes('arti') ||
+                       combined.includes('mantra') || combined.includes('krishna') || combined.includes('hanuman') ||
+                       combined.includes('shiva') || combined.includes('shiv') || combined.includes('ganesh') ||
+                       combined.includes('gayatri') || combined.includes('vedic') || combined.includes('gita') ||
+                       combined.includes('bhagavad') || combined.includes('shaiva') || combined.includes('satsang') ||
+                       combined.includes('katha') || combined.includes('ramayan') || combined.includes('durga') ||
+                       combined.includes('dharmik') || combined.includes('spiritual') || combined.includes('stotra') ||
+                       combined.includes('chalisa') || combined.includes('gurbani') || combined.includes('waheguru');
+
+    // If it's a Bangla station -> Rank 3
+    if (isBangla) return 3;
+
+    // If it's a Regional language station -> Rank 4
+    if (isRegional) return 4;
+
+    // If it's a Devotional station -> Rank 2 (Hindi Devotion)
+    if (isDevotion) return 2;
+
+    // Otherwise, all mainstream Hindi / Bollywood / Singer / Ghazal / News / AIR stations -> Rank 1
+    return 1;
+}
+
+function getIndiaStationPriority(station) {
+    if (!station) return 999;
+    const name = (station.name || '').toLowerCase().trim();
+
+    // 7 stations requested at the VERY TOP:
+    // 1. VIVIDH BHARATI AIR
+    // 2. MY CLUB REMIX
+    // 3. INDIANLINKRADIO
+    // 4. VIVIDH BHARATI MUMBAI
+    // 5. CLASSIC RADIO BHAKTI SANGEET
+    // 6. BOLLYWOOD GAANE PURANE
+    // 7. RADIO MIRCHI LUCKNOW
+    if (name === 'vividh bharati air' || name === 'air vividh bharati') return 0;
+    if (name.includes('my club remix') || name === 'club remix') return 1;
+    if (name.includes('indianlinkradio') || name.includes('indian link radio') || name.includes('indian link')) return 2;
+    if (name.includes('vividh bharati mumbai') || name.includes('vividh bharti mumbai')) return 3;
+    if (name.includes('classic radio bhakti sangeet')) return 4;
+    if (name.includes('bollywood gaane purane') || name.includes('purane gaane')) return 5;
+    if (name.includes('mirchi lucknow') || name.includes('radio mirchi lucknow')) return 6;
+
+    // Followed by standard 4-tier arrangement:
+    // Tier 1: Hindi radio stations (rank 10)
+    // Tier 2: Hindi Devotion (rank 20)
+    // Tier 3: Bangla radio stations (rank 30)
+    // Tier 4: Regional radio stations (rank 40)
+    return getIndiaStationCategoryRank(station) * 10;
+}
+
+// Fetch Stations
 async function fetchStations(query = '', country = '', tag = '', autoPlay = false) {
     lastQuery = query;
     lastCountry = country;
@@ -2452,10 +2678,10 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
     mainLoader.style.display = 'flex';
     stationsGrid.innerHTML = '';
 
-    let url = `${API_BASE}/stations/search?limit=${DEFAULT_LIMIT}&order=clickcount&reverse=true&hidebroken=true`;
-    if (country) url += `&country=${encodeURIComponent(country)}`;
-    if (tag) url += `&tag=${encodeURIComponent(tag)}`;
-    if (query) url += `&name=${encodeURIComponent(query)}`;
+    let apiPath = `/stations/search?limit=${DEFAULT_LIMIT}&order=clickcount&reverse=true&hidebroken=true`;
+    if (country) apiPath += `&country=${encodeURIComponent(country)}`;
+    if (tag) apiPath += `&tag=${encodeURIComponent(tag)}`;
+    if (query) apiPath += `&name=${encodeURIComponent(query)}`;
 
     try {
         const lowerTag = tag.toLowerCase();
@@ -2464,19 +2690,19 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
         if (lowerTag === 'ghazal' || lowerTag === 'gazal' || lowerQuery.includes('ghazal') || lowerQuery.includes('gazal')) {
             currentStations = [...CUSTOM_GHAZAL_STATIONS];
         } else if (lowerTag === 'punjabi' || lowerTag === 'panjabi' || lowerQuery.includes('punjabi') || lowerQuery.includes('panjabi')) {
-            const resp = await fetch(url).then(r => r.json()).catch(() => []);
+            const resp = await fetchFromRadioBrowser(apiPath);
             currentStations = [...CUSTOM_PUNJABI_STATIONS, ...resp];
         } else if (lowerTag === 'bangla' || lowerTag === 'bengali' || lowerQuery.includes('bangla') || lowerQuery.includes('bengali')) {
-            const resp = await fetch(url).then(r => r.json()).catch(() => []);
+            const resp = await fetchFromRadioBrowser(apiPath);
             currentStations = [...CUSTOM_BANGLA_STATIONS, ...resp];
         } else if (lowerTag === 'dj remix' || lowerTag === 'remix' || lowerQuery.includes('remix') || lowerQuery.includes('dj')) {
-            const resp = await fetch(url).then(r => r.json()).catch(() => []);
+            const resp = await fetchFromRadioBrowser(apiPath);
             currentStations = [...CUSTOM_DJ_REMIX_STATIONS, ...resp];
         } else if (lowerTag === 'singer' || lowerQuery.includes('singer')) {
-            const resp = await fetch(url).then(r => r.json()).catch(() => []);
+            const resp = await fetchFromRadioBrowser(apiPath);
             currentStations = [...CUSTOM_SINGER_STATIONS, ...resp];
         } else if (lowerTag === 'hindi' || lowerTag === 'bollywood' || lowerQuery.includes('hindi') || lowerQuery.includes('bollywood')) {
-            const resp = await fetch(url).then(r => r.json()).catch(() => []);
+            const resp = await fetchFromRadioBrowser(apiPath);
             currentStations = [...CUSTOM_HINDI_STATIONS, ...resp];
         } else if (lowerTag === 'classic' || lowerTag === 'old' || lowerTag === 'retro' || lowerQuery.includes('classic') || lowerQuery.includes('old') || lowerQuery.includes('retro')) {
             const allCustom = [...CUSTOM_HINDI_STATIONS, ...CUSTOM_BANGLA_STATIONS, ...CUSTOM_NEWS_STATIONS, ...CUSTOM_BHAKTI_STATIONS, ...CUSTOM_SINGER_STATIONS, ...CUSTOM_GHAZAL_STATIONS, ...CUSTOM_PUNJABI_STATIONS, ...CUSTOM_DJ_REMIX_STATIONS];
@@ -2485,7 +2711,7 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
                 const t = s.tags.toLowerCase();
                 return t.includes('classic') || t.includes('old') || t.includes('retro');
             });
-            const resp = await fetch(url).then(r => r.json()).catch(() => []);
+            const resp = await fetchFromRadioBrowser(apiPath);
             currentStations = [...classicCustom, ...resp];
         } else if (lowerTag === 'air' || lowerTag === 'all india radio' || lowerTag === 'akashvani' || lowerTag.includes('rainbow') || /\bair\b/i.test(lowerQuery) || lowerQuery.includes('all india radio') || lowerQuery.includes('akashvani') || lowerQuery.includes('rainbow')) {
             const allCustom = [...CUSTOM_HINDI_STATIONS, ...CUSTOM_BANGLA_STATIONS, ...CUSTOM_NEWS_STATIONS, ...CUSTOM_BHAKTI_STATIONS, ...CUSTOM_SINGER_STATIONS, ...CUSTOM_GHAZAL_STATIONS, ...CUSTOM_PUNJABI_STATIONS, ...CUSTOM_DJ_REMIX_STATIONS, ...CUSTOM_AIR_STATIONS];
@@ -2494,7 +2720,7 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
                 const t = s.tags.toLowerCase();
                 return t.includes('air') || t.includes('all india radio') || t.includes('akashvani') || t.includes('rainbow');
             });
-            const resp = await fetch(url).then(r => r.json()).catch(() => []);
+            const resp = await fetchFromRadioBrowser(apiPath);
             let combined = [...CUSTOM_AIR_STATIONS, ...airCustom, ...resp];
             if (lowerQuery && lowerQuery !== 'air' && lowerQuery !== 'all india radio' && lowerQuery !== 'akashvani') {
                 const qWords = lowerQuery.split(/\s+/).filter(Boolean);
@@ -2509,44 +2735,59 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
             }
             currentStations = combined;
         } else if (lowerTag === 'bhakti' || lowerTag === 'devotional' || lowerQuery.includes('bhakti')) {
-            const resp = await fetch(url).then(r => r.json()).catch(() => []);
+            const resp = await fetchFromRadioBrowser(apiPath);
             currentStations = [...CUSTOM_BHAKTI_STATIONS, ...resp];
+        } else if (lowerTag === 'regional' || lowerQuery.includes('regional')) {
+            const allCustom = [...CUSTOM_PUNJABI_STATIONS, ...CUSTOM_BHOJPURI_STATIONS, ...CUSTOM_AIR_STATIONS];
+            const regionalCustom = allCustom.filter(s => getIndiaStationCategoryRank(s) === 4);
+            const resp = await fetchFromRadioBrowser(apiPath);
+            currentStations = [...regionalCustom, ...resp];
         } else if (lowerTag === 'pop' || lowerQuery.includes('pop')) {
-            const resp = await fetch(url).then(r => r.json()).catch(() => []);
+            const resp = await fetchFromRadioBrowser(apiPath);
             currentStations = [...CUSTOM_GLOBAL_POP_STATIONS, ...resp];
         } else if (lowerTag === 'world news' || lowerQuery.includes('world news')) {
-            const resp = await fetch(url).then(r => r.json()).catch(() => []);
+            const resp = await fetchFromRadioBrowser(apiPath);
             currentStations = [...CUSTOM_WORLD_NEWS_STATIONS, ...CUSTOM_BBC_UK_NEWS_STATIONS, ...CUSTOM_EURO_NEWS_STATIONS, ...CUSTOM_US_NEWS_STATIONS, ...CUSTOM_AUSTRALIAN_NEWS_STATIONS, ...resp];
         } else if (lowerTag === 'usa' || lowerTag === 'us news' || lowerTag.includes('us ') || lowerQuery.includes('us news') || lowerTag.includes('usa') || lowerQuery.includes('usa')) {
-            const resp = await fetch(url).then(r => r.json()).catch(() => []);
+            const resp = await fetchFromRadioBrowser(apiPath);
             currentStations = [...CUSTOM_US_NEWS_STATIONS, ...resp];
         } else if (lowerTag.includes('bbc') || lowerTag.includes('uk') || lowerTag.includes('british') || lowerQuery.includes('bbc')) {
-            const resp = await fetch(url).then(r => r.json()).catch(() => []);
+            const resp = await fetchFromRadioBrowser(apiPath);
             currentStations = [...CUSTOM_BBC_UK_NEWS_STATIONS, ...resp];
         } else if (lowerTag.includes('australia') || lowerQuery.includes('australia')) {
-            const resp = await fetch(url).then(r => r.json()).catch(() => []);
+            const resp = await fetchFromRadioBrowser(apiPath);
             currentStations = [...CUSTOM_AUSTRALIAN_NEWS_STATIONS, ...resp];
         } else if (lowerTag.includes('euro') || lowerQuery.includes('euro')) {
-            const resp = await fetch(url).then(r => r.json()).catch(() => []);
+            const resp = await fetchFromRadioBrowser(apiPath);
             currentStations = [...CUSTOM_EURO_NEWS_STATIONS, ...resp];
         } else if (lowerTag === 'russian news' || lowerTag.includes('russian') || lowerQuery.includes('russian')) {
-            const resp = await fetch(url).then(r => r.json()).catch(() => []);
+            const resp = await fetchFromRadioBrowser(apiPath);
             currentStations = [...CUSTOM_RUSSIAN_NEWS_STATIONS, ...resp];
         } else if (lowerTag === 'bhojpuri' || lowerQuery.includes('bhojpuri')) {
-            const resp = await fetch(url).then(r => r.json()).catch(() => []);
+            const resp = await fetchFromRadioBrowser(apiPath);
             currentStations = [...CUSTOM_BHOJPURI_STATIONS, ...resp];
         } else if (lowerTag.includes('news') || lowerQuery.includes('news')) {
             if (country === 'India' || currentMode === 'India') {
                 currentStations = [...CUSTOM_NEWS_STATIONS];
             } else {
-                const resp = await fetch(url).then(r => r.json()).catch(() => []);
+                const resp = await fetchFromRadioBrowser(apiPath);
                 currentStations = [...CUSTOM_WORLD_NEWS_STATIONS, ...CUSTOM_US_NEWS_STATIONS, ...CUSTOM_BBC_UK_NEWS_STATIONS, ...CUSTOM_AUSTRALIAN_NEWS_STATIONS, ...CUSTOM_EURO_NEWS_STATIONS, ...CUSTOM_NEWS_STATIONS, ...resp];
             }
         } else {
-            const response = await fetch(url);
-            const apiRes = await response.json().catch(() => []);
+            const apiRes = await fetchFromRadioBrowser(apiPath);
             if (country === 'India' || currentMode === 'India') {
-                const allCustom = [...CUSTOM_HINDI_STATIONS, ...CUSTOM_BANGLA_STATIONS, ...CUSTOM_NEWS_STATIONS, ...CUSTOM_BHAKTI_STATIONS, ...CUSTOM_SINGER_STATIONS, ...CUSTOM_GHAZAL_STATIONS, ...CUSTOM_PUNJABI_STATIONS, ...CUSTOM_DJ_REMIX_STATIONS, ...CUSTOM_AIR_STATIONS];
+                // Arrange India category custom stations in strict priority:
+                // Top 7 stations, then:
+                // 1. Hindi radio stations
+                // 2. Hindi Devotion
+                // 3. Bangla radio stations
+                // 4. Regional radio stations
+                const hindiCustom = [...TOP_INDIA_STATIONS, ...CUSTOM_HINDI_STATIONS, ...CUSTOM_SINGER_STATIONS, ...CUSTOM_GHAZAL_STATIONS, ...CUSTOM_DJ_REMIX_STATIONS, ...CUSTOM_NEWS_STATIONS, ...CUSTOM_AIR_STATIONS].filter(s => getIndiaStationCategoryRank(s) === 1 || getIndiaStationPriority(s) < 10);
+                const devotionCustom = [...CUSTOM_BHAKTI_STATIONS].filter(s => getIndiaStationCategoryRank(s) === 2);
+                const banglaCustom = [...CUSTOM_BANGLA_STATIONS].filter(s => getIndiaStationCategoryRank(s) === 3);
+                const regionalCustom = [...CUSTOM_PUNJABI_STATIONS, ...CUSTOM_BHOJPURI_STATIONS, ...CUSTOM_AIR_STATIONS].filter(s => getIndiaStationCategoryRank(s) === 4);
+
+                const allCustom = [...TOP_INDIA_STATIONS, ...hindiCustom, ...devotionCustom, ...banglaCustom, ...regionalCustom];
                 if (query || tag) {
                     const matchedCustom = allCustom.filter(s => {
                         let matchQ = true;
@@ -2622,6 +2863,18 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
 
             return true;
         });
+
+        // Enforce exact arrangement for India category:
+        // Top 7 stations first, then:
+        // 1. All Hindi radio stations
+        // 2. All Hindi Devotion
+        // 3. Bangla radio stations
+        // 4. All Regional radio stations
+        if (currentMode === 'India' || country === 'India') {
+            if (!tag || tag.toLowerCase() === 'all' || tag.toLowerCase() === '') {
+                currentStations.sort((a, b) => getIndiaStationPriority(a) - getIndiaStationPriority(b));
+            }
+        }
         renderStations();
         resultsCount.textContent = `${currentStations.length} stations found`;
 
@@ -2925,14 +3178,14 @@ function playStation(index, source = 'search', element = null) {
         playCheckTimeout = null;
     }
 
-    // Set 4.5 second auto-skip timeout if station does not start playing
+    // Set 6 second auto-skip timeout only if station is truly paused and not loading
     playCheckTimeout = setTimeout(() => {
-        if (audioPlayer.paused || audioPlayer.currentTime === 0 || audioPlayer.readyState < 3) {
-            console.warn('Station did not play within 4.5 seconds. Auto-skipping to next station...');
+        if (audioPlayer.paused && audioPlayer.readyState < 2) {
+            console.warn('Station did not play within timeout. Auto-skipping to next station...');
             if (playerStatus) playerStatus.textContent = 'Stream Timeout - Playing Next...';
             playNext();
         }
-    }, 4500);
+    }, 6000);
 
     // Instant status and visual feedback
     if (playerStatus) playerStatus.textContent = 'Connecting...';
@@ -3168,6 +3421,7 @@ function playPrevious() {
 // Volume Controls
 function updateVolume(value, showHUD = false) {
     currentVolumeLevel = Math.min(100, Math.max(0, parseInt(value) || 0));
+    localStorage.setItem('fm_volume', currentVolumeLevel);
     applyAudioFXSettings();
 
     if (showHUD && typeof showHeroVolumeHUD === 'function') {
@@ -3436,39 +3690,18 @@ function releaseWakeLock() {
     if (wakeLock) { wakeLock.release(); wakeLock = null; }
 }
 
-// Dynamic Station Audio Background Light Aura Render Loop
+// Dynamic Station Audio Background Light Aura
 function setupStationAudioAura() {
     const stationAudioAura = document.getElementById('station-audio-aura');
     if (!stationAudioAura) return;
 
-    function animateAura() {
-        requestAnimationFrame(animateAura);
-        if (document.body.getAttribute('data-theme') === 'light') {
-            stationAudioAura.style.display = 'none';
-            return;
-        }
+    // Smooth ambient aura is driven by GPU-accelerated CSS animations on .now-playing-card.playing
+    // eliminating rapid strobe blinking, GPU thrashing, and frame drops.
+    if (document.body.getAttribute('data-theme') === 'light') {
+        stationAudioAura.style.display = 'none';
+    } else {
         stationAudioAura.style.display = 'block';
-
-        const isPlaying = !audioPlayer.paused && audioPlayer.readyState >= 3;
-        if (isPlaying) {
-            const time = Date.now() * 0.004;
-            const pulse = 1 + Math.abs(Math.sin(time * 6) * Math.cos(time * 3)) * 0.22;
-            const blur = 16 + pulse * 14;
-            const opacity = 0.5 + pulse * 0.45;
-            const hueShift = (time * 60) % 360;
-
-            stationAudioAura.style.transform = `scale(${pulse})`;
-            stationAudioAura.style.filter = `blur(${blur}px)`;
-            stationAudioAura.style.opacity = opacity;
-            stationAudioAura.style.background = `radial-gradient(circle, hsl(${hueShift}, 100%, 60%) 0%, hsl(${(hueShift + 60) % 360}, 100%, 55%) 50%, hsl(${(hueShift + 120) % 360}, 100%, 50%) 100%)`;
-        } else {
-            stationAudioAura.style.transform = 'scale(0.95)';
-            stationAudioAura.style.filter = 'blur(12px)';
-            stationAudioAura.style.opacity = '0.2';
-        }
     }
-
-    animateAura();
 }
 
 // Toggle discovery grid & playlist sections
