@@ -27,7 +27,7 @@ function isDefaultLogo(url) {
            url === DEFAULT_LOGO || url.endsWith('/' + DEFAULT_LOGO);
 }
 
-let DEFAULT_LOGO = DEFAULT_LOGO_DARK;
+let DEFAULT_LOGO = (typeof document !== 'undefined' && document.body && document.body.getAttribute('data-theme') === 'dark') ? DEFAULT_LOGO_DARK : DEFAULT_LOGO_WHITE;
 const LOGO_TIMEOUT_MS = 3500; // 3 to 4 seconds logo fallback timeout
 
 const CUSTOM_SINGER_STATIONS = [
@@ -1514,6 +1514,15 @@ const CUSTOM_BANGLA_STATIONS = [
 
 const CUSTOM_DJ_REMIX_STATIONS = [
     {
+        stationuuid: '8a76a0d5-8d10-400a-b6eb-a7725646d314',
+        name: 'MY CLUB REMIX',
+        url_resolved: 'http://stream.zeno.fm/u7eee0hyzp8uv',
+        favicon: 'http://zeno.fm/favicon.ico',
+        country: 'India',
+        tags: 'dj remix, remix, club remix, dance, party, my club remix',
+        lastcheckok: 1
+    },
+    {
         stationuuid: 'custom-bollywood-beyond',
         name: 'Bollywood Beyond',
         url_resolved: 'https://s6.yesstreaming.net/proxy/john1237?mp=/live',
@@ -1591,7 +1600,269 @@ function isNameBlocked(stationName) {
     });
 }
 
-let currentPlaylist = (JSON.parse(localStorage.getItem('fm_playlist')) || []).filter(s => {
+// Default Pre-Loaded Cyber Deck Playlist (26 Curated Stations)
+const DEFAULT_PLAYLIST = [
+    {
+        stationuuid: '8a76a0d5-8d10-400a-b6eb-a7725646d314',
+        name: 'MY CLUB REMIX',
+        url_resolved: 'http://stream.zeno.fm/u7eee0hyzp8uv',
+        favicon: 'http://zeno.fm/favicon.ico',
+        country: 'India',
+        tags: 'dj remix, club remix, dance, party',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-classic-radio-bhakti-sangeet',
+        name: 'CLASSIC RADIO BHAKTI SANGEET',
+        url_resolved: 'http://ibadat.out.airtime.pro:8000/ibadat_a',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bhakthisudha-hindi.jpg',
+        country: 'India',
+        tags: 'classic radio bhakti sangeet, bhakti, sangeet, devotional, bhajan, classic',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-bhakti-world-hanuman',
+        name: 'BHAKTI WORLD - HANUMAN',
+        url_resolved: 'http://2bhanuman.out.airtime.pro:8000/2bhanuman_a',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bhakthisudha-hindi.jpg',
+        country: 'India',
+        tags: 'bhakti, hanuman, devotional, hindi',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-bhakti-world-krishna',
+        name: 'BHAKTI WORLD - KRISHNA',
+        url_resolved: 'http://millenniumhits.out.airtime.pro:8000/millenniumhits_a',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bhakthisudha-hindi.jpg',
+        country: 'India',
+        tags: 'bhakti, krishna, sangeet, hindi',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-2b-radio-sangam-shiva',
+        name: '2B! RADIO SANGAM SHIVA',
+        url_resolved: 'http://hot.out.airtime.pro:8000/hot_a',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bhakthisudha-hindi.jpg',
+        country: 'India',
+        tags: 'bhakti, shiva, sangam, spiritual',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-gazal-radio-london',
+        name: 'GAZAL RADIO LONDON',
+        url_resolved: 'https://streaming.webhostnepal.com/8018/stream',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/10/gazal-radio-london-uk.png',
+        country: 'India',
+        tags: 'ghazal, gazal, hindi, poetry, classic',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: '333d99b7-cbe5-4555-b372-eef02f1658f0',
+        name: 'Rocker Radio Geetmala',
+        url_resolved: 'https://stream.zeno.fm/du9443htcfhvv',
+        favicon: 'https://zeno.fm/static/icons/apple-icon-120x120.png',
+        country: 'India',
+        tags: 'geetmala, retro, hindi, bollywood',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-vividh-bharati',
+        name: 'VIVIDH BHARATI AIR',
+        url_resolved: 'https://air.pc.cdn.bitgravity.com/air/live/pbaudio001/playlist.m3u8',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/02/vividh-bharati.jpg',
+        country: 'India',
+        tags: 'hindi, vividh bharati, air, bollywood, oldies',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'f93276cc-5c5d-4000-8587-2b7a3b89ec9c',
+        name: 'INDIANLINKRADIO',
+        url_resolved: 'https://indianlink1.radioca.st/;',
+        favicon: 'https://radiosindia.com/images/indianlinkradio.jpg',
+        country: 'India',
+        tags: 'indianlink, hindi, radio',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: '5b7687b7-7bef-40ac-b854-81a89c011610',
+        name: 'DIVERSE FM',
+        url_resolved: 'https://carol.epichosts.co.uk:8570/;',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/05/diverse-fm-hindi.jpg',
+        country: 'India',
+        tags: 'hindi, radio, music, diverse fm',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: '7b130d03-6142-4de2-85db-a821b5949468',
+        name: 'LATAMANGESHKARRADIO',
+        url_resolved: 'https://stream.zeno.fm/87xam8pf7tzuv',
+        favicon: 'https://radiosindia.com/images/latamangeshkarradio.jpg',
+        country: 'India',
+        tags: 'singer, lata mangeshkar, hindi, retro',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: '6124c9b3-024c-4650-9c68-a5de9a7d89eb',
+        name: 'HITS OF LATA MANGESHKAR',
+        url_resolved: 'http://stream.zeno.fm/g95zm67prfhvv',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/asha-bhosle.jpg',
+        country: 'India',
+        tags: 'bollywood,desi,hindi,indian,lata mangeshkar',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: '62a5bcf1-ebc5-4cb6-afeb-d40ac4195ab3',
+        name: 'HITS OF KISHOR KUMAR',
+        url_resolved: 'http://stream.zeno.fm/pg6rqp8ztm0uv',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/mohammed-rafi.jpg',
+        country: 'India',
+        tags: 'singer, kishor kumar, hindi, classics, retro',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: '37b729d1-4e04-4a51-aea8-f5f517a3d469',
+        name: 'KISHORE KUMAR RADIO',
+        url_resolved: 'https://stream.zeno.fm/0ghtfp8ztm0uv',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/mohammed-rafi.jpg',
+        country: 'India',
+        tags: 'singer, kishore kumar, hindi, classics, retro, oldies',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: '24b4b919-ea81-4e48-8682-ba0fdf9e3a46',
+        name: 'GOLDY MUKESH RADIO',
+        url_resolved: 'https://stream.zeno.fm/t39watus1p8uv',
+        favicon: 'https://zeno.fm/static/icons/apple-icon-120x120.png',
+        country: 'India',
+        tags: 'bollywood,mukesh,oldies,classics,goldy',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: '6dea9436-96bd-480a-adf6-ec44038f7235',
+        name: 'RADIO MIRCHI LUCKNOW',
+        url_resolved: 'https://stream-284.surfernetwork.com/wgaznsmt92quv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiJ3Z2F6bnNtdDkycXV2IiwiaG9zdCI6InN0cmVhbS0yODQuc3VyZmVybmV0d29yay5jb20iLCJydHRsIjo1LCJqdGkiOiJMTkRwYXZ3OVR1eXhLc2NGbllucG9RIiwiaWF0IjoxNzg0MTkxMjUyLCJleHAiOjE3ODQxOTEzMTJ9.DRVDJc3m4PiAGfCN-9SiCsWcbLpZjtfIxcfUyv68_G4',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/05/radio-mirchi-hindi-fm.jpg',
+        country: 'India',
+        tags: 'hindi, mirchi, lucknow, bollywood',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-wion-live-tv',
+        name: 'WION LIVE TV',
+        url_resolved: 'https://d7x8z4yuq42qn.cloudfront.net/index_3.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/WION_Logo.svg/512px-WION_Logo.svg.png',
+        country: 'India',
+        tags: 'news, tv, english, wion, live tv',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'e928bf7b-7de2-4447-87ec-369d1be1b9f5',
+        name: 'BOLLYWOOD GAANE PURANE',
+        url_resolved: 'https://stream.zeno.fm/6n6ewddtad0uv',
+        favicon: 'https://mytuner.global.ssl.fastly.net/media/tvos_radios/ppqbgfej6skx.jpeg',
+        country: 'India',
+        tags: 'retro, oldies, bollywood gaane purane, hindi',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-air-fm-gold-kolkata',
+        name: 'AIR FM GOLD KOLKATA',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio057/hlspbaudio05764kbps.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'bangla, air fm gold, kolkata, classics, oldies, news',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-akashvani-fm-rainbow-kolkata',
+        name: 'AKASHVANI FM RAINBOW KOLKATA',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio058/hlspbaudio05864kbps.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'bangla, fm rainbow, kolkata, music, pop, entertainment',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-radio-bangla-net',
+        name: 'RADIO BANGLA NET',
+        url_resolved: 'https://playerservices.streamtheworld.com/api/livestream-redirect/SP_R3563475_SC',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-bangla-net.jpg',
+        country: 'India',
+        tags: 'bangla, radio bangla net, music, kolkata, hits',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-air-akashvani-maitree-kolkata',
+        name: 'AIR AKASHVANI MAITREE KOLKATA',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio245/hlspbaudio24564kbps.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'bangla, maitree, kolkata, air, news, culture',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-akashvani-siliguri',
+        name: 'AKASHVANI SILIGURI',
+        url_resolved: 'https://air.pc.cdn.bitgravity.com/air/live/pbaudio164/playlist.m3u8',
+        favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
+        country: 'India',
+        tags: 'bangla, siliguri, akashvani, regional, news, music',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-mixify-bengali-hits',
+        name: 'MIXIFY BENGALI HITS',
+        url_resolved: 'https://server.mixify.in/listen/bangla/radio.mp3',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/mixify-bengali.jpg',
+        country: 'India',
+        tags: 'bangla, mixify, bengali, hits, pop, classic',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-hot-now-bangla',
+        name: 'HOT NOW BANGLA',
+        url_resolved: 'https://stream.radiotreetal.com/listen',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/hot-now-bangla.jpg',
+        country: 'India',
+        tags: 'bangla, hot now, bengali, entertainment, music',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-radio-bongonet-robichhaya',
+        name: 'RADIO BONGONET ROBICHHAYA',
+        url_resolved: 'http://radio.rudeep.ru:8000/stream',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/robichhaya.jpg',
+        country: 'India',
+        tags: 'bangla, rabindra sangeet, robichhaya, bengali, classic',
+        lastcheckok: 1
+    }
+];
+
+function getInitialPlaylist() {
+    let saved = null;
+    try {
+        const raw = localStorage.getItem('fm_playlist');
+        if (raw) saved = JSON.parse(raw);
+    } catch (e) {
+        saved = null;
+    }
+
+    const hasSyncedDefault = localStorage.getItem('fm_playlist_v3_synced');
+    if (!hasSyncedDefault || !Array.isArray(saved) || saved.length === 0) {
+        const existingList = Array.isArray(saved) ? saved : [];
+        const extraStations = existingList.filter(s => 
+            !DEFAULT_PLAYLIST.some(ds => ds.stationuuid === s.stationuuid || ds.name.trim().toLowerCase() === (s.name || '').trim().toLowerCase())
+        );
+        const merged = [...DEFAULT_PLAYLIST, ...extraStations];
+        localStorage.setItem('fm_playlist', JSON.stringify(merged));
+        localStorage.setItem('fm_playlist_v3_synced', 'true');
+        return merged;
+    }
+
+    return saved;
+}
+
+let currentPlaylist = getInitialPlaylist().filter(s => {
     const name = (s.name || '').toLowerCase();
     const tags = (s.tags || '').toLowerCase();
     return !name.includes('jesus') && !tags.includes('jesus');
@@ -3277,7 +3548,7 @@ function setTheme(theme) {
 }
 
 function loadTheme() {
-    setTheme(localStorage.getItem('fm_theme') || 'dark');
+    setTheme(localStorage.getItem('fm_theme') || 'light');
 }
 
 // Application Font Size Control (Normal / Min / Min- / Minext)
@@ -3290,18 +3561,18 @@ const FONT_SCALES = {
 };
 
 function normalizeFontSize(val) {
-    if (!val) return 'min-';
+    if (!val) return 'normal';
     const clean = String(val).trim().toLowerCase();
     if (clean === 'normal') return 'normal';
     if (clean === 'min') return 'min';
     if (clean === 'min-' || clean === 'min-minus' || clean === 'minminus') return 'min-';
     if (clean === 'minext' || clean === 'min-ext') return 'minext';
-    return 'min-';
+    return 'normal';
 }
 
 function setAppFontSize(size, notify = false) {
     const normalized = normalizeFontSize(size);
-    const config = FONT_SCALES[normalized] || FONT_SCALES['min-'];
+    const config = FONT_SCALES[normalized] || FONT_SCALES['normal'];
 
     document.documentElement.setAttribute('data-font-size', normalized);
     document.body.setAttribute('data-font-size', normalized);
@@ -3320,7 +3591,7 @@ function setAppFontSize(size, notify = false) {
 }
 
 function loadFontSize() {
-    const saved = localStorage.getItem('fm_font_size') || 'min-';
+    const saved = localStorage.getItem('fm_font_size') || 'normal';
     setAppFontSize(saved, false);
 }
 

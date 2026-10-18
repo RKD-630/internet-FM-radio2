@@ -18,13 +18,18 @@
     
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body data-theme="light" data-font-size="normal">
     <script>
         (function() {
-            var savedTheme = localStorage.getItem('fm_theme');
-            if (savedTheme === 'light') {
-                document.body.setAttribute('data-theme', 'light');
-            }
+            var savedTheme = localStorage.getItem('fm_theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+            var savedFontSize = localStorage.getItem('fm_font_size') || 'normal';
+            document.documentElement.setAttribute('data-font-size', savedFontSize);
+            document.body.setAttribute('data-font-size', savedFontSize);
+            if (savedFontSize === 'normal') document.documentElement.style.fontSize = '100%';
+            else if (savedFontSize === 'min') document.documentElement.style.fontSize = '85%';
+            else if (savedFontSize === 'min-') document.documentElement.style.fontSize = '70%';
+            else if (savedFontSize === 'minext') document.documentElement.style.fontSize = '55%';
         })();
     </script>
     <div class="app-container">
@@ -52,9 +57,9 @@
                 <div class="header-font-control" style="display: none;" title="Application Font Size (Normal / Min / Min- / Minext)">
                     <i data-lucide="type" class="header-font-icon"></i>
                     <select id="header-font-size-select" class="header-font-select font-size-select" title="Application Font Size: Normal / Min / Min- / Minext" aria-label="Change Application Font Size">
-                        <option value="normal">Normal</option>
+                        <option value="normal" selected>Normal</option>
                         <option value="min">Min</option>
-                        <option value="min-" selected>Min-</option>
+                        <option value="min-">Min-</option>
                         <option value="minext">Minext</option>
                     </select>
                 </div>
@@ -73,10 +78,10 @@
                         <!-- Theme Toggle -->
                         <button id="theme-toggle" class="quick-menu-item" title="Toggle Light/Dark Theme">
                             <div class="quick-menu-item-left">
-                                <i data-lucide="moon" id="theme-icon"></i>
+                                <i data-lucide="sun" id="theme-icon"></i>
                                 <span>Theme</span>
                             </div>
-                            <span id="theme-label" class="quick-menu-value">Dark</span>
+                            <span id="theme-label" class="quick-menu-value">Light</span>
                         </button>
 
                         <!-- Font Size Option Row -->
@@ -86,9 +91,9 @@
                                 <span>Font Size</span>
                             </div>
                             <select id="font-size-select" class="quick-menu-select font-size-select" title="Application Font Size: Normal / Min / Min- / Minext" aria-label="Application Font Size">
-                                <option value="normal">Normal</option>
+                                <option value="normal" selected>Normal</option>
                                 <option value="min">Min</option>
-                                <option value="min-" selected>Min-</option>
+                                <option value="min-">Min-</option>
                                 <option value="minext">Minext</option>
                             </select>
                         </div>
@@ -212,7 +217,7 @@
                         <div class="station-audio-aura" id="station-audio-aura"></div>
                         <div class="vinyl-wrapper" id="vinyl-wrapper">
                             <div class="vinyl-groove"></div>
-                            <img id="current-station-info-img" src="rkd_logo.png" alt="Station Logo" title="Click to save to playlist" loading="eager" fetchpriority="high" onerror="this.onerror=null; this.src=(document.body && document.body.getAttribute('data-theme')==='light' ? 'rkd_white_logo.png' : 'rkd_logo.png');">
+                            <img id="current-station-info-img" src="rkd_white_logo.png" alt="Station Logo" title="Click to save to playlist" loading="eager" fetchpriority="high" onerror="this.onerror=null; this.src=(document.body && document.body.getAttribute('data-theme')==='light' ? 'rkd_white_logo.png' : 'rkd_logo.png');">
                             <div class="center-spindle"></div>
                         </div>
                         <button id="add-to-playlist-btn" class="fav-heart-btn" title="Save to Playlist">

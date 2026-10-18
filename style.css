@@ -232,7 +232,7 @@ body.is-fullscreen[data-theme="light"]:has(.now-playing-card.playing) .eq-contro
 
 /* Base Styles */
 html {
-    font-size: 70%; /* Default application font size is Min- (70%) */
+    font-size: 100%; /* Default application font size is Normal (100%) */
     transition: font-size 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
