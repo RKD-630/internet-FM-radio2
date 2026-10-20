@@ -359,33 +359,6 @@ const CUSTOM_HINDI_STATIONS = [
         lastcheckok: 1
     },
     {
-        stationuuid: 'custom-spice-fm-uk',
-        name: 'Spice FM UK',
-        url_resolved: 'https://spice988fm.radioca.st/stream',
-        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/spice-fm.jpg',
-        country: 'India',
-        tags: 'spicemuk, spice, hindi, uk, radio, music',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-radio-sangam-uk',
-        name: 'Radio Sangam UK',
-        url_resolved: 'http://dard.out.airtime.pro:8000/dard_a',
-        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-sangam.jpg',
-        country: 'India',
-        tags: 'radiosangmuk, sangam, hindi, uk, radio',
-        lastcheckok: 1
-    },
-    {
-        stationuuid: 'custom-sangeet-radio-usa',
-        name: 'Sangeet Radio USA',
-        url_resolved: 'https://s3.citrus3.com:8236/stream',
-        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/sangeet-radio.jpg',
-        country: 'India',
-        tags: 'sangeet radio usa, sangeet, hindi, usa, bollywood',
-        lastcheckok: 1
-    },
-    {
         stationuuid: 'custom-instrumental-music-radio',
         name: 'Instrumental Music Radio',
         url_resolved: 'https://stream.zeno.fm/yv2k0dp18vzuv',
@@ -1425,6 +1398,33 @@ const CUSTOM_AIR_STATIONS = [
         country: 'India',
         tags: 'air, vividh bharati, chennai, hindi, tamil',
         lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-spice-fm-uk',
+        name: 'Spice FM UK',
+        url_resolved: 'https://spice988fm.radioca.st/stream',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/spice-fm.jpg',
+        country: 'India',
+        tags: 'spicemuk, spice, hindi, uk, radio, music',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-radio-sangam-uk',
+        name: 'Radio Sangam UK',
+        url_resolved: 'http://dard.out.airtime.pro:8000/dard_a',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/radio-sangam.jpg',
+        country: 'India',
+        tags: 'radiosangmuk, sangam, hindi, uk, radio',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-sangeet-radio-usa',
+        name: 'Sangeet Radio USA',
+        url_resolved: 'https://s3.citrus3.com:8236/stream',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/sangeet-radio.jpg',
+        country: 'India',
+        tags: 'sangeet radio usa, sangeet, hindi, usa, bollywood',
+        lastcheckok: 1
     }
 ];
 
@@ -2241,6 +2241,7 @@ function updateLandscapeLayout() {
     const appMain = document.getElementById('app-main') || document.querySelector('main');
     const discoveryView = document.getElementById('discovery-view');
     const discoveryGrid = document.getElementById('discovery-grid');
+    const eqControlsRow = document.querySelector('.eq-controls-row');
     const playerControls = document.querySelector('.player-controls');
 
     if (shouldBeLandscape) {
@@ -2263,9 +2264,10 @@ function updateLandscapeLayout() {
             if (heroSection) deckLeftCol.appendChild(heroSection);
         }
 
-        // 4. Move Main Tabs & Content Views into Right Column
+        // 4. Move Main Tabs, EQ Controls (top of station list), & Content Views into Right Column
         if (deckRightCol) {
             if (mainTabs) deckRightCol.appendChild(mainTabs);
+            if (eqControlsRow) deckRightCol.appendChild(eqControlsRow);
             if (appMain) deckRightCol.appendChild(appMain);
         }
     } else {
@@ -2290,6 +2292,7 @@ function updateLandscapeLayout() {
         // 4. Restore Hero Section back into Main (before discoveryView)
         if (appMain && heroSection && discoveryView) {
             appMain.insertBefore(heroSection, discoveryView);
+            if (eqControlsRow) heroSection.appendChild(eqControlsRow);
         }
 
         // 5. Restore Categories Nav back into Discovery View (before discoveryGrid)
