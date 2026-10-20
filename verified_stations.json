@@ -140,36 +140,6 @@
     "lastcheckok": 1
   },
   {
-    "stationuuid": "custom-sangeet-radio-usa",
-    "name": "Sangeet Radio USA",
-    "url_resolved": "https://s3.citrus3.com:8236/stream",
-    "favicon": "https://onlineradiohub.com/wp-content/uploads/2023/06/sangeet-radio.jpg",
-    "country": "India",
-    "countrycode": "IN",
-    "tags": "sangeet radio usa, sangeet, hindi, usa, bollywood",
-    "lastcheckok": 1
-  },
-  {
-    "stationuuid": "custom-radio-sangam-uk",
-    "name": "Radio Sangam UK",
-    "url_resolved": "http://dard.out.airtime.pro:8000/dard_a",
-    "favicon": "https://onlineradiohub.com/wp-content/uploads/2023/06/radio-sangam.jpg",
-    "country": "India",
-    "countrycode": "IN",
-    "tags": "radiosangmuk, sangam, hindi, uk, radio",
-    "lastcheckok": 1
-  },
-  {
-    "stationuuid": "custom-spice-fm-uk",
-    "name": "Spice FM UK",
-    "url_resolved": "https://spice988fm.radioca.st/stream",
-    "favicon": "https://onlineradiohub.com/wp-content/uploads/2023/06/spice-fm.jpg",
-    "country": "India",
-    "countrycode": "IN",
-    "tags": "spicemuk, spice, hindi, uk, radio, music",
-    "lastcheckok": 1
-  },
-  {
     "stationuuid": "custom-radionev-24x-hits",
     "name": "RadioNev 24x Hits",
     "url_resolved": "https://a7.asurahosting.com:8140/radio.mp3",
@@ -467,6 +437,36 @@
     "country": "India",
     "countrycode": "IN",
     "tags": "hindi, radio, music",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "custom-spice-fm-uk",
+    "name": "Spice FM UK",
+    "url_resolved": "https://spice988fm.radioca.st/stream",
+    "favicon": "https://onlineradiohub.com/wp-content/uploads/2023/06/spice-fm.jpg",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "spicemuk, spice, hindi, uk, radio, music",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "custom-radio-sangam-uk",
+    "name": "Radio Sangam UK",
+    "url_resolved": "http://dard.out.airtime.pro:8000/dard_a",
+    "favicon": "https://onlineradiohub.com/wp-content/uploads/2023/06/radio-sangam.jpg",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "radiosangmuk, sangam, hindi, uk, radio",
+    "lastcheckok": 1
+  },
+  {
+    "stationuuid": "custom-sangeet-radio-usa",
+    "name": "Sangeet Radio USA",
+    "url_resolved": "https://s3.citrus3.com:8236/stream",
+    "favicon": "https://onlineradiohub.com/wp-content/uploads/2023/06/sangeet-radio.jpg",
+    "country": "India",
+    "countrycode": "IN",
+    "tags": "sangeet radio usa, sangeet, hindi, usa, bollywood",
     "lastcheckok": 1
   }
 ]
