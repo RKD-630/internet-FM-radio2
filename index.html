@@ -40,7 +40,7 @@
         <div class="cyber-grid-overlay"></div>
         
         <!-- Top App Header -->
-        <header>
+        <header id="main-header">
             <div class="logo">
                 <div class="logo-text-group">
                     <img src="logo.png" alt="RKD Logo" class="header-logo-img">
@@ -63,6 +63,11 @@
                         <option value="minext">Minext</option>
                     </select>
                 </div>
+
+                <!-- Theme Toggle Button in Header (shown after search button) -->
+                <button id="header-theme-btn" class="icon-btn theme-header-btn" title="Toggle Light / Dark Theme" aria-label="Toggle Theme">
+                    <i data-lucide="sun" id="header-theme-icon"></i>
+                </button>
 
                 <div class="quick-controls-wrapper">
                     <button id="quick-controls-toggle" class="icon-btn theme-btn" title="Quick Controls & Settings">
@@ -105,15 +110,6 @@
                                 <span>Playlist Reorder & Delete</span>
                             </div>
                             <span id="playlist-delete-label" class="quick-menu-value">ON</span>
-                        </button>
-
-                        <!-- Fullscreen Toggle -->
-                        <button id="fullscreen-btn" class="quick-menu-item" title="Toggle Fullscreen">
-                            <div class="quick-menu-item-left">
-                                <i data-lucide="maximize" id="fullscreen-icon"></i>
-                                <span>Fullscreen</span>
-                            </div>
-                            <span id="fullscreen-label" class="quick-menu-value">Off</span>
                         </button>
 
                         <!-- Block Radio Button -->
@@ -189,7 +185,7 @@
                 <span>Refresh</span>
             </button>
             
-            <div class="search-bar main-search-bar">
+            <div class="search-bar main-search-bar" id="main-search-bar">
                 <i data-lucide="search" class="search-input-icon"></i>
                 <input type="text" id="station-search" placeholder="Search station, genre, city..." autocomplete="off">
                 <button id="clear-search-btn" class="icon-btn clear-btn" title="Clear search" style="display:none;">
@@ -201,7 +197,13 @@
             </div>
         </nav>
 
-        <main>
+        <!-- Dedicated Landscape Split Deck Container (active in mobile landscape) -->
+        <div class="main-deck-container" id="main-deck-container" style="display: none;">
+            <div class="deck-left-col" id="deck-left-col"></div>
+            <div class="deck-right-col" id="deck-right-col"></div>
+        </div>
+
+        <main id="app-main">
             <!-- Main Cyber Deck / Now Playing Deck -->
             <section class="hero-section" id="hero-section">
                 <!-- Hero Drag Volume Percentage Orange Circle HUD -->

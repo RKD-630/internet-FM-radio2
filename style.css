@@ -572,6 +572,46 @@ header {
     gap: 0.75rem;
 }
 
+/* Header Theme Toggle Button */
+.theme-header-btn {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    border-radius: 50%;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.theme-header-btn:hover {
+    background: rgba(255, 255, 255, 0.16);
+    color: var(--cyan-accent);
+    box-shadow: 0 0 12px var(--cyan-glow);
+}
+
+.theme-header-btn i {
+    width: 18px;
+    height: 18px;
+}
+
+[data-theme="light"] .theme-header-btn {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.12);
+    color: #0f172a;
+}
+
+[data-theme="light"] .theme-header-btn:hover {
+    background: rgba(99, 102, 241, 0.12);
+    color: #4f46e5;
+    box-shadow: 0 0 12px rgba(99, 102, 241, 0.25);
+}
+
 /* Header Direct Font Size Control Pill (Hidden from header as requested) */
 .header-font-control {
     display: none !important;
@@ -1112,8 +1152,18 @@ header {
     overflow-x: auto;
     display: flex;
     flex: 1;
+    min-width: 0;
     scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
     cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.cats-wrapper:active,
+.cats-wrapper.is-dragging {
+    cursor: grabbing;
 }
 
 .cats-wrapper::-webkit-scrollbar {
@@ -1123,6 +1173,10 @@ header {
 .cat-scroll {
     display: flex;
     gap: 0.6rem;
+    flex-wrap: nowrap;
+    width: max-content;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .cat-btn {
@@ -2055,99 +2109,656 @@ body:has(.now-playing-card.playing) .play-btn:active i {
 
 /* ==========================================================================
    MOBILE LANDSCAPE MODE STYLES:
-   First show Radio Station Icon, then Radio Station Name
+   Top: Brand Logo -> Search Option -> Deck Settings Option
+   Body: 2-Column Split Deck:
+     Left: Category Navigation & Now Playing Card Deck
+     Right: Action Tabs & Station List
+   Bottom: Docked Audio Player Controls
    ========================================================================== */
-@media (max-width: 992px) and (orientation: landscape), (max-height: 550px) and (orientation: landscape) {
-    .now-playing-card {
-        flex-direction: row !important;
-        text-align: left !important;
-        gap: 1.25rem !important;
-        padding: 0.9rem 1.25rem !important;
-        align-items: center !important;
-        justify-content: flex-start !important;
-    }
+body.mobile-landscape {
+    overflow: hidden !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    width: 100vw !important;
+}
 
-    .station-visual {
-        order: 1 !important; /* FIRST: Radio Station Icon */
-        width: clamp(90px, 20vw, 130px) !important;
-        height: clamp(90px, 20vw, 130px) !important;
-        flex-shrink: 0 !important;
-    }
+body.mobile-landscape .app-container {
+    height: 100vh !important;
+    max-height: 100vh !important;
+    overflow: hidden !important;
+    padding: 0.25rem 0.65rem 48px 0.65rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    box-sizing: border-box !important;
+}
 
-    .station-details {
-        order: 2 !important; /* THEN: Radio Station Name & Meta */
-        flex: 1 !important;
-        min-width: 0 !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: flex-start !important;
-        text-align: left !important;
-    }
+/* Header: Brand Name -> Search Bar -> Settings Button */
+body.mobile-landscape header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 0.75rem !important;
+    margin-bottom: 0.3rem !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    flex-shrink: 0 !important;
+    padding: 0 0.2rem !important;
+    width: 100% !important;
+}
 
-    .lcd-meta-row {
-        justify-content: flex-start !important;
-        margin-bottom: 0.25rem !important;
-    }
+body.mobile-landscape .logo {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    flex-shrink: 0 !important;
+}
 
-    h1#current-station-name {
-        font-size: clamp(1.1rem, 3.5vw, 1.6rem) !important;
-        margin-bottom: 0.2rem !important;
-        text-align: left !important;
-    }
+body.mobile-landscape .header-logo-img {
+    height: 30px !important;
+    width: auto !important;
+    object-fit: contain !important;
+}
 
-    #current-station-meta {
-        font-size: 0.85rem !important;
-        margin-bottom: 0.35rem !important;
-        text-align: left !important;
-    }
+body.mobile-landscape .logo-title {
+    font-size: 1.05rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.05em !important;
+    line-height: 1.1 !important;
+}
 
-    #queue-text-info {
-        justify-content: flex-start !important;
-        padding-top: 0.35rem !important;
-        margin-top: 0.15rem !important;
-    }
+body.mobile-landscape .logo-sub {
+    font-size: 0.52rem !important;
+    letter-spacing: 0.1em !important;
+    color: var(--cyan-accent) !important;
+    line-height: 1 !important;
+    display: block !important;
+}
 
-    .station-item {
-        flex-direction: row !important;
-    }
+/* Search Bar in Header */
+body.mobile-landscape header .search-bar.main-search-bar {
+    display: flex !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+    max-width: 480px !important;
+    margin: 0 auto !important;
+    position: relative !important;
+    height: 34px !important;
+}
 
-    .station-item .list-img {
-        order: 1 !important; /* FIRST: Radio Station Icon */
-    }
+body.mobile-landscape header .search-bar input {
+    height: 34px !important;
+    padding: 0.35rem 5.2rem 0.35rem 2.2rem !important;
+    font-size: 0.8rem !important;
+    border-radius: 9999px !important;
+    background: rgba(15, 23, 42, 0.8) !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    color: #ffffff !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
 
-    .station-item .item-info {
-        order: 2 !important; /* THEN: Radio Station Name */
-    }
+body.mobile-landscape header .search-input-icon {
+    left: 10px !important;
+    width: 14px !important;
+    height: 14px !important;
+    color: var(--text-muted) !important;
+}
 
-    /* Fullscreen Mode Mobile Landscape Adjustments */
-    body.is-fullscreen .hero-section {
-        top: 52px !important;
-        bottom: 68px !important;
-        gap: 0.4rem !important;
-    }
+body.mobile-landscape header .clear-btn {
+    right: 76px !important;
+    width: 20px !important;
+    height: 20px !important;
+}
 
-    body.is-fullscreen .now-playing-card {
-        flex-direction: row !important;
-        padding: 0.75rem 1.25rem !important;
-        gap: 1.25rem !important;
-    }
+body.mobile-landscape header .primary-btn {
+    right: 3px !important;
+    height: 28px !important;
+    padding: 0 0.85rem !important;
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    border-radius: 9999px !important;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4) !important;
+}
 
-    body.is-fullscreen .station-visual {
-        order: 1 !important; /* FIRST: Radio Station Icon */
-        width: clamp(80px, 16vh, 120px) !important;
-        height: clamp(80px, 16vh, 120px) !important;
-    }
+/* Header Controls / Settings & Theme buttons on right */
+body.mobile-landscape .header-controls {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.4rem !important;
+    flex-shrink: 0 !important;
+}
 
-    body.is-fullscreen .station-details {
-        order: 2 !important; /* THEN: Radio Station Name */
-        align-items: flex-start !important;
-        text-align: left !important;
-    }
+body.mobile-landscape .theme-header-btn {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    border-radius: 50% !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    color: var(--text-primary) !important;
+    cursor: pointer !important;
+}
 
-    body.is-fullscreen h1#current-station-name {
-        font-size: clamp(1rem, 3vw, 1.35rem) !important;
-        text-align: left !important;
-    }
+body.mobile-landscape .theme-header-btn i {
+    width: 16px !important;
+    height: 16px !important;
+}
+
+body.mobile-landscape #quick-controls-toggle {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    border-radius: 50% !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+}
+
+body.mobile-landscape #quick-controls-toggle i {
+    width: 16px !important;
+    height: 16px !important;
+}
+
+body.mobile-landscape .quick-controls-menu {
+    max-height: calc(100vh - 55px) !important;
+    overflow-y: auto !important;
+    right: 0 !important;
+    top: calc(100% + 6px) !important;
+    z-index: 2000 !important;
+}
+
+/* Main Split Deck Container */
+body.mobile-landscape .main-deck-container {
+    display: grid !important;
+    grid-template-columns: 46% 54% !important;
+    gap: 0.65rem !important;
+    flex: 1 !important;
+    min-height: 0 !important;
+    height: calc(100vh - 40px - 48px - 0.55rem) !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+}
+
+/* Left Column */
+body.mobile-landscape .deck-left-col {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    gap: 0.35rem !important;
+}
+
+/* Category Nav on Left */
+body.mobile-landscape .deck-left-col #categories-nav {
+    display: flex !important;
+    align-items: center !important;
+    padding: 0.2rem 0.45rem !important;
+    margin: 0 !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    flex-shrink: 0 !important;
+    border-radius: 0.65rem !important;
+    position: static !important;
+    background: rgba(18, 24, 38, 0.7) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+}
+
+body.mobile-landscape .mode-pill-btn {
+    height: 26px !important;
+    padding: 0 0.55rem !important;
+    font-size: 0.7rem !important;
+    border-radius: 0.5rem !important;
+    flex-shrink: 0 !important;
+    margin-right: 0.35rem !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.3rem !important;
+}
+
+body.mobile-landscape .cats-wrapper {
+    flex: 1 !important;
+    min-width: 0 !important;
+    overflow-x: auto !important;
+    scrollbar-width: none !important;
+    -webkit-overflow-scrolling: touch !important;
+    cursor: grab !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+}
+
+body.mobile-landscape .cats-wrapper:active,
+body.mobile-landscape .cats-wrapper.is-dragging {
+    cursor: grabbing !important;
+}
+
+body.mobile-landscape .cats-wrapper::-webkit-scrollbar {
+    display: none !important;
+}
+
+body.mobile-landscape .cat-scroll {
+    display: flex !important;
+    gap: 0.3rem !important;
+    flex-wrap: nowrap !important;
+    width: max-content !important;
+    overflow-x: visible !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+}
+
+body.mobile-landscape .cat-btn {
+    height: 24px !important;
+    padding: 0 0.55rem !important;
+    font-size: 0.68rem !important;
+    border-radius: 0.45rem !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+}
+
+/* Hero Section / Now Playing Card on Left */
+body.mobile-landscape .deck-left-col #hero-section {
+    flex: 1 !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+}
+
+body.mobile-landscape .now-playing-card {
+    flex: 1 !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    text-align: left !important;
+    gap: 0.85rem !important;
+    padding: 0.65rem 0.85rem !important;
+    border-radius: 0.85rem !important;
+    box-sizing: border-box !important;
+    background: linear-gradient(135deg, rgba(18, 24, 38, 0.85) 0%, rgba(12, 16, 26, 0.9) 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+body.mobile-landscape .station-visual {
+    order: 1 !important;
+    width: clamp(80px, 14vw, 125px) !important;
+    height: clamp(80px, 14vw, 125px) !important;
+    flex-shrink: 0 !important;
+    position: relative !important;
+    border-radius: 0.75rem !important;
+}
+
+body.mobile-landscape .station-details {
+    order: 2 !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    text-align: left !important;
+    justify-content: center !important;
+}
+
+body.mobile-landscape .lcd-meta-row {
+    margin-bottom: 0.25rem !important;
+    justify-content: flex-start !important;
+}
+
+body.mobile-landscape #player-status {
+    font-size: 0.65rem !important;
+    padding: 2px 8px !important;
+    border-radius: 0.35rem !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+}
+
+body.mobile-landscape h1#current-station-name {
+    font-size: clamp(1rem, 2.4vw, 1.35rem) !important;
+    font-weight: 800 !important;
+    margin: 0 0 0.2rem 0 !important;
+    color: #ffffff !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    width: 100% !important;
+    text-align: left !important;
+}
+
+body.mobile-landscape #current-station-meta {
+    font-size: 0.74rem !important;
+    color: var(--text-muted) !important;
+    margin: 0 0 0.3rem 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    width: 100% !important;
+    text-align: left !important;
+}
+
+body.mobile-landscape #queue-text-info {
+    font-size: 0.68rem !important;
+    margin-top: 0.2rem !important;
+    padding-top: 0.25rem !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+    display: flex !important;
+    gap: 0.5rem !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    justify-content: flex-start !important;
+}
+
+body.mobile-landscape .eq-controls-row {
+    display: none !important;
+}
+
+/* Right Column */
+body.mobile-landscape .deck-right-col {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    gap: 0.35rem !important;
+}
+
+/* Main Tabs in Right Column */
+body.mobile-landscape .deck-right-col #main-tabs {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+    flex-wrap: nowrap !important;
+    padding: 0.2rem 0.35rem !important;
+    margin: 0 !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    flex-shrink: 0 !important;
+    border-radius: 0.65rem !important;
+    background: rgba(18, 24, 38, 0.7) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+}
+
+body.mobile-landscape .deck-right-col .tab-btn {
+    height: 26px !important;
+    padding: 0 0.55rem !important;
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    border-radius: 0.45rem !important;
+    gap: 0.3rem !important;
+    flex-shrink: 0 !important;
+    min-width: auto !important;
+}
+
+body.mobile-landscape .deck-right-col .tab-btn i {
+    width: 14px !important;
+    height: 14px !important;
+}
+
+/* Right Column Content / Main */
+body.mobile-landscape .deck-right-col main,
+body.mobile-landscape .deck-right-col #app-main {
+    flex: 1 !important;
+    min-height: 0 !important;
+    height: calc(100% - 38px) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+body.mobile-landscape #discovery-view,
+body.mobile-landscape #playlist-view {
+    height: 100% !important;
+    min-height: 0 !important;
+    width: 100% !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+}
+
+body.mobile-landscape #discovery-view[style*="display: none"],
+body.mobile-landscape #playlist-view[style*="display: none"] {
+    display: none !important;
+}
+
+body.mobile-landscape #discovery-view:not([style*="display: none"]),
+body.mobile-landscape #playlist-view:not([style*="display: none"]),
+body.mobile-landscape #discovery-view.active-view,
+body.mobile-landscape #playlist-view.active-view {
+    display: flex !important;
+}
+
+body.mobile-landscape #discovery-grid,
+body.mobile-landscape .content-grid-single {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    gap: 0 !important;
+    overflow: hidden !important;
+}
+
+body.mobile-landscape .stations-column {
+    height: 100% !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+}
+
+body.mobile-landscape .section-header {
+    display: none !important;
+}
+
+body.mobile-landscape .desktop-playlist {
+    display: none !important;
+}
+
+/* Stations Grid / List */
+body.mobile-landscape #stations-grid,
+body.mobile-landscape #full-playlist-list {
+    flex: 1 !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    overflow-y: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.35rem !important;
+    padding-right: 3px !important;
+    grid-template-columns: 1fr !important;
+}
+
+body.mobile-landscape .station-item {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 0.6rem !important;
+    padding: 0.35rem 0.65rem !important;
+    border-radius: 0.65rem !important;
+    min-height: 44px !important;
+    background: rgba(18, 24, 38, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+body.mobile-landscape .station-item .list-img {
+    order: 1 !important;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 0.45rem !important;
+    padding: 2px !important;
+    flex-shrink: 0 !important;
+}
+
+body.mobile-landscape .station-item .item-info {
+    order: 2 !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+}
+
+body.mobile-landscape .station-item .item-info h4 {
+    font-size: 0.78rem !important;
+    font-weight: 700 !important;
+    margin-bottom: 1px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+body.mobile-landscape .station-item .item-info p {
+    font-size: 0.66rem !important;
+    color: var(--text-muted) !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+body.mobile-landscape .station-item.active {
+    border: 1.5px solid var(--cyan-accent) !important;
+    background: rgba(0, 243, 255, 0.1) !important;
+    box-shadow: 0 0 12px rgba(0, 243, 255, 0.35), inset 0 0 8px rgba(0, 243, 255, 0.12) !important;
+}
+
+/* Bottom Player Controls Dock */
+body.mobile-landscape .player-controls {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 48px !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    background: rgba(10, 14, 23, 0.97) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+    z-index: 1000 !important;
+    transform: none !important;
+    box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.6) !important;
+}
+
+body.mobile-landscape .main-controls {
+    display: flex !important;
+    width: 100% !important;
+    height: 100% !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+body.mobile-landscape .nav-ctrl-btn,
+body.mobile-landscape .play-btn {
+    flex: 1 !important;
+    height: 100% !important;
+    border-radius: 0 !important;
+    border: none !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+    background: transparent !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+body.mobile-landscape #next-btn {
+    border-right: none !important;
+}
+
+body.mobile-landscape .nav-ctrl-btn i,
+body.mobile-landscape .play-btn i {
+    width: 20px !important;
+    height: 20px !important;
+}
+
+/* Light Theme in Mobile Landscape */
+[data-theme="light"].mobile-landscape header .search-bar input {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid rgba(0, 0, 0, 0.15) !important;
+    color: #0f172a !important;
+}
+
+[data-theme="light"].mobile-landscape #quick-controls-toggle {
+    background: rgba(0, 0, 0, 0.06) !important;
+    border: 1px solid rgba(0, 0, 0, 0.12) !important;
+    color: #0f172a !important;
+}
+
+[data-theme="light"].mobile-landscape .deck-left-col #categories-nav,
+[data-theme="light"].mobile-landscape .deck-right-col #main-tabs {
+    background: rgba(255, 255, 255, 0.8) !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-theme="light"].mobile-landscape .now-playing-card {
+    background: rgba(255, 255, 255, 0.88) !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme="light"].mobile-landscape h1#current-station-name {
+    color: #0f172a !important;
+}
+
+[data-theme="light"].mobile-landscape .station-item {
+    background: rgba(255, 255, 255, 0.75) !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme="light"].mobile-landscape .station-item .item-info h4 {
+    color: #0f172a !important;
+}
+
+[data-theme="light"].mobile-landscape .player-controls {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-theme="light"].mobile-landscape .nav-ctrl-btn,
+[data-theme="light"].mobile-landscape .play-btn {
+    border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
+    color: #0f172a !important;
+}
+
+/* Fullscreen Mode Mobile Landscape Adjustments */
+body.is-fullscreen .hero-section {
+    top: 52px !important;
+    bottom: 68px !important;
+    gap: 0.4rem !important;
+}
+
+body.is-fullscreen .now-playing-card {
+    flex-direction: row !important;
+    padding: 0.75rem 1.25rem !important;
+    gap: 1.25rem !important;
+}
+
+body.is-fullscreen .station-visual {
+    order: 1 !important;
+    width: clamp(80px, 16vh, 120px) !important;
+    height: clamp(80px, 16vh, 120px) !important;
+}
+
+body.is-fullscreen .station-details {
+    order: 2 !important;
+    align-items: flex-start !important;
+    text-align: left !important;
+}
+
+body.is-fullscreen h1#current-station-name {
+    font-size: clamp(1rem, 3vw, 1.35rem) !important;
+    text-align: left !important;
 }
 
 @media (max-width: 768px) {

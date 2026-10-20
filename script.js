@@ -2215,6 +2215,104 @@ function setupHeroVolumeDrag() {
     heroSec.addEventListener('touchcancel', endTouch);
 }
 
+// Mobile Landscape Dynamic Deck Layout Manager
+let isLandscapeDeckActive = false;
+
+function isMobileLandscapeMode() {
+    const isLandscape = window.innerWidth > window.innerHeight;
+    const isCompact = window.innerWidth <= 1024 || window.innerHeight <= 560;
+    return isLandscape && isCompact;
+}
+
+function updateLandscapeLayout() {
+    const shouldBeLandscape = isMobileLandscapeMode();
+    if (shouldBeLandscape === isLandscapeDeckActive) return;
+
+    const appContainer = document.querySelector('.app-container');
+    const header = document.getElementById('main-header') || document.querySelector('header');
+    const headerControls = document.querySelector('.header-controls');
+    const searchBar = document.getElementById('main-search-bar') || document.querySelector('.search-bar.main-search-bar');
+    const mainTabs = document.getElementById('main-tabs');
+    const mainDeckContainer = document.getElementById('main-deck-container');
+    const deckLeftCol = document.getElementById('deck-left-col');
+    const deckRightCol = document.getElementById('deck-right-col');
+    const categoriesNav = document.getElementById('categories-nav');
+    const heroSection = document.getElementById('hero-section');
+    const appMain = document.getElementById('app-main') || document.querySelector('main');
+    const discoveryView = document.getElementById('discovery-view');
+    const discoveryGrid = document.getElementById('discovery-grid');
+    const playerControls = document.querySelector('.player-controls');
+
+    if (shouldBeLandscape) {
+        isLandscapeDeckActive = true;
+        document.body.classList.add('mobile-landscape');
+
+        // 1. Move Search Bar into Top Header (between logo and header-controls)
+        if (header && searchBar && headerControls) {
+            header.insertBefore(searchBar, headerControls);
+        }
+
+        // 2. Show Split Deck Container
+        if (mainDeckContainer) {
+            mainDeckContainer.style.display = 'grid';
+        }
+
+        // 3. Move Categories Nav & Hero Section into Left Column
+        if (deckLeftCol) {
+            if (categoriesNav) deckLeftCol.appendChild(categoriesNav);
+            if (heroSection) deckLeftCol.appendChild(heroSection);
+        }
+
+        // 4. Move Main Tabs & Content Views into Right Column
+        if (deckRightCol) {
+            if (mainTabs) deckRightCol.appendChild(mainTabs);
+            if (appMain) deckRightCol.appendChild(appMain);
+        }
+    } else {
+        isLandscapeDeckActive = false;
+        document.body.classList.remove('mobile-landscape');
+
+        // 1. Restore Search Bar back to Main Navigation Tabs
+        if (mainTabs && searchBar) {
+            mainTabs.appendChild(searchBar);
+        }
+
+        // 2. Hide Split Deck Container
+        if (mainDeckContainer) {
+            mainDeckContainer.style.display = 'none';
+        }
+
+        // 3. Restore Main Tabs into App Container (before mainDeckContainer)
+        if (appContainer && mainTabs && mainDeckContainer) {
+            appContainer.insertBefore(mainTabs, mainDeckContainer);
+        }
+
+        // 4. Restore Hero Section back into Main (before discoveryView)
+        if (appMain && heroSection && discoveryView) {
+            appMain.insertBefore(heroSection, discoveryView);
+        }
+
+        // 5. Restore Categories Nav back into Discovery View (before discoveryGrid)
+        if (discoveryView && categoriesNav && discoveryGrid) {
+            discoveryView.insertBefore(categoriesNav, discoveryGrid);
+        }
+
+        // 6. Restore App Main back into App Container (before playerControls)
+        if (appContainer && appMain && playerControls) {
+            appContainer.insertBefore(appMain, playerControls);
+        }
+    }
+
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+}
+
+window.addEventListener('resize', updateLandscapeLayout);
+window.addEventListener('orientationchange', () => {
+    setTimeout(updateLandscapeLayout, 80);
+});
+
 // Initialize Application
 function init() {
     setupEventListeners();
@@ -2229,6 +2327,7 @@ function init() {
     updateVolume(30);
     loadFontSize();
     setupStatusObserver();
+    updateLandscapeLayout();
 }
 
 function setupStatusObserver() {
@@ -2311,12 +2410,25 @@ function setupEventListeners() {
             showToast('Switched to India Mode', 'flag');
         }
         updateActiveCat('All');
+        if (categoriesBar) categoriesBar.scrollLeft = 0;
         switchView('discovery');
     });
 
-    // Categories
+    // Smooth Drag-to-Scroll & Selection for Categories (India & Global)
+    let isCategoryDragging = false;
+    let hasDraggedCategory = false;
+    let isDown = false;
+    let startX = 0;
+    let scrollLeft = 0;
+
+    // Categories Selection (prevents accidental clicks while dragging)
     catButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', (e) => {
+            if (isCategoryDragging || hasDraggedCategory) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                return;
+            }
             const tag = btn.dataset.tag;
             const country = currentMode === 'India' ? 'India' : '';
             fetchStations('', country, tag, true);
@@ -2325,24 +2437,84 @@ function setupEventListeners() {
         });
     });
 
-    // Drag category scroll
-    let isDown = false;
-    let startX, scrollLeft;
-    categoriesBar.addEventListener('mousedown', (e) => {
-        isDown = true;
-        categoriesBar.style.cursor = 'grabbing';
-        startX = e.pageX - categoriesBar.offsetLeft;
-        scrollLeft = categoriesBar.scrollLeft;
-    });
-    categoriesBar.addEventListener('mouseleave', () => { isDown = false; categoriesBar.style.cursor = 'grab'; });
-    categoriesBar.addEventListener('mouseup', () => { isDown = false; categoriesBar.style.cursor = 'grab'; });
-    categoriesBar.addEventListener('mousemove', (e) => {
-        if (!isDown) return;
-        e.preventDefault();
-        const x = e.pageX - categoriesBar.offsetLeft;
-        const walk = (x - startX) * 2;
-        categoriesBar.scrollLeft = scrollLeft - walk;
-    });
+    if (categoriesBar) {
+        // Mouse Drag
+        categoriesBar.addEventListener('mousedown', (e) => {
+            isDown = true;
+            hasDraggedCategory = false;
+            categoriesBar.classList.add('is-dragging');
+            startX = e.pageX - categoriesBar.offsetLeft;
+            scrollLeft = categoriesBar.scrollLeft;
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (!isDown) return;
+            isDown = false;
+            categoriesBar.classList.remove('is-dragging');
+            setTimeout(() => {
+                isCategoryDragging = false;
+                hasDraggedCategory = false;
+            }, 60);
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            const x = e.pageX - categoriesBar.offsetLeft;
+            const walk = (x - startX) * 1.6;
+            if (Math.abs(walk) > 4) {
+                hasDraggedCategory = true;
+                isCategoryDragging = true;
+            }
+            categoriesBar.scrollLeft = scrollLeft - walk;
+        });
+
+        // Touch Drag for Mobile, Tablet, and Mobile Landscape
+        let touchStartX = 0;
+        let touchScrollLeft = 0;
+        let isTouching = false;
+
+        categoriesBar.addEventListener('touchstart', (e) => {
+            if (e.touches.length !== 1) return;
+            isTouching = true;
+            hasDraggedCategory = false;
+            touchStartX = e.touches[0].pageX - categoriesBar.offsetLeft;
+            touchScrollLeft = categoriesBar.scrollLeft;
+        }, { passive: true });
+
+        categoriesBar.addEventListener('touchmove', (e) => {
+            if (!isTouching || e.touches.length !== 1) return;
+            const x = e.touches[0].pageX - categoriesBar.offsetLeft;
+            const walk = (x - touchStartX) * 1.5;
+            if (Math.abs(walk) > 4) {
+                hasDraggedCategory = true;
+                isCategoryDragging = true;
+            }
+            categoriesBar.scrollLeft = touchScrollLeft - walk;
+        }, { passive: true });
+
+        categoriesBar.addEventListener('touchend', () => {
+            isTouching = false;
+            setTimeout(() => {
+                isCategoryDragging = false;
+                hasDraggedCategory = false;
+            }, 80);
+        }, { passive: true });
+
+        categoriesBar.addEventListener('touchcancel', () => {
+            isTouching = false;
+            isCategoryDragging = false;
+            hasDraggedCategory = false;
+        }, { passive: true });
+
+        // Horizontal scrolling with Trackpad / Mouse Wheel
+        categoriesBar.addEventListener('wheel', (e) => {
+            if (e.deltaY !== 0 || e.deltaX !== 0) {
+                e.preventDefault();
+                const delta = e.deltaX !== 0 ? e.deltaX : e.deltaY;
+                categoriesBar.scrollLeft += delta;
+            }
+        }, { passive: false });
+    }
 
     // Refresh button
     if (tabRefreshBtn) {
@@ -2431,6 +2603,10 @@ function setupEventListeners() {
     // Theme Toggle
     if (themeToggle) {
         themeToggle.addEventListener('click', toggleTheme);
+    }
+    const headerThemeBtn = document.getElementById('header-theme-btn');
+    if (headerThemeBtn) {
+        headerThemeBtn.addEventListener('click', toggleTheme);
     }
 
     // Playlist Delete Toggle
@@ -3171,9 +3347,23 @@ function switchView(target) {
         tab.classList.toggle('active', tab.dataset.tab === target);
     });
     Object.keys(views).forEach(key => {
-        if (views[key]) views[key].style.display = key === target ? 'block' : 'none';
+        if (views[key]) {
+            if (key === target) {
+                views[key].style.display = 'block';
+                views[key].classList.add('active-view');
+            } else {
+                views[key].style.display = 'none';
+                views[key].classList.remove('active-view');
+            }
+        }
     });
+    if (target === 'playlist') {
+        renderPlaylist();
+    }
     highlightActiveStation();
+    if (window.lucide) {
+        lucide.createIcons();
+    }
 }
 
 // Playback Engine - Instant Super Fast Radio Playback
@@ -3517,6 +3707,16 @@ function setTheme(theme) {
 
     if (themeIcon) {
         themeIcon.setAttribute('data-lucide', theme === 'light' ? 'sun' : 'moon');
+    }
+    const headerThemeIcon = document.getElementById('header-theme-icon');
+    if (headerThemeIcon) {
+        headerThemeIcon.setAttribute('data-lucide', theme === 'light' ? 'sun' : 'moon');
+    }
+    const headerThemeBtn = document.getElementById('header-theme-btn');
+    if (headerThemeBtn) {
+        headerThemeBtn.setAttribute('title', theme === 'light' ? 'Switch to Dark Theme' : 'Switch to Light Theme');
+    }
+    if (window.lucide) {
         lucide.createIcons();
     }
     if (themeLabel) {
