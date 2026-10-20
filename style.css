@@ -2278,7 +2278,7 @@ body.mobile-landscape .quick-controls-menu {
 /* Main Split Deck Container */
 body.mobile-landscape .main-deck-container {
     display: grid !important;
-    grid-template-columns: 46% 54% !important;
+    grid-template-columns: 66% 34% !important;
     gap: 0.65rem !important;
     flex: 1 !important;
     min-height: 0 !important;
@@ -2543,6 +2543,8 @@ body.mobile-landscape .deck-right-col #main-tabs {
     align-items: center !important;
     gap: 0.35rem !important;
     flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    scrollbar-width: none !important;
     padding: 0.2rem 0.35rem !important;
     margin: 0 !important;
     height: 34px !important;
@@ -2553,6 +2555,10 @@ body.mobile-landscape .deck-right-col #main-tabs {
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     backdrop-filter: blur(12px) !important;
     -webkit-backdrop-filter: blur(12px) !important;
+}
+
+body.mobile-landscape .deck-right-col #main-tabs::-webkit-scrollbar {
+    display: none !important;
 }
 
 body.mobile-landscape .deck-right-col .tab-btn {
@@ -2605,6 +2611,7 @@ body.mobile-landscape #playlist-view.active-view {
     display: flex !important;
 }
 
+body.mobile-landscape .content-grid,
 body.mobile-landscape #discovery-grid,
 body.mobile-landscape .content-grid-single {
     display: flex !important;
