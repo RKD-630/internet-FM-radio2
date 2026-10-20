@@ -13,7 +13,7 @@ let currentApiIndex = 0;
 let API_BASE = API_ENDPOINTS[currentApiIndex];
 
 const DEFAULT_LIMIT = 200;
-const DEFAULT_LOGO_DARK = 'rkd_logo.png';
+const DEFAULT_LOGO_DARK = 'rkd_white_logo.png';
 const DEFAULT_LOGO_WHITE = 'rkd_white_logo.png';
 
 function getDefaultLogo() {
