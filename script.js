@@ -2269,6 +2269,7 @@ function updateLandscapeLayout() {
             if (mainTabs) deckRightCol.appendChild(mainTabs);
             if (eqControlsRow) deckRightCol.appendChild(eqControlsRow);
             if (appMain) deckRightCol.appendChild(appMain);
+            setTimeout(() => scrollStationInLandscape('down'), 120);
         }
     } else {
         isLandscapeDeckActive = false;
@@ -2309,6 +2310,37 @@ function updateLandscapeLayout() {
     if (window.lucide) {
         lucide.createIcons();
     }
+}
+
+// In landscape mode: smooth scroll station list down (Next) or up (Previous)
+function scrollStationInLandscape(direction = 'down') {
+    if (!isMobileLandscapeMode() && !document.body.classList.contains('mobile-landscape')) return;
+
+    requestAnimationFrame(() => {
+        const isPlaylist = currentSource === 'playlist';
+        const container = isPlaylist
+            ? document.getElementById('full-playlist-list')
+            : document.getElementById('stations-grid');
+        if (!container) return;
+
+        let activeItem = container.querySelector('.station-item.active');
+        if (!activeItem && currentStationIndex >= 0) {
+            activeItem = container.querySelector(`[data-index="${currentStationIndex}"]`);
+        }
+        if (!activeItem) return;
+
+        const containerRect = container.getBoundingClientRect();
+        const itemRect = activeItem.getBoundingClientRect();
+        const currentScroll = container.scrollTop;
+
+        // Center active station vertically in the right-column list container
+        const targetScrollTop = currentScroll + (itemRect.top - containerRect.top) - (container.clientHeight / 2) + (itemRect.height / 2);
+
+        container.scrollTo({
+            top: Math.max(0, targetScrollTop),
+            behavior: 'smooth'
+        });
+    });
 }
 
 window.addEventListener('resize', updateLandscapeLayout);
@@ -3367,6 +3399,9 @@ function switchView(target) {
     if (window.lucide) {
         lucide.createIcons();
     }
+    if (isMobileLandscapeMode() || document.body.classList.contains('mobile-landscape')) {
+        setTimeout(() => scrollStationInLandscape('down'), 80);
+    }
 }
 
 // Playback Engine - Instant Super Fast Radio Playback
@@ -3620,6 +3655,7 @@ function playNext() {
     if (list.length === 0) return;
     currentStationIndex = (currentStationIndex + 1) % list.length;
     playStation(currentStationIndex, currentSource);
+    scrollStationInLandscape('down');
 }
 
 function playPrevious() {
@@ -3627,6 +3663,7 @@ function playPrevious() {
     if (list.length === 0) return;
     currentStationIndex = (currentStationIndex - 1 + list.length) % list.length;
     playStation(currentStationIndex, currentSource);
+    scrollStationInLandscape('up');
 }
 
 // Volume Controls
@@ -3871,6 +3908,7 @@ function playSmartScanStation() {
     if (!isSmartScanning || currentStations.length === 0) return;
     currentStationIndex = (currentStationIndex + 1) % currentStations.length;
     playStation(currentStationIndex, 'search');
+    scrollStationInLandscape('down');
     const delayMs = (autoScanDuration || 7) * 1000;
     clearTimeout(smartScanTimeout);
     smartScanTimeout = setTimeout(() => playSmartScanStation(), delayMs);

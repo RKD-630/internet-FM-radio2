@@ -2641,6 +2641,8 @@ body.mobile-landscape .desktop-playlist {
 /* Stations Grid / List */
 body.mobile-landscape #stations-grid,
 body.mobile-landscape #full-playlist-list {
+    position: relative !important;
+    scroll-behavior: smooth !important;
     flex: 1 !important;
     min-height: 0 !important;
     height: 100% !important;
