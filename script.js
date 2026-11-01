@@ -120,6 +120,42 @@ const CUSTOM_SINGER_STATIONS = [
         country: 'India',
         tags: 'singer, 70s, retro, bollywood, classic, oldies',
         lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-kumar-sanu-radio',
+        name: 'Kumar Sanu Radio',
+        url_resolved: 'https://stream.zeno.fm/shxt7qxapy8uv',
+        favicon: 'https://vividhbharati.in/uploads/kumar-sanu-songs.jpg',
+        country: 'India',
+        tags: 'singer, kumar sanu, kimar sanu, 90s, hindi, bollywood, romantic, hits',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-mohammed-aziz-radio',
+        name: 'Mohammed Aziz Radio',
+        url_resolved: 'https://stream.zeno.fm/p5ny63td1d0uv',
+        favicon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ66MM3RZ5xdPsuBvPado92t7nUnihr81Pnu9AbonIGDg&s',
+        country: 'India',
+        tags: 'singer, mohammed aziz, mohanned aziz, aziz, 80s, 90s, hindi, classics, retro',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-bollywood-sad-songs',
+        name: 'Bollywood Sad Songs',
+        url_resolved: 'https://stream.zeno.fm/yvqymrxdxi7vv',
+        favicon: 'https://indiaradio.in/images/stations/1782725236_bollywood-sad-songs-live-radio.webp',
+        country: 'India',
+        tags: 'singer, bollywood, sad songs, hindi, melodies, emotional',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-shreya-ghoshal-radio',
+        name: 'Shreya Ghoshal Radio',
+        url_resolved: 'https://drive.uber.radio/uber/bollywoodshreyaghosal/icecast.audio',
+        favicon: 'https://radiosindia.com/images/shreyaghosal.jpg',
+        country: 'India',
+        tags: 'singer, shreya ghoshal, shreyaghosal, hindi, romantic, bollywood, melodies',
+        lastcheckok: 1
     }
 ];
 
@@ -1882,6 +1918,15 @@ const DEFAULT_PLAYLIST = [
         lastcheckok: 1
     },
     {
+        stationuuid: 'e928bf7b-7de2-4447-87ec-369d1be1b9f5',
+        name: 'BOLLYWOOD GAANE PURANE',
+        url_resolved: 'https://stream.zeno.fm/6n6ewddtad0uv',
+        favicon: 'https://mytuner.global.ssl.fastly.net/media/tvos_radios/ppqbgfej6skx.jpeg',
+        country: 'India',
+        tags: 'retro, oldies, bollywood gaane purane, hindi',
+        lastcheckok: 1
+    },
+    {
         stationuuid: 'custom-bhakti-world-hanuman',
         name: 'BHAKTI WORLD - HANUMAN',
         url_resolved: 'http://2bhanuman.out.airtime.pro:8000/2bhanuman_a',
@@ -1906,6 +1951,15 @@ const DEFAULT_PLAYLIST = [
         favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bhakthisudha-hindi.jpg',
         country: 'India',
         tags: 'bhakti, shiva, sangam, spiritual',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: '354a6477-586d-42f9-9d17-b89631882f0c',
+        name: 'RADIO GAANA',
+        url_resolved: 'https://sp14.instainternet.com/8044/stream',
+        favicon: 'https://radiohotstar.com/logo2.png',
+        country: 'India',
+        tags: 'hindi, bollywood, music, gaana, hits',
         lastcheckok: 1
     },
     {
@@ -2017,15 +2071,6 @@ const DEFAULT_PLAYLIST = [
         lastcheckok: 1
     },
     {
-        stationuuid: 'e928bf7b-7de2-4447-87ec-369d1be1b9f5',
-        name: 'BOLLYWOOD GAANE PURANE',
-        url_resolved: 'https://stream.zeno.fm/6n6ewddtad0uv',
-        favicon: 'https://mytuner.global.ssl.fastly.net/media/tvos_radios/ppqbgfej6skx.jpeg',
-        country: 'India',
-        tags: 'retro, oldies, bollywood gaane purane, hindi',
-        lastcheckok: 1
-    },
-    {
         stationuuid: 'custom-air-fm-gold-kolkata',
         name: 'AIR FM GOLD KOLKATA',
         url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio057/hlspbaudio05764kbps.m3u8',
@@ -2108,7 +2153,7 @@ function getInitialPlaylist() {
         saved = null;
     }
 
-    const hasSyncedDefault = localStorage.getItem('fm_playlist_v3_synced');
+    const hasSyncedDefault = localStorage.getItem('fm_playlist_v4_top_order_synced');
     if (!hasSyncedDefault || !Array.isArray(saved) || saved.length === 0) {
         const existingList = Array.isArray(saved) ? saved : [];
         const extraStations = existingList.filter(s => 
@@ -2116,7 +2161,7 @@ function getInitialPlaylist() {
         );
         const merged = [...DEFAULT_PLAYLIST, ...extraStations];
         localStorage.setItem('fm_playlist', JSON.stringify(merged));
-        localStorage.setItem('fm_playlist_v3_synced', 'true');
+        localStorage.setItem('fm_playlist_v4_top_order_synced', 'true');
         return merged;
     }
 
@@ -2331,7 +2376,6 @@ const playlistCountBadge = document.getElementById('playlist-count-badge');
 const quickFavCount = document.getElementById('quick-fav-count');
 
 const sleepTimerSelect = document.getElementById('sleep-timer-select');
-const headerFontSizeSelect = document.getElementById('header-font-size-select');
 const fontSizeSelect = document.getElementById('font-size-select');
 const sleepTimerMenu = document.getElementById('sleep-timer-menu');
 const timerBadge = document.getElementById('timer-badge');
@@ -2719,12 +2763,14 @@ function setupEventListeners() {
 
     // Categories Selection (prevents accidental clicks while dragging)
     catButtons.forEach(btn => {
+        if (btn.id === 'regional-dropdown-btn') return;
         btn.addEventListener('click', (e) => {
             if (isCategoryDragging || hasDraggedCategory) {
                 e.preventDefault();
                 e.stopImmediatePropagation();
                 return;
             }
+            resetRegionalDropdownUI();
             const tag = btn.dataset.tag;
             const country = currentMode === 'India' ? 'India' : '';
             fetchStations('', country, tag, true);
@@ -2732,6 +2778,8 @@ function setupEventListeners() {
             switchView('discovery');
         });
     });
+
+    setupRegionalCategoryDropdown();
 
     if (categoriesBar) {
         // Mouse Drag
@@ -3187,10 +3235,141 @@ function attachUserInteractionAutoResume() {
 
 // Fetch Stations
 
+// Top Featured India Stations explicitly prioritized at the top of the India category list
+const TOP_INDIA_FEATURED_STATIONS = [
+    {
+        stationuuid: '8a76a0d5-8d10-400a-b6eb-a7725646d314',
+        name: 'MY CLUB REMIX',
+        url_resolved: 'http://stream.zeno.fm/u7eee0hyzp8uv',
+        favicon: 'http://zeno.fm/favicon.ico',
+        country: 'India',
+        tags: 'dj remix, club remix, dance, party',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-classic-radio-bhakti-sangeet',
+        name: 'CLASSIC RADIO BHAKTI SANGEET',
+        url_resolved: 'http://ibadat.out.airtime.pro:8000/ibadat_a',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bhakthisudha-hindi.jpg',
+        country: 'India',
+        tags: 'classic radio bhakti sangeet, bhakti, sangeet, devotional, bhajan, classic',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'e928bf7b-7de2-4447-87ec-369d1be1b9f5',
+        name: 'BOLLYWOOD GAANE PURANE',
+        url_resolved: 'https://stream.zeno.fm/6n6ewddtad0uv',
+        favicon: 'https://mytuner.global.ssl.fastly.net/media/tvos_radios/ppqbgfej6skx.jpeg',
+        country: 'India',
+        tags: 'retro, oldies, bollywood gaane purane, hindi',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-bhakti-world-hanuman',
+        name: 'BHAKTI WORLD - HANUMAN',
+        url_resolved: 'http://2bhanuman.out.airtime.pro:8000/2bhanuman_a',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bhakthisudha-hindi.jpg',
+        country: 'India',
+        tags: 'bhakti, hanuman, devotional, hindi',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-bhakti-world-krishna',
+        name: 'BHAKTI WORLD - KRISHNA',
+        url_resolved: 'http://millenniumhits.out.airtime.pro:8000/millenniumhits_a',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bhakthisudha-hindi.jpg',
+        country: 'India',
+        tags: 'bhakti, krishna, sangeet, hindi',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-2b-radio-sangam-shiva',
+        name: '2B! RADIO SANGAM SHIVA',
+        url_resolved: 'http://hot.out.airtime.pro:8000/hot_a',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/06/bhakthisudha-hindi.jpg',
+        country: 'India',
+        tags: 'bhakti, shiva, sangam, spiritual',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: '354a6477-586d-42f9-9d17-b89631882f0c',
+        name: 'RADIO GAANA',
+        url_resolved: 'https://sp14.instainternet.com/8044/stream',
+        favicon: 'https://radiohotstar.com/logo2.png',
+        country: 'India',
+        tags: 'hindi, bollywood, music, gaana, hits',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-gazal-radio-london',
+        name: 'GAZAL RADIO LONDON',
+        url_resolved: 'https://streaming.webhostnepal.com/8018/stream',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/10/gazal-radio-london-uk.png',
+        country: 'India',
+        tags: 'ghazal, gazal, hindi, poetry, classic',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: '333d99b7-cbe5-4555-b372-eef02f1658f0',
+        name: 'Rocker Radio Geetmala',
+        url_resolved: 'https://stream.zeno.fm/du9443htcfhvv',
+        favicon: 'https://zeno.fm/static/icons/apple-icon-120x120.png',
+        country: 'India',
+        tags: 'geetmala, retro, hindi, bollywood',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'custom-vividh-bharati',
+        name: 'VIVIDH BHARATI AIR',
+        url_resolved: 'https://air.pc.cdn.bitgravity.com/air/live/pbaudio001/playlist.m3u8',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/02/vividh-bharati.jpg',
+        country: 'India',
+        tags: 'hindi, vividh bharati, air, bollywood, oldies',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: 'f93276cc-5c5d-4000-8587-2b7a3b89ec9c',
+        name: 'INDIANLINKRADIO',
+        url_resolved: 'https://indianlink1.radioca.st/;',
+        favicon: 'https://radiosindia.com/images/indianlinkradio.jpg',
+        country: 'India',
+        tags: 'indianlink, hindi, radio',
+        lastcheckok: 1
+    },
+    {
+        stationuuid: '5b7687b7-7bef-40ac-b854-81a89c011610',
+        name: 'DIVERSE FM',
+        url_resolved: 'https://carol.epichosts.co.uk:8570/;',
+        favicon: 'https://onlineradiohub.com/wp-content/uploads/2023/05/diverse-fm-hindi.jpg',
+        country: 'India',
+        tags: 'hindi, radio, music, diverse fm',
+        lastcheckok: 1
+    }
+];
+
+function getIndiaTopPriorityRank(station) {
+    if (!station || !station.name) return -1;
+    const n = station.name.trim().toLowerCase();
+    for (let i = 0; i < TOP_INDIA_FEATURED_STATIONS.length; i++) {
+        const target = TOP_INDIA_FEATURED_STATIONS[i].name.toLowerCase();
+        if (n === target || n.replace(/\s+/g, '') === target.replace(/\s+/g, '')) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 // Language series helper for India category:
-// 1. Hindi, 2. Bhakti, 3. News, 4. Bangla, 5. Bhojpuri, 6. Punjabi, 7. Tamil, 8. Telugu, 9. Other Languages
+// Top: User-specified 12 stations, followed by 1. Hindi, 2. Bhakti, 3. News, 4. Bangla, 5. Bhojpuri, 6. Punjabi, 7. Tamil, 8. Telugu, 9. Other Languages
 function getIndiaSeriesRank(station) {
     if (!station) return 99;
+
+    // Explicit top priority for the 12 featured India stations requested by user
+    const topIdx = getIndiaTopPriorityRank(station);
+    if (topIdx !== -1) {
+        return -100 + topIdx; // -100 to -89 ensures they are strictly in positions 0..11
+    }
+
     const name = (station.name || '').toLowerCase();
     const tags = (station.tags || '').toLowerCase();
 
@@ -3237,7 +3416,25 @@ function getIndiaSeriesRank(station) {
 }
 
 function organizeIndiaStationsBySeries(stations) {
-    return [...stations].sort((a, b) => getIndiaSeriesRank(a) - getIndiaSeriesRank(b));
+    // Ensure the top 12 featured stations are present at the beginning
+    const combined = [...TOP_INDIA_FEATURED_STATIONS, ...stations];
+    const seenUuids = new Set();
+    const seenNames = new Set();
+    const deduped = [];
+
+    for (const s of combined) {
+        if (!s) continue;
+        const normName = (s.name || '').trim().toLowerCase();
+        const uuid = s.stationuuid;
+        if (seenNames.has(normName) || (uuid && seenUuids.has(uuid))) {
+            continue;
+        }
+        seenNames.add(normName);
+        if (uuid) seenUuids.add(uuid);
+        deduped.push(s);
+    }
+
+    return deduped.sort((a, b) => getIndiaSeriesRank(a) - getIndiaSeriesRank(b));
 }
 
 async function fetchStations(query = '', country = '', tag = '', autoPlay = false) {
@@ -3290,13 +3487,24 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
         } else if (lowerTag === 'other' || lowerTag.includes('other laguage') || lowerTag.includes('other language') || lowerTag === 'other languages') {
             const resp = await fetch(`${API_BASE}/stations/search?country=India&limit=60&order=clickcount&reverse=true&hidebroken=true`).then(r => r.json()).catch(() => []);
             currentStations = [...CUSTOM_OTHER_LANGUAGES_STATIONS, ...resp];
+        } else if (lowerTag === 'regional' || lowerQuery.includes('regional')) {
+            const resp = await fetch(`${API_BASE}/stations/search?country=India&limit=60&order=clickcount&reverse=true&hidebroken=true`).then(r => r.json()).catch(() => []);
+            currentStations = [
+                ...CUSTOM_TAMIL_STATIONS,
+                ...CUSTOM_TELUGU_STATIONS,
+                ...CUSTOM_OTHER_LANGUAGES_STATIONS,
+                ...CUSTOM_BANGLA_STATIONS,
+                ...CUSTOM_BHOJPURI_STATIONS,
+                ...CUSTOM_PUNJABI_STATIONS,
+                ...resp
+            ];
         } else if (lowerTag === 'bollywood' || lowerQuery.includes('bollywood')) {
             const resp = await fetch(url).then(r => r.json()).catch(() => []);
             currentStations = [...CUSTOM_HINDI_STATIONS, ...resp];
         } else if (lowerTag === 'dj remix' || lowerTag === 'remix' || lowerQuery.includes('remix') || lowerQuery.includes('dj')) {
             const resp = await fetch(url).then(r => r.json()).catch(() => []);
             currentStations = [...CUSTOM_DJ_REMIX_STATIONS, ...resp];
-        } else if (lowerTag === 'singer' || lowerQuery.includes('singer')) {
+        } else if (lowerTag === 'singer' || lowerQuery.includes('singer') || lowerQuery.includes('sanu') || lowerQuery.includes('aziz') || lowerQuery.includes('shreya') || lowerQuery.includes('sad songs')) {
             const resp = await fetch(url).then(r => r.json()).catch(() => []);
             currentStations = [...CUSTOM_SINGER_STATIONS, ...resp];
         } else if (lowerTag === 'classic' || lowerTag === 'old' || lowerTag === 'retro' || lowerQuery.includes('classic') || lowerQuery.includes('old') || lowerQuery.includes('retro')) {
@@ -3368,6 +3576,7 @@ async function fetchStations(query = '', country = '', tag = '', autoPlay = fals
                 // Stations strictly in the requested series:
                 // 1. Hindi, 2. Bhakti, 3. News, 4. Bangla, 5. Bhojpuri, 6. Punjabi, 7. Tamil, 8. Telugu, 9. Other Languages / Other
                 const indiaSeriesCustom = [
+                    ...TOP_INDIA_FEATURED_STATIONS,
                     ...CUSTOM_HINDI_STATIONS,
                     ...CUSTOM_BHAKTI_STATIONS,
                     ...CUSTOM_NEWS_STATIONS,
@@ -4083,9 +4292,119 @@ function removeFromPlaylist(index) {
 }
 
 function updateActiveCat(label) {
-    catButtons.forEach(btn => {
-        btn.classList.toggle('active', btn.textContent.trim().toUpperCase() === label.trim().toUpperCase());
+    const regionalNames = ['AIR', 'TAMIL', 'TELUGU', 'REGIONAL', 'OTHER LANGUAGES', 'OTHER'];
+    const norm = (label || '').trim().toUpperCase();
+    const isRegional = regionalNames.some(rn => norm === rn || norm === `REGIONAL: ${rn}`);
+
+    if (isRegional) {
+        catButtons.forEach(btn => {
+            if (btn.id !== 'regional-dropdown-btn') btn.classList.remove('active');
+        });
+        const toggleBtn = document.getElementById('regional-dropdown-btn');
+        const labelEl = document.getElementById('regional-dropdown-label');
+        if (toggleBtn) toggleBtn.classList.add('active');
+        if (labelEl) labelEl.textContent = norm.startsWith('REGIONAL:') ? norm : `REGIONAL: ${norm}`;
+    } else {
+        const toggleBtn = document.getElementById('regional-dropdown-btn');
+        const labelEl = document.getElementById('regional-dropdown-label');
+        if (toggleBtn) toggleBtn.classList.remove('active');
+        if (labelEl) labelEl.textContent = 'REGIONAL LANGUAGES';
+        catButtons.forEach(btn => {
+            if (btn.id !== 'regional-dropdown-btn') {
+                btn.classList.toggle('active', btn.textContent.trim().toUpperCase() === norm);
+            }
+        });
+    }
+}
+
+function setupRegionalCategoryDropdown() {
+    const dropdownWrap = document.getElementById('regional-cat-dropdown');
+    const toggleBtn = document.getElementById('regional-dropdown-btn');
+    const menu = document.getElementById('regional-dropdown-menu');
+    const labelEl = document.getElementById('regional-dropdown-label');
+    const items = document.querySelectorAll('.cat-dropdown-item');
+
+    if (!toggleBtn || !menu) return;
+
+    function openMenu() {
+        const rect = toggleBtn.getBoundingClientRect();
+        menu.style.display = 'flex';
+        menu.style.position = 'fixed';
+        menu.style.top = `${rect.bottom + 6}px`;
+        const left = Math.max(10, Math.min(window.innerWidth - 220, rect.left));
+        menu.style.left = `${left}px`;
+        toggleBtn.setAttribute('aria-expanded', 'true');
+        if (window.lucide) lucide.createIcons();
+    }
+
+    function closeMenu() {
+        menu.style.display = 'none';
+        toggleBtn.setAttribute('aria-expanded', 'false');
+    }
+
+    toggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (isCategoryDragging) return;
+        const isOpen = menu.style.display !== 'none';
+        if (isOpen) {
+            closeMenu();
+        } else {
+            openMenu();
+        }
     });
+
+    items.forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const tag = item.dataset.tag;
+            const itemLabel = item.dataset.label || item.textContent.trim();
+            const country = currentMode === 'India' ? 'India' : '';
+
+            // Deactivate all standard category buttons
+            catButtons.forEach(b => {
+                if (b.id !== 'regional-dropdown-btn') b.classList.remove('active');
+            });
+
+            // Mark regional toggle as active with selected label
+            toggleBtn.classList.add('active');
+            if (labelEl) labelEl.textContent = `REGIONAL: ${itemLabel}`;
+
+            // Mark this item as active in dropdown
+            items.forEach(it => it.classList.toggle('active', it === item));
+
+            closeMenu();
+            fetchStations('', country, tag, true);
+            switchView('discovery');
+        });
+    });
+
+    // Close on outside click
+    document.addEventListener('click', (e) => {
+        if (dropdownWrap && !dropdownWrap.contains(e.target) && menu && !menu.contains(e.target)) {
+            closeMenu();
+        }
+    });
+
+    // Close on window scroll or resize
+    window.addEventListener('resize', closeMenu);
+    if (categoriesBar) {
+        categoriesBar.addEventListener('scroll', closeMenu);
+    }
+}
+
+function resetRegionalDropdownUI() {
+    const toggleBtn = document.getElementById('regional-dropdown-btn');
+    const labelEl = document.getElementById('regional-dropdown-label');
+    const menu = document.getElementById('regional-dropdown-menu');
+    const items = document.querySelectorAll('.cat-dropdown-item');
+
+    if (toggleBtn) {
+        toggleBtn.classList.remove('active');
+        toggleBtn.setAttribute('aria-expanded', 'false');
+    }
+    if (labelEl) labelEl.textContent = 'REGIONAL LANGUAGES';
+    if (menu) menu.style.display = 'none';
+    if (items) items.forEach(it => it.classList.remove('active'));
 }
 
 // Theme

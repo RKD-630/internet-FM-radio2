@@ -53,16 +53,6 @@
 
 
             <div class="header-controls">
-                <!-- Font Size Selector Option in Header Controls (Hidden as requested) -->
-                <div class="header-font-control" style="display: none;" title="Application Font Size (Normal / Min / Min- / Minext)">
-                    <i data-lucide="type" class="header-font-icon"></i>
-                    <select id="header-font-size-select" class="header-font-select font-size-select" title="Application Font Size: Normal / Min / Min- / Minext" aria-label="Change Application Font Size">
-                        <option value="normal" selected>Normal</option>
-                        <option value="min">Min</option>
-                        <option value="min-">Min-</option>
-                        <option value="minext">Minext</option>
-                    </select>
-                </div>
 
                 <!-- Theme Toggle Button in Header (shown after search button) -->
                 <button id="header-theme-btn" class="icon-btn theme-header-btn" title="Toggle Light / Dark Theme" aria-label="Toggle Theme">
@@ -157,6 +147,7 @@
                                 <option value="25">25 Sec</option>
                             </select>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -288,18 +279,43 @@
                         <button class="cat-btn" data-tag="news">NEWS</button>
                         <button class="cat-btn" data-tag="bangla">BANGLA</button>
                         <button class="cat-btn" data-tag="bhojpuri">BHOJPURI</button>
-                        <button class="cat-btn" data-tag="punjabi">PANJABI</button>
-                        <button class="cat-btn" data-tag="tamil">TAMIL</button>
-                        <button class="cat-btn" data-tag="telugu">TELUGU</button>
-                        <button class="cat-btn" data-tag="other">OTHER LANGUAGES</button>
                         <button class="cat-btn" data-tag="bollywood">BOLLYWOOD</button>
                         <button class="cat-btn" data-tag="classic">CLASSIC</button>
                         <button class="cat-btn" data-tag="dj remix">DJ - REMIX</button>
                         <button class="cat-btn" data-tag="singer">SINGER</button>
                         <button class="cat-btn" data-tag="gazal">GAZAL</button>
                         <button class="cat-btn" data-tag="music">MUSIC</button>
-                        <button class="cat-btn" data-tag="air">AIR</button>
-                        <button class="cat-btn" data-tag="regional">REGIONAL</button>
+                        <button class="cat-btn" data-tag="punjabi">PANJABI</button>
+
+                        <!-- Regional Languages Dropdown -->
+                        <div class="cat-dropdown-wrap" id="regional-cat-dropdown">
+                            <button type="button" class="cat-btn cat-dropdown-toggle" id="regional-dropdown-btn" aria-haspopup="true" aria-expanded="false" title="Regional Languages (AIR, Tamil, Telugu, Regional, Other)">
+                                <span id="regional-dropdown-label">REGIONAL LANGUAGES</span>
+                                <i data-lucide="chevron-down" class="dropdown-chevron-icon"></i>
+                            </button>
+                            <div class="cat-dropdown-menu glass" id="regional-dropdown-menu" style="display: none;">
+                                <button type="button" class="cat-dropdown-item" data-tag="air" data-label="AIR">
+                                    <i data-lucide="radio" style="width: 14px; height: 14px;"></i>
+                                    <span>AIR</span>
+                                </button>
+                                <button type="button" class="cat-dropdown-item" data-tag="tamil" data-label="TAMIL">
+                                    <i data-lucide="music-2" style="width: 14px; height: 14px;"></i>
+                                    <span>TAMIL</span>
+                                </button>
+                                <button type="button" class="cat-dropdown-item" data-tag="telugu" data-label="TELUGU">
+                                    <i data-lucide="music-2" style="width: 14px; height: 14px;"></i>
+                                    <span>TELUGU</span>
+                                </button>
+                                <button type="button" class="cat-dropdown-item" data-tag="regional" data-label="REGIONAL">
+                                    <i data-lucide="globe" style="width: 14px; height: 14px;"></i>
+                                    <span>REGIONAL</span>
+                                </button>
+                                <button type="button" class="cat-dropdown-item" data-tag="other" data-label="OTHER LANGUAGES">
+                                    <i data-lucide="languages" style="width: 14px; height: 14px;"></i>
+                                    <span>OTHER LANGUAGES</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="cat-scroll" id="global-cats" style="display: none;">
@@ -407,9 +423,6 @@
                 </button>
             </div>
         </footer>
-
-        <!-- Toast Notifications Container -->
-        <div id="toast-container" class="toast-container"></div>
 
         <!-- Hidden Audio Element -->
         <audio id="audio-player" autoplay preload="auto" crossorigin="anonymous"></audio>
