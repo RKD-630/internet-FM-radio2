@@ -1033,7 +1033,7 @@ const CUSTOM_NEWS_STATIONS = [
     {
         stationuuid: 'dd-news',
         name: 'DD News',
-        url_resolved: 'https://streams.tangotv.in/DDNEWS/ORIGIN/index.m3u8?channel=ddnews',
+        url_resolved: 'https://cdn-2.pishow.tv/live/12/master.m3u8',
         favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/DD_News_Logo.svg/512px-DD_News_Logo.svg.png',
         country: 'India',
         tags: 'tv, doordarshan, hindi, news',
@@ -1069,7 +1069,7 @@ const CUSTOM_NEWS_STATIONS = [
     {
         stationuuid: 'custom-air-news-247',
         name: 'AIR News 24/7',
-        url_resolved: 'https://streams.tangotv.in/DDNEWS/ORIGIN/index.m3u8?station=air-news-247',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio002/hlspbaudio00264kbps.m3u8',
         favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
         country: 'India',
         tags: 'news, air, 24/7, live news',
@@ -1090,7 +1090,7 @@ const CUSTOM_AIR_STATIONS = [
     {
         stationuuid: 'custom-air-news-247',
         name: 'AIR News 24/7',
-        url_resolved: 'https://streams.tangotv.in/DDNEWS/ORIGIN/index.m3u8?station=air-news-247',
+        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio002/hlspbaudio00264kbps.m3u8',
         favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
         country: 'India',
         tags: 'air, 24/7, live news, national',
@@ -2192,24 +2192,6 @@ function getInitialPlaylist() {
         localStorage.setItem('fm_playlist', JSON.stringify(merged));
         localStorage.setItem('fm_playlist_v4_top_order_synced', 'true');
         return merged;
-    }
-
-    // Auto-migrate broken/legacy URLs for custom stations in saved playlist
-    if (Array.isArray(saved)) {
-        let updated = false;
-        saved = saved.map(s => {
-            if (s && s.stationuuid === 'custom-air-news-247' && (!s.url_resolved || s.url_resolved.includes('airhlspush') || s.url_resolved.includes('bitgravity') || s.url_resolved.includes('smartplaytv'))) {
-                s.url_resolved = 'https://streams.tangotv.in/DDNEWS/ORIGIN/index.m3u8';
-                s.url = 'https://streams.tangotv.in/DDNEWS/ORIGIN/index.m3u8';
-                updated = true;
-            }
-            return s;
-        });
-        if (updated) {
-            try {
-                localStorage.setItem('fm_playlist', JSON.stringify(saved));
-            } catch (e) {}
-        }
     }
 
     return saved;
@@ -4037,14 +4019,6 @@ function playStation(index, source = 'search', element = null) {
 
     currentStationIndex = index;
     updatePlayerUI(station);
-
-    // Auto-fallback/repair broken legacy URL for AIR News 24/7 if encountered
-    if (station && (station.stationuuid === 'custom-air-news-247' || (station.name && station.name.toLowerCase().includes('air news 24/7')))) {
-        if (!station.url_resolved || station.url_resolved.includes('airhlspush') || station.url_resolved.includes('bitgravity') || station.url_resolved.includes('smartplaytv')) {
-            station.url_resolved = 'https://streams.tangotv.in/DDNEWS/ORIGIN/index.m3u8';
-            station.url = 'https://streams.tangotv.in/DDNEWS/ORIGIN/index.m3u8';
-        }
-    }
 
     const streamUrl = station.url_resolved || station.url;
     if (!streamUrl) return;
