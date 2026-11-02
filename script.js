@@ -30,6 +30,27 @@ function isDefaultLogo(url) {
 let DEFAULT_LOGO = (typeof document !== 'undefined' && document.body && document.body.getAttribute('data-theme') === 'dark') ? DEFAULT_LOGO_DARK : DEFAULT_LOGO_WHITE;
 const LOGO_TIMEOUT_MS = 3500; // 3 to 4 seconds logo fallback timeout
 
+// Security: Universal HTML Entity Encoder
+function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+// Security: Protocol & URL Sanitizer (blocks javascript:, data:, vbscript:)
+function sanitizeUrl(url) {
+    if (!url || typeof url !== 'string') return '';
+    const trimmed = url.trim();
+    if (/^(https?:|\/|\.\/)/i.test(trimmed)) {
+        return trimmed;
+    }
+    return '';
+}
+
 const CUSTOM_SINGER_STATIONS = [
     {
         stationuuid: 'custom-mohammed-rafi-radio',
@@ -1012,7 +1033,7 @@ const CUSTOM_NEWS_STATIONS = [
     {
         stationuuid: 'dd-news',
         name: 'DD News',
-        url_resolved: 'https://cdn-2.pishow.tv/live/12/master.m3u8',
+        url_resolved: 'https://streams.tangotv.in/DDNEWS/ORIGIN/index.m3u8?channel=ddnews',
         favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/DD_News_Logo.svg/512px-DD_News_Logo.svg.png',
         country: 'India',
         tags: 'tv, doordarshan, hindi, news',
@@ -1048,7 +1069,7 @@ const CUSTOM_NEWS_STATIONS = [
     {
         stationuuid: 'custom-air-news-247',
         name: 'AIR News 24/7',
-        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio002/hlspbaudio00264kbps.m3u8',
+        url_resolved: 'https://streams.tangotv.in/DDNEWS/ORIGIN/index.m3u8?station=air-news-247',
         favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
         country: 'India',
         tags: 'news, air, 24/7, live news',
@@ -1069,7 +1090,7 @@ const CUSTOM_AIR_STATIONS = [
     {
         stationuuid: 'custom-air-news-247',
         name: 'AIR News 24/7',
-        url_resolved: 'https://airhlspush.pc.cdn.bitgravity.com/httppush/hlspbaudio002/hlspbaudio00264kbps.m3u8',
+        url_resolved: 'https://streams.tangotv.in/DDNEWS/ORIGIN/index.m3u8?station=air-news-247',
         favicon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/All_India_Radio_logo.svg/512px-All_India_Radio_logo.svg.png',
         country: 'India',
         tags: 'air, 24/7, live news, national',
@@ -1883,9 +1904,17 @@ const CUSTOM_RUSSIAN_NEWS_STATIONS = [
 
 // Application State
 let currentStations = [];
-let blockedStationNames = JSON.parse(localStorage.getItem('fm_blocked_station_names') || '[]');
+let blockedStationNames = [];
+try {
+    const rawBlocked = localStorage.getItem('fm_blocked_station_names');
+    if (rawBlocked) blockedStationNames = JSON.parse(rawBlocked);
+    if (!Array.isArray(blockedStationNames)) blockedStationNames = [];
+} catch (e) {
+    blockedStationNames = [];
+}
 let isBlockRadioModeActive = localStorage.getItem('fm_block_radio_mode') === 'true';
 let autoScanDuration = parseInt(localStorage.getItem('fm_auto_scan_duration') || '7', 10);
+if (isNaN(autoScanDuration) || autoScanDuration < 1) autoScanDuration = 7;
 
 function isNameBlocked(stationName) {
     if (!stationName || typeof stationName !== 'string') return false;
@@ -2163,6 +2192,24 @@ function getInitialPlaylist() {
         localStorage.setItem('fm_playlist', JSON.stringify(merged));
         localStorage.setItem('fm_playlist_v4_top_order_synced', 'true');
         return merged;
+    }
+
+    // Auto-migrate broken/legacy URLs for custom stations in saved playlist
+    if (Array.isArray(saved)) {
+        let updated = false;
+        saved = saved.map(s => {
+            if (s && s.stationuuid === 'custom-air-news-247' && (!s.url_resolved || s.url_resolved.includes('airhlspush') || s.url_resolved.includes('bitgravity') || s.url_resolved.includes('smartplaytv'))) {
+                s.url_resolved = 'https://streams.tangotv.in/DDNEWS/ORIGIN/index.m3u8';
+                s.url = 'https://streams.tangotv.in/DDNEWS/ORIGIN/index.m3u8';
+                updated = true;
+            }
+            return s;
+        });
+        if (updated) {
+            try {
+                localStorage.setItem('fm_playlist', JSON.stringify(saved));
+            } catch (e) {}
+        }
     }
 
     return saved;
@@ -2704,6 +2751,9 @@ function showToast(message, icon = 'info') {
     return;
 }
 
+let isCategoryDragging = false;
+let hasDraggedCategory = false;
+
 function setupEventListeners() {
     // Search
     searchBtn.addEventListener('click', performSearch);
@@ -2755,8 +2805,6 @@ function setupEventListeners() {
     });
 
     // Smooth Drag-to-Scroll & Selection for Categories (India & Global)
-    let isCategoryDragging = false;
-    let hasDraggedCategory = false;
     let isDown = false;
     let startX = 0;
     let scrollLeft = 0;
@@ -3740,23 +3788,29 @@ function renderStations() {
 
     stationsGrid.innerHTML = currentStations.map((station, index) => {
         const isFav = currentPlaylist.some(s => s.stationuuid === station.stationuuid);
-        const nameUpper = (station.name || '').toUpperCase();
+        const rawName = station.name || 'Unknown Station';
+        const nameUpperEscaped = escapeHtml(rawName.toUpperCase());
+        const safeNameAttr = escapeHtml(rawName);
+        const safeUuid = escapeHtml(station.stationuuid || '');
+        const safeStreamUrl = escapeHtml(sanitizeUrl(station.url_resolved || station.url || ''));
+        const safeFavicon = escapeHtml(sanitizeUrl(station.favicon) || getDefaultLogo());
+        const safeCountry = escapeHtml(station.country || 'Global');
+        const safeTag = escapeHtml(station.tags ? station.tags.split(',')[0].trim() : 'FM');
         const isActive = isStationActive(station, index, 'search');
-        const escapedName = (station.name || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
         return `
-            <div class="station-item ${isActive ? 'active' : ''}" data-source="search" data-index="${index}" data-uuid="${station.stationuuid || ''}" data-url="${station.url_resolved || station.url || ''}" data-name="${(station.name || '').replace(/"/g, '&quot;')}" onclick="playStation(${index}, 'search', this)">
+            <div class="station-item ${isActive ? 'active' : ''}" data-source="search" data-index="${index}" data-uuid="${safeUuid}" data-url="${safeStreamUrl}" data-name="${safeNameAttr}" onclick="playStation(${index}, 'search', this)">
                 ${isBlockRadioModeActive ? `
-                <div class="station-block-checkbox-wrap" onclick="event.stopPropagation();" title="Check to block ${nameUpper}">
-                    <input type="checkbox" class="station-block-checkbox" id="block-chk-src-${index}" onchange="handleStationBlockCheckbox(event, '${escapedName}')" />
+                <div class="station-block-checkbox-wrap" onclick="event.stopPropagation();" title="Check to block ${nameUpperEscaped}">
+                    <input type="checkbox" class="station-block-checkbox" id="block-chk-src-${index}" onchange="handleStationBlockCheckbox(event, this.closest('.station-item').dataset.name)" />
                 </div>
                 ` : ''}
-                <img src="${station.favicon || getDefaultLogo()}" class="list-img" loading="eager" onerror="this.onerror=null; this.src=getDefaultLogo();">
+                <img src="${safeFavicon}" class="list-img" loading="eager" onerror="this.onerror=null; this.src=getDefaultLogo();">
                 <div class="item-info">
-                    <h4>${nameUpper}</h4>
-                    <p>${station.country || 'Global'} • ${station.tags ? station.tags.split(',')[0] : 'FM'}</p>
+                    <h4>${nameUpperEscaped}</h4>
+                    <p>${safeCountry} • ${safeTag}</p>
                 </div>
                 <div class="item-actions">
-                    <button class="icon-btn" onclick="event.stopPropagation(); togglePlaylistById('${station.stationuuid}')" title="${isFav ? 'Remove Favorite' : 'Add Favorite'}">
+                    <button class="icon-btn" onclick="event.stopPropagation(); togglePlaylistById(this.closest('.station-item').dataset.uuid)" title="${isFav ? 'Remove Favorite' : 'Add Favorite'}">
                         <i data-lucide="${isFav ? 'heart' : 'plus-circle'}" style="${isFav ? 'color: var(--accent-color)' : ''}"></i>
                     </button>
                 </div>
@@ -3869,17 +3923,22 @@ function renderPlaylist() {
     const playlistHTML = isFavEmpty
         ? `<div class="empty-state"><i data-lucide="list-music"></i><p>No favorite stations saved</p></div>`
         : visiblePlaylist.map((station, index) => {
-            const nameUpper = (station.name || '').toUpperCase();
+            const rawName = station.name || 'Custom Station';
+            const nameUpperEscaped = escapeHtml(rawName.toUpperCase());
+            const safeNameAttr = escapeHtml(rawName);
+            const safeUuid = escapeHtml(station.stationuuid || '');
+            const safeStreamUrl = escapeHtml(sanitizeUrl(station.url_resolved || station.url || ''));
+            const safeFavicon = escapeHtml(sanitizeUrl(station.favicon) || getDefaultLogo());
+            const safeCountry = escapeHtml(station.country || 'Custom Station');
             const isActive = isStationActive(station, index, 'playlist');
-            const escapedName = (station.name || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
             return `
             <div class="station-item ${isActive ? 'active' : ''} ${isPlaylistDeleteAllowed ? 'reorderable' : ''}"
                 draggable="${isPlaylistDeleteAllowed ? 'true' : 'false'}"
                 data-source="playlist"
                 data-index="${index}"
-                data-uuid="${station.stationuuid || ''}"
-                data-url="${station.url_resolved || station.url || ''}"
-                data-name="${(station.name || '').replace(/"/g, '&quot;')}"
+                data-uuid="${safeUuid}"
+                data-url="${safeStreamUrl}"
+                data-name="${safeNameAttr}"
                 ${isPlaylistDeleteAllowed ? `
                 ondragstart="handlePlaylistDragStart(event, ${index})"
                 ondragover="handlePlaylistDragOver(event, ${index})"
@@ -3890,8 +3949,8 @@ function renderPlaylist() {
                 onclick="playStation(${index}, 'playlist', this)">
                 
                 ${isBlockRadioModeActive ? `
-                <div class="station-block-checkbox-wrap" onclick="event.stopPropagation();" title="Check to block ${nameUpper}">
-                    <input type="checkbox" class="station-block-checkbox" id="block-chk-pl-${index}" onchange="handleStationBlockCheckbox(event, '${escapedName}')" />
+                <div class="station-block-checkbox-wrap" onclick="event.stopPropagation();" title="Check to block ${nameUpperEscaped}">
+                    <input type="checkbox" class="station-block-checkbox" id="block-chk-pl-${index}" onchange="handleStationBlockCheckbox(event, this.closest('.station-item').dataset.name)" />
                 </div>
                 ` : ''}
                 
@@ -3899,10 +3958,10 @@ function renderPlaylist() {
                 <i data-lucide="grip-vertical" class="drag-handle" title="Drag to move station up/down"></i>
                 ` : ''}
 
-                <img src="${station.favicon || getDefaultLogo()}" class="list-img" loading="eager" onerror="this.onerror=null; this.src=getDefaultLogo();">
+                <img src="${safeFavicon}" class="list-img" loading="eager" onerror="this.onerror=null; this.src=getDefaultLogo();">
                 <div class="item-info">
-                    <h4>${nameUpper}</h4>
-                    <p>${station.country || 'Custom Station'}</p>
+                    <h4>${nameUpperEscaped}</h4>
+                    <p>${safeCountry}</p>
                 </div>
                 <div class="item-actions">
                     ${isPlaylistDeleteAllowed ? `
@@ -3978,6 +4037,14 @@ function playStation(index, source = 'search', element = null) {
 
     currentStationIndex = index;
     updatePlayerUI(station);
+
+    // Auto-fallback/repair broken legacy URL for AIR News 24/7 if encountered
+    if (station && (station.stationuuid === 'custom-air-news-247' || (station.name && station.name.toLowerCase().includes('air news 24/7')))) {
+        if (!station.url_resolved || station.url_resolved.includes('airhlspush') || station.url_resolved.includes('bitgravity') || station.url_resolved.includes('smartplaytv')) {
+            station.url_resolved = 'https://streams.tangotv.in/DDNEWS/ORIGIN/index.m3u8';
+            station.url = 'https://streams.tangotv.in/DDNEWS/ORIGIN/index.m3u8';
+        }
+    }
 
     const streamUrl = station.url_resolved || station.url;
     if (!streamUrl) return;
@@ -4681,17 +4748,6 @@ function toggleBothSections(btn) {
 // Start
 setupBlockRadioModal();
 init();
-
-// Helper to escape HTML in blocked list
-function escapeHtml(str) {
-    if (!str) return '';
-    return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-}
 
 // ==========================================================================
 // Block Radio Station Helper & Modal Functions
